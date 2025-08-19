@@ -132,9 +132,3 @@ Tu peux également utiliser les fichiers JSON de `/seed/` pour recréer la base.
 
 - Développé dans le cadre d'un projet fullstack personnel
 - Icônes, visuels et images libres ou hébergés
-
----
-
-## 📬 Contact
-
-Ce projet est open-source et peut être utilisé à des fins pédagogiques ou comme démonstration pour un portfolio.
