@@ -1,26 +1,20 @@
-// File: frontend/src/utils/upload.js
+// File: src/utils/upload.js
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
-import { storage } from "../Firebase/firebase"; // importe l'instance firebase initialisée
+import { storage } from "../Firebase/firebase.js"; // <— veille à la casse et au chemin
 
 export function uploadImage(file) {
     return new Promise((resolve, reject) => {
         const storageRef = ref(storage, `images/${file.name}-${Date.now()}`);
-        const uploadTask = uploadBytesResumable(storageRef, file);
+        const uploadTask = uploadBytesResumable(storageRef, file, { contentType: file.type });
 
-        uploadTask.on('state_changed',
+        uploadTask.on(
+            "state_changed",
             (snapshot) => {
                 const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                console.log('Upload is ' + progress + '% done');
+                console.log(`Upload is ${progress}% done`);
             },
-            (error) => {
-                console.error('Erreur upload:', error);
-                reject(error);
-            },
-            () => {
-                getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-                    resolve(downloadURL);
-                });
-            }
+            (error) => reject(error),
+            async () => resolve(await getDownloadURL(uploadTask.snapshot.ref))
         );
     });
 }

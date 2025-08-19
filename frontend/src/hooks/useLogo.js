@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import axiosInstance from "../services/axiosInstance";
 
-export default function useLogo(defaultUrl = "/logo.svg") {
+export default function useLogo(defaultUrl = "") {
     const [logoUrl, setLogoUrl] = useState(defaultUrl);
 
     useEffect(() => {
