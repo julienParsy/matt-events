@@ -1,3 +1,4 @@
+// app.js
 require('dotenv').config();
 const express = require('express');
 const app = express();
@@ -5,48 +6,81 @@ const helmet = require('helmet');
 const cors = require('cors');
 const fileUpload = require('express-fileupload');
 const compression = require('compression');
-const path = require('path');
 const { UPLOAD_DIR } = require('./config/constants');
 const errorHandler = require('./middleware/errorHandler');
 
+// 0) Contexte proxy (Railway/GCP/Heroku)
+app.set('trust proxy', 1);
 
-
-// 2. Middlewares
-app.use(compression());
-app.use(cors({
-    origin: process.env.CLIENT_URL,
-    credentials: true,
-}));
-app.use(express.json());
-app.use(fileUpload({
-    limits: { fileSize: 5 * 1024 * 1024 }, // 5Mo
-    abortOnLimit: true,
-    safeFileNames: true,
-    preserveExtension: true,
-}));
-
-// 3. Fichiers statiques
-app.use('/uploads', express.static(UPLOAD_DIR));
-
-// Sécurité des en-têtes HTTP
+// 1) Sécurité HTTP (headers)
 app.use(helmet({
+    crossOriginResourcePolicy: false, // autorise le rendu d'images cross-origin
     contentSecurityPolicy: {
         useDefaults: true,
         directives: {
-            "img-src": ["'self'", "data:", "blob:", "https:",
+            // autoriser les images venant de Firebase/GCS, data:, blob:
+            "img-src": [
+                "'self'",
+                "data:",
+                "blob:",
+                "https:",
                 "https://firebasestorage.googleapis.com",
                 "https://*.firebasestorage.app",
-                "https://storage.googleapis.com"
+                "https://storage.googleapis.com",
             ],
         },
     },
 }));
 app.disable('x-powered-by');
 
-// 4. Routes
+// 2) Compression & parsers
+app.use(compression());
+app.use(express.json({ limit: '2mb' }));
+app.use(express.urlencoded({ extended: true, limit: '2mb' }));
+
+// 3) CORS — plusieurs origines (CSV dans CORS_ORIGINS) + support wildcard *.vercel.app
+const rawOrigins = (process.env.CORS_ORIGINS || process.env.CLIENT_URL || '')
+    .split(',')
+    .map(s => s.trim())
+    .filter(Boolean); // ex: "http://localhost:5173,https://mon-site.vercel.app,https://ton-domaine.fr"
+
+function isOriginAllowed(origin) {
+    if (!origin) return true; // Postman/curl
+    return rawOrigins.some(allowed => {
+        if (allowed === origin) return true;
+        // support "*.vercel.app"
+        if (allowed.startsWith('*.') && origin.endsWith(allowed.slice(1))) return true;
+        return false;
+    });
+}
+
+app.use(cors({
+    origin(origin, cb) {
+        if (isOriginAllowed(origin)) return cb(null, true);
+        return cb(new Error(`Origin not allowed by CORS: ${origin}`));
+    },
+    credentials: true,
+    optionsSuccessStatus: 204,
+}));
+
+// 4) Uploads
+app.use(fileUpload({
+    limits: { fileSize: 5 * 1024 * 1024 }, // 5 Mo
+    abortOnLimit: true,
+    safeFileNames: true,
+    preserveExtension: true,
+}));
+
+// 5) Fichiers statiques
+app.use('/uploads', express.static(UPLOAD_DIR, { maxAge: '1d', immutable: true }));
+
+// 6) Healthcheck (Railway)
+app.get('/health', (_req, res) => res.send('ok'));
+
+// 7) Routes
 const pdfRoutes = require('./routes/pdfRoutes');
 const authRoutes = require('./routes/authRoutes');
-const adminRoutes = require('./routes/adminRoutes')
+const adminRoutes = require('./routes/adminRoutes');
 const productRoutes = require('./routes/productsRoutes');
 const categoriesRoutes = require('./routes/categoryRoutes');
 const packRoutes = require('./routes/packRoutes');
@@ -62,7 +96,7 @@ app.use('/api/packs', packRoutes);
 app.use('/api', contactRoutes);
 app.use('/api/pages', pageRoutes);
 
-// 5. Gestion des erreurs
+// 8) Gestion des erreurs (toujours en dernier)
 app.use(errorHandler);
 
 module.exports = app;

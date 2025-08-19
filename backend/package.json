@@ -5,6 +5,7 @@
   "main": "db.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "echo \"(rien à build pour l'API)\"",
     "start": "node server.js"
   },
   "keywords": [],
