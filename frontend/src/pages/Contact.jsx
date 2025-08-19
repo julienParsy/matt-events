@@ -1,5 +1,6 @@
-// src/pages/Contact.jsx
-import React, { useState } from "react";
+// src/pages/Contact.jsx+
+import React, { useState, useRef } from "react";
+import ReCAPTCHA from "react-google-recaptcha";
 import styles from "../styles/pages/Contact.module.css";
 import stylesBtn from "../styles/components/Button.module.css";
 import http from "../services/axiosInstance";
@@ -13,6 +14,8 @@ export default function Contact() {
     const [sent, setSent] = useState(false);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
+    const [captchaToken, setCaptchaToken] = useState("");
+    const recaptchaRef = useRef(null);
 
 
     function handleChange(e) {
@@ -25,8 +28,12 @@ export default function Contact() {
         setError("");
         try {
             await http.post("/contact", form);
+            if (!captchaToken) { setError("Merci de valider le captcha"); setLoading(false); return; }
+            await http.post("/contact", { ...form, recaptchaToken: captchaToken });
             setSent(true);
             setForm({ nom: "", email: "", message: "" });
+            setCaptchaToken("");
+            recaptchaRef.current?.reset();
         } catch {
             setError("Erreur lors de l'envoi du message. Merci de réessayer !");
             setSent(false);
@@ -34,7 +41,7 @@ export default function Contact() {
             setLoading(false);
         }
     }
-    
+
 
     return (
         <section className={styles.contactSection}>
@@ -85,11 +92,17 @@ export default function Contact() {
                             maxLength={1500}
                         />
                     </label>
-                        <button className={`${stylesBtn.button} ${stylesBtn.btnConnexion}`} type="submit">
+                    <ReCAPTCHA
+                        ref={recaptchaRef}
+                        sitekey={import.meta.env.VITE_RECAPTCHA_SITE_KEY}
+                        onChange={setCaptchaToken}
+                    />
+                    <button className={`${stylesBtn.button} ${stylesBtn.btnConnexion}`} type="submit" disabled={loading}>
+
                         Envoyer
-                        </button>
-                        {error && <div className={styles.error}>{error}</div>}
-                        {loading && <div className={styles.loading}>Envoi en cours…</div>}
+                    </button>
+                    {error && <div className={styles.error}>{error}</div>}
+                    {loading && <div className={styles.loading}>Envoi en cours…</div>}
 
                 </form>
             )}

@@ -14,11 +14,37 @@ app.set('trust proxy', 1);
 
 // 1) Sécurité HTTP (headers)
 app.use(helmet({
-    crossOriginResourcePolicy: false, // autorise le rendu d'images cross-origin
+    crossOriginResourcePolicy: false,
     contentSecurityPolicy: {
         useDefaults: true,
         directives: {
-            // autoriser les images venant de Firebase/GCS, data:, blob:
+            // scripts/ifames/connexions nécessaires à reCAPTCHA v2
+            "script-src": [
+                "'self'",
+                "'unsafe-inline'",          // reCAPTCHA injecte un peu d'inline
+                "https://www.google.com",
+                "https://www.gstatic.com",
+                "https://www.recaptcha.net",
+            ],
+            "frame-src": [
+                "'self'",
+                "https://www.google.com",
+                "https://www.recaptcha.net",
+            ],
+            "connect-src": [
+                "'self'",
+                "https://www.google.com",
+                "https://www.gstatic.com",
+                "https://www.recaptcha.net",
+            ],
+            // styles/images (tu avais déjà l'img-src Firebase)
+            "style-src": [
+                "'self'",
+                "'unsafe-inline'",          // requis par le widget
+                "https:",
+                "https://www.google.com",
+                "https://www.gstatic.com",
+            ],
             "img-src": [
                 "'self'",
                 "data:",
@@ -27,10 +53,19 @@ app.use(helmet({
                 "https://firebasestorage.googleapis.com",
                 "https://*.firebasestorage.app",
                 "https://storage.googleapis.com",
+                "https://www.google.com",
+                "https://www.gstatic.com",
+            ],
+            "font-src": [
+                "'self'",
+                "data:",
+                "https://fonts.gstatic.com",
+                "https://www.gstatic.com",
             ],
         },
     },
 }));
+
 app.disable('x-powered-by');
 
 // 2) Compression & parsers
