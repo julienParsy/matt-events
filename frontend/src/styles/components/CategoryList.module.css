@@ -27,13 +27,128 @@ margin: 1.5rem 1.5rem;
 
 }
 
+/* ---- Barre de recherche + tri ---- */
 .search {
     display: flex;
-    justify-content: center;
     align-items: center;
-    margin-top: 1rem;
-    margin-bottom: 1rem;
-    gap: 2rem;
+    justify-content: center;
+    gap: clamp(0.75rem, 2vw, 2rem);
+    margin: 1rem 0;
+    flex-wrap: wrap;
+    /* passe sur plusieurs lignes si besoin */
+}
+
+/* conteneur optionnel pour forcer la largeur en responsive */
+.searchItem {
+    flex: 0 1 auto;
+    /* largeur contenue par défaut */
+    min-width: 220px;
+    /* évite les champs trop petits en tablette */
+}
+
+/* Select de tri */
+.sortSelect {
+    padding: 0.55rem 1rem;
+    border-radius: 8px;
+    font-size: clamp(0.95rem, 0.3vw + 0.9rem, 1rem);
+    border: 1.5px solid var(--color-shadow);
+    background: var(--color-bg);
+    color: var(--color-text);
+    transition: border-color 0.2s, box-shadow 0.2s;
+    outline: none;
+    min-height: 44px;
+    /* cible tactile */
+}
+
+/* Champ de recherche */
+.searchInput {
+    padding: 0.55rem 1rem;
+    border-radius: 8px;
+    font-size: clamp(0.95rem, 0.3vw + 0.9rem, 1rem);
+    border: 1.5px solid var(--color-shadow);
+    background: var(--color-bg);
+    color: var(--color-text);
+    transition: border-color 0.2s, box-shadow 0.2s;
+    outline: none;
+    min-height: 44px;
+    /* cible tactile */
+    width: min(520px, 100%);
+    /* ne dépasse pas en desktop, 100% en mobile */
+}
+
+/* Focus et interaction */
+.sortSelect:focus,
+.searchInput:focus,
+.sortSelect:focus-visible,
+.searchInput:focus-visible {
+    border-color: var(--color-secondary);
+    box-shadow: 0 0 0 3px color-mix(in oklab, var(--color-secondary) 25%, transparent);
+}
+
+/* Placeholder */
+.searchInput::placeholder {
+    opacity: 0.8;
+}
+
+/* Petit confort pour type="search" (annule certains styles navigateur) */
+.searchInput[type="search"] {
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+.searchInput::-webkit-search-decoration,
+.searchInput::-webkit-search-cancel-button,
+.searchInput::-webkit-search-results-button,
+.searchInput::-webkit-search-results-decoration {
+    -webkit-appearance: none;
+}
+
+/* ---------- Breakpoints ---------- */
+
+/* Tablette ~ ≤ 900px : on étire un peu */
+@media (max-width: 900px) {
+    .search {
+        justify-content: space-between;
+    }
+
+    .searchItem {
+        flex: 1 1 280px;
+    }
+
+    .searchInput,
+    .sortSelect {
+        width: 100%;
+    }
+}
+
+/* Mobile ~ ≤ 600px : full-width en colonne */
+@media (max-width: 600px) {
+    .search {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.75rem;
+        padding: 0 0.5rem;
+    }
+
+    .searchItem {
+        min-width: 100%;
+        flex: 1 1 auto;
+    }
+
+    .searchInput,
+    .sortSelect {
+        width: 80%;
+        font-size: 1rem;
+    }
+}
+
+/* Accessibilité : pas d’animations si l’utilisateur les réduit */
+@media (prefers-reduced-motion: reduce) {
+
+    .sortSelect,
+    .searchInput {
+        transition: none;
+    }
 }
 
 
@@ -109,35 +224,7 @@ margin: 1.5rem 1.5rem;
     transform: scale(1.12);
 }
 
-.sortSelect {
-    padding: 0.5rem 1rem;
-    border-radius: 8px;
-    font-size: 1rem;
-    border: 1.5px solid var(--color-shadow);
-    background: var(--color-bg);
-    color: var(--color-text);
-    transition: border-color 0.2s;
-    outline: none;
-}
 
-.sortSelect:focus {
-    border-color: var(--color-secondary);
-}
-
-.searchInput {
-    padding: 0.5rem 1rem;
-    border-radius: 8px;
-    font-size: 1rem;
-    border: 1.5px solid var(--color-shadow);
-    background: var(--color-bg);
-    color: var(--color-text);
-    transition: border-color 0.2s;
-    outline: none;
-}
-
-.searchInput:focus {
-    border-color: var(--color-secondary);
-}
 
 /* Media Queries */
 

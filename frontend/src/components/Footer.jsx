@@ -4,7 +4,7 @@ import footerRoutes from '../data/footerRoutes.js';
 
 export default function Footer() {
     return (
-        <footer className={styles.footer}>
+        <footer className={`${styles.footer} ${styles.sticky}`}>
             <div className={styles.footerContainer}>
                 <div className={styles.footerLinks}>
                     {footerRoutes.map(route => (
