@@ -1,0 +1,148 @@
+@import './_variables.css';
+/* Glabal.css */
+
+:root {
+  background-color: var(--color-bg-secondary);
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  color-scheme: light dark;
+  color: var(--color-text);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  min-height: 100vh;
+
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  min-width: 350px;
+  min-height: 100vh;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+hr {
+  width: 40%;
+    /* Largeur de la ligne */
+    margin: 2rem auto;
+    /* Centré horizontalement */
+    border: none;
+    /* Supprime le style par défaut */
+    border-top: 2px solid var(--color-text-secondary);
+    /* Personnalise la couleur/épaisseur */
+}
+
+.banner {
+  background: var(--color-banner-bg);
+  color: var(--color-text);
+  text-align: center;
+  padding: 3rem 1rem 2rem 1rem;
+  border-radius: 2rem;
+  margin: 2rem 2rem;
+
+}
+
+.app-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.main-content {
+  flex: 1;
+}
+
+/* Container pour centraliser le contenu avec une largeur max */
+.container {
+  max-width: 1280px;
+  width: 100%;
+}
+
+.containerCart {
+  max-width: 1280px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Styles des cartes produits */
+
+.navCategory {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.3vh;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+.totalCart {
+  font-size: 1.5em;
+  margin-bottom: 1em;
+}
+
+h1,
+h2 {
+  user-select: none;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+/* About section*/
+
+.title {
+  font-size: 2rem;
+  color: var(--color-secondary);
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 1.2rem;
+}
+
+.intro {
+  text-align: center;
+  margin-bottom: 1rem;
+  font-size: 1.15rem;
+}
+
+.servicesTitle {
+  margin-top: 2rem;
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--color-secondary);
+}
+
+.servicesList {
+  margin: 0 0 1.5rem 1.5rem;
+  padding: 0;
+}
+
+.servicesList li {
+  margin-bottom: 0.5rem;
+}
+
+.separator {
+  margin: 2rem auto 1.5rem;
+  border: none;
+  border-top: 2px solid var(--color-modal-border);
+  width: 80%;
+}
+
+.cta {
+  text-align: center;
+  font-size: 1.18rem;
+  color: var(--color-secondary);
+  font-weight: 600;
+  margin-top: 1.5rem;
+}
+

@@ -1,0 +1,167 @@
+/* src/styles/pages/AdminDemandes.module.css */
+@import '../_variables.css';
+
+.adminSection {
+    background: var(--color-bg);
+    padding: 2.5rem 1.5rem;
+    border-radius: 18px;
+    margin: 2rem auto;
+    max-width: 900px;
+    max-width: 90%;
+    transition: padding 0.3s, margin 0.3s;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 2rem;
+    font-size: 1.05rem;
+    /* min-width: 520px; */
+    /* Pour forcer le scroll horizontal sur petit écran */
+}
+
+.table th,
+.table td {
+    padding: 0.9em 0.7em;
+    text-align: left;
+    border-bottom: 1px solid var(--color-border-td);
+}
+
+.table th {
+    color: var(--color-secondary);
+    font-weight: 700;
+    background: var(--color-bg-th);
+    border-radius: 3px;
+}
+
+.table tr:last-child td {
+    border-bottom: none;
+}
+
+.actions {
+    display: flex;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+}
+
+.statut {
+    font-weight: 600;
+    padding: 0.35em 1em;
+    border-radius: 20px;
+    text-transform: capitalize;
+    font-size: 1em;
+}
+
+.en_attente {
+    background: var(--color-warning-bg);
+    color: var(--color-warning);
+}
+
+.traitée {
+    background: var(--color-success-bg);
+    color: var(--color-success);
+}
+
+.refusée {
+    background: var(--color-danger-bg);
+    color: var(--color-danger);
+}
+
+/* -------- Responsive -------- */
+
+/* Tablette */
+@media (max-width: 1200px) {
+    .adminSection {
+        max-width: 70%;
+        margin: 1.5rem auto;
+        border-radius: 13px;
+        font-size: 0.98rem;
+    }
+
+    .table {
+        font-size: 0.97rem;
+        /* min-width: 420px; */
+    }
+
+    .table th,
+    .table td {
+        padding: 0.6em 0.4em;
+    }
+        .actions {
+    
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            justify-content: flex-start;
+            gap: 0.5em;
+            margin-top: 0.4em;
+        }
+}
+
+
+/* Table très étroite : affichage "cartes" en bloc (mobile extrême) */
+@media (max-width: 1200px) {
+
+    .table,
+    .table thead,
+    .table tbody,
+    .table th,
+    .table td,
+    .table tr {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .table thead {
+        display: none;
+    }
+
+    .table tbody {
+        display: block;
+        width: 90%;
+    }
+
+    .table tr {
+        margin-bottom: 1.1em;
+        background: #222233;
+        border-radius: 8px;
+        box-shadow: 0 1px 6px #0002;
+        padding: 0.7em 0.4em;
+        width: 100%;
+    }
+
+    .table td {
+        border: none;
+        position: relative;
+        margin-bottom: 0.4em;
+        text-align: left;
+    }
+
+    .table td:before {
+        position: absolute;
+        top: 0;
+        left: 0.5em;
+        width: 44%;
+        white-space: nowrap;
+        font-weight: bold;
+        content: attr(data-label);
+        font-size: 0.96em;
+    }
+
+    .actions {
+
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+        gap: 0.5em;
+        margin-top: 0.4em;
+    }
+
+        .tableContainer {
+            overflow-x: none;
+            overflow-y: none;
+            -webkit-overflow-scrolling: none;   }
+}

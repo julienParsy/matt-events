@@ -1,0 +1,51 @@
+/* src/styles/components/Footer.module.css */
+@import '../_variables.css';
+
+.footer {
+    background: var(--color-bg);
+    box-shadow: 0 0 20px var(--color-global-shadow);
+    padding: 0rem 2rem;
+    position: sticky;
+    /* margin-top: 2rem; */
+}
+
+.footerContainer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 64px;
+}
+
+.footerLinks {
+    display: flex;
+    gap: 1.5rem;
+    font-size: 1.9rex;
+    align-items: center;
+}
+
+.footerLinks a {
+    text-decoration: none;
+    color: var(--color-text);
+    font-weight: 500;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.25rem 0;
+    transition: color 0.3s ease;
+    position: relative;
+}
+
+.footerLinks a::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: -2px;
+    width: 0;
+    height: 2px;
+    background-color: var(--color-link);
+    transition: width 0.3s ease;
+}
+
+.footerLinks a:hover::after {
+    width: 100%;
+}

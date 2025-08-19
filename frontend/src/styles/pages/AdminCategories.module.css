@@ -1,0 +1,69 @@
+/* src/styles/pages/AdminCategories.module.css */
+@import '../_variables.css';
+
+.adminSection {
+    min-width: 80%;
+    background: var(--color-bg);
+    padding: 2.5rem 2.5rem;
+    border-radius: 18px;
+    margin: 2rem auto;
+    max-width: 500px;
+    transition: padding 0.3s, margin 0.3s;
+}
+
+.categoryList {
+    list-style: none;
+    padding: 0;
+    margin: 2rem 0 0 0;
+}
+
+.categoryItem {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--color-bg-secondary);
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    gap: 1rem;
+    transition: flex-direction 0.3s, padding 0.3s;
+}
+
+.actions {
+    display: flex;
+    gap: 0.8rem;
+}
+
+.btnContainer {
+    display: flex;
+    justify-content: center;
+    margin-top: 1rem;
+}
+
+/* Tablet */
+@media (max-width: 900px) {
+    .adminSection {
+        min-width: 50%;
+        max-width: 70%;
+    }
+
+    .categoryItem {
+        padding: 0.8rem;
+        font-size: 0.97em;
+        gap: 0.7rem;
+    }
+
+    .actions {
+        gap: 0.6rem;
+    }
+}
+
+/* Mobile */
+@media (max-width: 600px) {
+
+    .categoryItem {
+        display: flex;
+        flex-direction: column;
+    }
+}
+

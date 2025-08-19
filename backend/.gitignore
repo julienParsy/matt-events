@@ -1,0 +1,36 @@
+# --- global ---
+.DS_Store
+Thumbs.db
+node_modules/
+.env
+.env.*
+!.env.example
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.vscode/
+.idea/
+coverage/
+dist/
+build/
+.tmp/
+*.local
+
+# --- monorepo specifics ---
+backend/node_modules/
+backend/.env
+backend/.env.*
+!backend/.env.example
+backend/coverage/
+backend/logs/
+backend/uploads/           # si tu as un dossier local pour les PDF/fichiers
+backend/public/uploads/
+
+frontend/node_modules/
+frontend/.env
+frontend/.env.*
+!frontend/.env.example
+frontend/dist/
+frontend/.vercel/

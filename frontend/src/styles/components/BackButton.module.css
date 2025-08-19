@@ -1,0 +1,45 @@
+ /* frontend/src/styles/components/BackButton.module.css */
+@import '../_variables.css';
+
+.btnRetour {
+    margin-bottom: 1rem;
+    font-size: 1.05rem;
+    padding: 0.5rem 1.2rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5em;
+}
+
+.breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1.3rem;
+    font-size: 1.07rem;
+}
+
+.breadcrumbItem {
+    color: var(--color-secondary);
+    cursor: pointer;
+    transition: text-decoration 0.2s;
+    text-decoration: underline;
+}
+
+.breadcrumbItem:hover {
+    text-decoration: underline wavy;
+}
+
+.breadcrumbSep {
+    user-select: none;
+}
+
+.breadcrumbItemActive {
+    font-weight: 600;
+    cursor: default;
+}
+
+.btnContainer {
+    display: flex;
+    justify-content: center;
+    margin-top: 1rem;
+}

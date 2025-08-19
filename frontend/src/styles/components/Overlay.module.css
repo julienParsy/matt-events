@@ -1,0 +1,24 @@
+/* src/styles/components/Overlay.module.css */
+@import '../_variables.css';
+
+.productOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: var(--color-bg-overlay);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 20000;
+}
+
+.overlayContent {
+    background: var(--color-bg-secondary);
+    padding: 2rem;
+    border-radius: 12px;
+    overflow-y: auto;
+    position: relative;
+}
+

@@ -1,0 +1,74 @@
+/* src/styles/_variables.css */
+
+:root {
+    /* Branding et couleurs principales */
+    --color-primary: #308546;
+    --color-primary-light: #22c55e;
+    /* Ajout pour hover, voir ctaBtn */
+    --color-secondary: #646cff;
+    --color-danger: #ef4444;
+    --color-success: #22c55e;
+    --color-warning: #f59e0b;
+
+    /* Variantes d’arrière-plan */
+    --color-bg: #1a1a1a;
+    --color-bg-secondary: #242424;
+    --color-bg-overlay: rgba(0, 0, 0, 0.8);
+    --color-bg-th: #23243a;
+    --color-bg-img: #333;
+
+    /* Bannières et gradients */
+    --color-banner-bg: linear-gradient(120deg, #23243a 60%, #308546 100%);
+    --linear-gradient-navbar: linear-gradient(112deg, #202035 40%, #1a1a1a 100%);
+
+    /* Typographie et textes */
+    --color-text: rgba(255, 255, 255, 0.87);
+    --color-text-secondary: #d1d5db;
+    --color-label: #c0c0ff;
+    --color-subtitle: #a5b4fc;
+
+    /* Boutons */
+    --color-button-bg: rgba(100, 108, 255, 0);
+    /* Transparent */
+    --color-button-hover-bg: rgba(100, 108, 255, 0.1);
+    --color-button-active-bg: rgba(100, 108, 255, 0.15);
+    --color-button-border: transparent;
+    --color-button-border-hover: #646cff;
+    --color-button-border-active: #5050ff;
+    --color-button-text: #d1d5db;
+
+    /* Inputs et modals */
+    --color-input-bg: transparent;
+    --color-input-border: #d1d5db;
+    --color-input-border-focus: #c0c0ff;
+    --color-input-shadow: rgba(99, 102, 241, 0.3);
+    --color-input-shadow-focus: rgba(99, 102, 241, 0.2);
+    --color-modal-bg: #242424;
+    --color-modal-text: #fff;
+    --color-modal-border: #444;
+    --color-modal-shadow: rgba(247, 244, 244, 0.2);
+    --color-modal-close: #6b7280;
+
+    /* Cartes, ombres et borders */
+    --color-card-h3: #c0c0ff;
+    --color-border: #444;
+    --color-border-td: #29314a;
+    --color-shadow: rgba(100, 108, 255, 0.15);
+    --color-global-shadow: rgba(100, 108, 255, 0.5);
+    --color-card-shadow: rgba(255, 255, 255, 0.5);
+
+    /* Spécifiques Statuts/Feedbacks */
+    --color-success-bg: #30854644;
+    /* Success en transparent */
+    --color-danger-bg: #ef444444;
+    /* Danger en transparent */
+    --color-warning-bg: #343450;
+
+    /* Divers */
+    --color-link: #646cff;
+    --color-link-hover: #5050ff;
+
+    /* Radius, transition */
+    --btn-radius: 8px;
+    --btn-transition: 0.25s;
+}

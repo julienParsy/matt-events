@@ -1,0 +1,184 @@
+/* src/styles/components/Button.module.css */
+@import '../_variables.css';
+
+.button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.6em 1.2em;
+    font: 600 0.8em inherit;
+    color: var(--color-text);
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: var(--btn-radius);
+    cursor: pointer;
+    user-select: none;
+    text-align: center;
+    transition:
+        background-color var(--btn-transition),
+        border-color var(--btn-transition),
+        color var(--btn-transition);
+}
+
+.btnVoir {
+    background-color: var(--color-button-bg);
+    color: white;
+    border: 1px solid var(--color-link);
+    cursor: pointer;
+    border-radius: var(--btn-radius);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0 auto 1rem auto;
+}
+
+.btnVoirContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.btnVoir:disabled {
+    /* background-color: var(--color-modal-close); */
+    border-color: var(--color-modal-close);
+    cursor:auto;
+    color: #ccc;
+}
+
+.btnVoir:hover:not(:disabled) {
+    background-color: var(--color-link-hover);
+    border-color: var(--color-button-border-hover);
+}
+
+
+.linkBtn {
+    font-size: 0.75rem;
+    font-weight: 500;
+    text-decoration: none;
+    color: var(--color-text);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.25rem 0;
+    position: relative;
+    transition: color 0.3s ease;
+}
+.linkBtn::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: -2px;
+    width: 0;
+    height: 2px;
+    background-color: var(--color-secondary);
+    transition: width 0.3s ease;
+}
+.linkBtn:hover::after {
+    width: 100%;
+}
+
+/* Styles spécifiques */
+.btnCardAdmin {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 2rem;
+}
+
+.divNouveauProduit {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+}
+
+.btnArticles {
+    background: var(--color-shadow);
+    font-size: 0.7em;
+    font-weight: 1000;
+    padding: 0.5em 1em;
+}
+
+.btnLessArticles {
+    border-color: var(--color-danger);
+}
+
+.btnLessArticles:hover:not(:disabled) {
+    background: var(--color-danger);
+    color: var(--color-text);
+}
+
+.btnMoreArticles {
+    border-color: var(--color-primary);
+}
+
+.btnMoreArticles:hover:not(:disabled) {
+    background: var(--color-primary);
+    color: var(--color-text);
+}
+
+.btnConnexion {
+    width: 100%;
+    margin-top: 1rem;
+    padding: 0.5rem 1.5rem;
+    border-color: var(--color-primary);
+}
+
+.btnConnexion:hover:not(:disabled) {
+    background: var(--color-primary);
+    color: #d1d5db;
+}
+
+.btnNew,
+.modifier,
+.btnAjouter {
+    border-color: var(--color-primary);
+}
+
+.btnNew:hover:not(:disabled),
+.modifier:hover:not(:disabled),
+.btnAjouter:hover:not(:disabled) {
+    background: var(--color-primary);
+    color: var(--color-text);
+}
+
+.btnFileUpload {
+    box-shadow: 0 0 0 1px var(--color-shadow);
+    padding: 6px 12px;
+    cursor: pointer;
+}
+
+.btnFileUpload:hover:not(:disabled) {
+    background: var(--color-shadow);
+    color: var(--color-text);
+}
+
+.btnCancel {
+    border-color: var(--color-secondary);
+}
+
+.btnCancel:hover:not(:disabled) {
+    background: var(--color-secondary);
+    color: var(--color-text);
+}
+
+.supprimer,
+.deconnexion {
+    border-color: var(--color-danger);
+}
+
+.supprimer:hover:not(:disabled),
+.deconnexion:hover:not(:disabled) {
+    background: var(--color-danger);
+    color: var(--color-text);
+}
+
+/* État désactivé */
+.button:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+    background: transparent;
+    border-color: var(--color-danger);
+    color: var(--color-danger);   }

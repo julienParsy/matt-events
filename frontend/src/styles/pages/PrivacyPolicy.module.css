@@ -1,0 +1,52 @@
+/* src/styles/pages/PrivacyPolicy.module.css */
+@import '../_variables.css';
+
+.policyContainer {
+    background: var(--color-bg);
+    color: var(--color-text);
+    padding: 2.5rem 1.5rem;
+    max-width: 800px;
+    margin: 2rem auto;
+    border-radius: 18px;
+    box-shadow: 0 2px 16px var(--color-shadow);
+    font-size: 1.1rem;
+    line-height: 1.7;
+}
+
+.policyContainer h1 {
+    font-size: 2rem;
+    color: var(--color-secondary);
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 1.8rem;
+    letter-spacing: 1px;
+}
+
+.policyContainer h3 {
+    font-size: 1.15rem;
+    color: var(--color-secondary);
+    font-weight: 600;
+    margin-top: 2rem;
+    margin-bottom: 0.5rem;
+}
+
+.policyContainer p {
+    margin-bottom: 1.3rem;
+}
+
+@media (max-width: 600px) {
+    .policyContainer {
+        padding: 1.2rem 0.6rem;
+        font-size: 1rem;
+    }
+
+    .policyContainer h1 {
+        font-size: 1.4rem;
+        margin-bottom: 1.2rem;
+    }
+
+    .policyContainer h3 {
+        font-size: 1rem;
+        margin-top: 1.3rem;
+    }
+}

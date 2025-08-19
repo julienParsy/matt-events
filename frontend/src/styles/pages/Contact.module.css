@@ -1,0 +1,89 @@
+/* src/styles/pages/Contact.module.css */
+@import '../_variables.css';
+
+.contactSection {
+    background: var(--color-bg);
+    color: var(--color-text);
+    padding: 2.5rem 1.5rem;
+    max-width: 500px;
+    margin: 2rem auto;
+    border-radius: 18px;
+    box-shadow: 0 2px 16px var(--color-shadow);
+    font-size: 1.09rem;
+    line-height: 1.6;
+}
+
+.title {
+    font-size: 2rem;
+    color: var(--color-secondary);
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 1.2rem;
+}
+
+.subtitle {
+    text-align: center;
+    margin-bottom: 2rem;
+    color: var(--color-secondary);
+    font-size: 1.06rem;
+}
+
+.contactForm {
+    display: flex;
+    flex-direction: column;
+    gap: 1.3rem;
+}
+
+.contactForm label {
+    display: flex;
+    flex-direction: column;
+    font-weight: 500;
+    margin-bottom: 0.4rem;
+    color: var(--color-text);
+}
+
+.contactForm input,
+.contactForm textarea {
+    background: var(--color-bg-secondary);
+    color: var(--color-text);
+    border: 1.5px solid var(--color-shadow);
+    border-radius: 8px;
+    padding: 0.65rem 1rem;
+    margin-top: 0.4rem;
+    font-size: 1rem;
+    transition: border-color 0.2s;
+}
+
+.contactForm input:focus,
+.contactForm textarea:focus {
+    border-color: var(--color-secondary);
+    outline: none;
+}
+
+.confirmation {
+    background: var(--color-bg-secondary);
+    border-radius: 10px;
+    padding: 1.5rem;
+    text-align: center;
+    margin: 2rem 0;
+    font-size: 1.09rem;
+}
+
+@media (max-width: 600px) {
+    .contactSection {
+        padding: 1.2rem 0.5rem;
+        font-size: 1rem;
+    }
+
+    .title {
+        font-size: 1.3rem;
+    }
+
+    .subtitle {
+        font-size: 1rem;
+    }
+
+    .confirmation {
+        font-size: 1rem;
+    }
+}

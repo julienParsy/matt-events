@@ -1,0 +1,170 @@
+/* src/styles/components/ShowForm.module.css  */
+@import '../_variables.css';
+
+.modalOverlay {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: var(--color-bg-overlay);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+.modalCenter {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    margin: 1.5rem 1.5rem 1.5rem 1.5rem;
+}
+
+.modalLogin{
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.modalBody {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    padding: 1.5rem;
+}
+
+.modalForget {
+    background: none;
+    border: none;
+    color: var(--color-link);
+    cursor: pointer;
+    padding: 0;
+    text-decoration: underline;
+}
+
+.modalText {
+    color: var(--color-text);
+    font-size: 1rem;
+    font-weight: 600;
+    text-align: center;
+}
+
+.modalContent {
+    background: var(--color-bg);
+    padding: 1.5rem;
+    border-radius: 8px;
+    width: 100%;
+    max-width: 400px;
+    box-shadow: 0 0 25px var(--color-modal-shadow);
+    position: relative;
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+.modalClose {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    font-size: 1.25rem;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color: var(--color-modal-close);
+    transition: color 0.3s ease;
+}
+
+.modalClose:hover {
+    color: var(--color-danger);
+}
+
+.modalTitle {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    color: var(--color-label);
+}
+
+.modalLabel {
+    display: block;
+    font-weight: 600;
+    color: var(--color-label);
+}
+
+.mailDiv {
+    display: flex;
+    justify-content: end;
+}
+
+.modalSelect {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    padding-right: 2rem;
+    cursor: pointer;
+}
+
+.modalSelect option {
+    background-color: var(--color-modal-bg);
+    color: var(--color-text);
+}
+
+.btnFileUpload,
+.modalSelect,
+.modalTextarea,
+.modalInput,
+.modalFile {
+    background-color: transparent;
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    margin-bottom: 0.75rem;
+    margin-top: 0.50rem;
+    box-shadow: 0 0 0 1px var(--color-input-shadow);
+    border: none;
+    border-radius: 6px;
+    font-size: 1rem;
+    box-sizing: border-box;
+    transition: border-color 0.2s ease;
+}
+
+.modalInput:focus,
+.modalSelect:focus,
+.modalFile:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--color-global-shadow);
+}
+
+.modalButtons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+}
+
+.btnCancel {
+    background-color: transparent;
+    border-radius: 6px;
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--color-danger);
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.btnCancel:hover {
+    background-color: var(--color-danger);
+}
+
+.btnSave:hover {
+    background-color: var(--color-primary);
+}

@@ -1,0 +1,111 @@
+/* src/styles/components/Card.module.css */
+@import '../_variables.css';
+
+.nom,
+.modele,
+.prix,
+.stock {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Affiche chaque paragraphe <p class="description"> comme un item de liste */
+.description,
+.modele {
+  list-style-type: disc;
+  margin-left: 1.5em;
+  white-space: pre-line;
+  min-height:40px;
+  max-height: 200px;
+  overflow-y: auto;
+
+  /* Pour Firefox */
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-secondary) transparent;
+}
+
+/* Pour Chrome, Edge et Safari */
+.description::-webkit-scrollbar,
+.model::-webkit-scrollbar {
+  width: 8px;
+}
+
+.description::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.description::-webkit-scrollbar-thumb {
+  background-color: var(--color-secondary);
+  border-radius: 4px;
+  border: 2px solid transparent;
+  /* ajoute un peu de padding visuel */
+}
+
+/* Au survol, on peut éclaircir la thumb */
+.description::-webkit-scrollbar-thumb:hover {
+  background-color: var(--color-secondary);
+}
+
+.prix{
+  display: flex;
+  justify-content: center;
+  color: var(--color-primary);
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.card {
+  background-color: var(--color-bg);
+  border-radius: 12px;
+  padding: 1rem;
+  width: 280px;
+  height: 420px;
+  display: flex;
+  flex-direction: column;
+  transition: box-shadow 0.3s ease;
+  box-shadow: 0 0 8px var(--color-bg-overlay);
+}
+
+.card:hover {
+      box-shadow: 0 4px 24px var(--color-bg-overlay);
+}
+
+.card img {
+  max-width: 100%;
+  max-height: 180px;
+  object-fit: contain;
+  border-radius: 6px;
+  margin-bottom: 1rem;
+  background-color: var(--color-bg-img);
+}
+
+.card h3 {
+  font-weight: 700;
+  font-size: 1.25rem;
+  margin: 0 0 0.5rem 0;
+  color: var(--color-card-h3);
+}
+
+.card p {
+  margin: 0 0 0.5rem 0;
+  flex-grow: 0.5;
+}
+
+.quantityCart {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  font-size: 1em;
+  margin-bottom: 1em;
+}
+
+.quantityInput {
+  width: 50px;
+  height: 30px;
+  border-radius: 8px;
+  border: none;
+  text-align: center;
+}
+

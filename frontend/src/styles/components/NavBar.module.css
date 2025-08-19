@@ -1,0 +1,266 @@
+/* src/styles/components/NavBar.module.css */
+@import '../_variables.css';
+
+/* ---- Barre principale ---- */
+.navbar {
+    background: var(--color-bg);
+    box-shadow: 0 0 20px var(--color-global-shadow);
+    padding: 1.2rem 2rem;
+    position: sticky;
+    top: 0;
+    z-index: 999;
+}
+
+.navbarContainer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 150px;
+    position: relative;
+}
+
+.navbarLogo img {
+    max-height: 120px;
+    width: auto;
+    border-radius: 50%;
+    display: block;
+    object-fit: cover;
+    transition: transform 0.3s ease, filter 0.3s ease, box-shadow 0.3s ease;
+}
+
+.navbarLogo img:hover {
+    transform: scale(1.07);
+    filter: brightness(1.1);
+    box-shadow: 0 0 8px var(--color-modal-shadow);
+}
+
+.navbarLinks {
+    display: flex;
+    gap: 1.5rem;
+    align-items: center;
+    position: static;
+    background: none;
+    padding: 0;
+    min-width: unset;
+    height: auto;
+    box-shadow: none;
+    opacity: 1;
+    pointer-events: auto;
+    transform: none;
+    transition: none;
+}
+
+.admin {
+    display: flex;
+    align-items: center;
+    position: relative;
+    gap: 1rem;
+    margin: 1rem 1rem 1rem 1rem;
+    padding: 1rem;
+    border-radius: 8px;
+    top: 0;
+    z-index: 998;
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+
+
+.link {
+    font-size: 1.15rem;
+    font-weight: 500;
+    text-decoration: none;
+    color: var(--color-text);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.25rem 0;
+    position: relative;
+    transition: color 0.3s ease;
+}
+
+.link::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: -2px;
+    width: 0;
+    height: 2px;
+    background-color: var(--color-secondary);
+    transition: width 0.3s ease;
+}
+
+.link:hover::after {
+    width: 100%;
+}
+
+.link.active::after,
+.link:active::after {
+    width: 100%;
+    background-color: var(--color-secondary);
+}
+
+.cartBadge {
+    background: var(--color-link-hover);
+    border-radius: 12px;
+    padding: 0 0.5em;
+    font-size: 0.98em;
+    margin-left: 0.3em;
+}
+
+.connexionAdmin,
+.deconnexion {
+    height: 32px;
+    padding: 0 0.75rem;
+    font-size: 0.9rem;
+    line-height: 1;
+    border-radius: 8px;
+    border: 1px solid transparent;
+}
+
+
+.burger {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 42px;
+    height: 42px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    z-index: 1001;
+    margin-left: 10px;
+    transition: opacity 0.2s;
+    gap: 4px;
+}
+
+.burger span {
+    display: block;
+    width: 27px;
+    height: 3.5px;
+    background: var(--color-secondary);
+    border-radius: 2px;
+    transition: all 0.35s cubic-bezier(.68, -0.55, .27, 1.55);
+    position: relative;
+}
+
+.burger.open span:nth-child(1) {
+    transform: translateY(7.7px) rotate(45deg);
+}
+
+.burger.open span:nth-child(2) {
+    opacity: 0;
+}
+
+.burger.open span:nth-child(3) {
+    transform: translateY(-7.7px) rotate(-45deg);
+}
+
+/* ---- Overlay fondu derrière menu mobile ---- */
+.overlay {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: var(--color-bg-overlay);
+    z-index: 900;
+    animation: overlayFadeIn 0.32s;
+}
+
+@keyframes overlayFadeIn {
+    from {
+        opacity: 0;
+    }
+    
+    to {
+        opacity: 1;
+    }
+}
+
+/* ---- Mobile (<900px) : drawer & burger ---- */
+@media (max-width: 900px) {
+    .navbarLinks {
+        position: fixed;
+        top: 0;
+        right: -65vw;
+        height: 100vh;
+        background: var(--linear-gradient-navbar);
+        flex-direction: column;
+        align-items: flex-start;
+        justify-content: flex-start;
+        gap: 2rem;
+        padding: 2.5rem 2rem 2rem 2rem;
+        min-width: 65vw;
+        box-shadow: -4px 0 38px 0 var(--color-global-shadow);
+        border-radius: 0 0 0 32px;
+        z-index: 1002;
+        opacity: 0;
+        pointer-events: none;
+        transition: right 0.42s cubic-bezier(.68, -0.55, .27, 1.55), opacity 0.32s;
+    }
+    
+    .navbarLinks.active {
+        right: 0;
+        opacity: 1;
+        pointer-events: auto;
+    }
+    
+    .navbarLogo img {
+        max-height: 120px;
+    }
+    
+    .burger {
+        display: flex;
+        position: absolute;
+        top: 3.2rem;
+        right: 2.2rem;
+        z-index: 1010;
+        background: none;
+    }
+    
+    .link {
+        font-size: 1.24rem;
+        font-weight: 700;
+        margin-bottom: 0.8rem;
+    }
+    
+    .cartBadge {
+        font-size: 1.15em;
+        margin-left: 0.5em;
+    }
+}
+
+@media (max-width: 600px) {
+    .navbarLinks {
+        width: 10vw;
+        padding: 2.2rem 1rem 2rem 1.2rem;
+        border-radius: 0;
+    }
+    
+    .navbarLogo img {
+        max-height: 120px;
+    }
+    
+    
+}
+
+/* Tablette : on réduit un peu le gap et le padding */
+@media (max-width: 900px) {
+    .admin {
+        gap: 0.7rem;
+        margin: 2rem 1rem 1rem 2rem;
+        padding: 0.7rem;
+        font-size: 0.97em;
+    }
+}
+
+/* Mobile : flex en colonne et padding réduit */
+@media (max-width: 600px) {
+    .admin {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+        margin: 2rem 2rem;
+        padding: 0.5rem;
+        font-size: 0.95em;
+    }
+}

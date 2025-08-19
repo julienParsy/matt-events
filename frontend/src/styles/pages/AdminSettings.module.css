@@ -1,0 +1,27 @@
+/* src/styles/pages/AdminSettings.module.css */
+@import '../_variables.css';
+
+.adminSettings {
+    max-width: 420px;
+    margin: 2rem auto;
+    padding: 2rem 1.5rem;
+    background: var(--color-bg);
+    border-radius: 12px;
+    box-shadow: 0 2px 12px var(--color-shadow);
+}
+
+.title {
+    color: var(--color-label);
+    margin-bottom: 1.8rem;
+    font-size: 1.6rem;
+    text-align: center;
+    font-weight: 700;
+}
+
+.subtitle {
+    color: var(--color-subtitle);
+    text-align: center;
+    font-size: 1.1rem;
+    margin-bottom: 0.8rem;
+    font-weight: 600;
+}
