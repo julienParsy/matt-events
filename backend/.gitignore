@@ -34,3 +34,5 @@ frontend/.env.*
 !frontend/.env.example
 frontend/dist/
 frontend/.vercel/
+
+
