@@ -3,6 +3,7 @@ import Cart from '../components/Cart';
 import ReCAPTCHA from 'react-google-recaptcha';
 import styles from '../styles/components/Cart.module.css';
 import modalStyles from '../styles/components/Modal.module.css';
+import http from '../services/axiosInstance';
 
 const deliveryOptions = [
     { value: "pickup", label: "Retrait sur place (Erre, sur rendez-vous)" },
@@ -98,18 +99,10 @@ export default function CartPage({ cart, setCart }) {
                 download: wantsDownload
             };
 
-            const response = await fetch('http://localhost:3001/api/demande', {
-                method: 'POST',
+            const { data: blob } = await http.post('/demande', payload, {
+                responseType: 'blob',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
             });
-
-            if (!response.ok) {
-                alert("Erreur lors de l'envoi de la demande.");
-                return;
-            }
-
-            const blob = await response.blob();
 
             if (wantsDownload) {
                 const url = window.URL.createObjectURL(blob);
@@ -244,7 +237,7 @@ export default function CartPage({ cart, setCart }) {
 
                             <div className="mt-3">
                                 <ReCAPTCHA
-                                    sitekey="6LdxMm0rAAAAAALWSN0j9iJTdu1Zplerr42N2a23"
+                                    sitekey={import.meta.env.VITE_RECAPTCHA_SITE_KEY}
                                     onChange={handleCaptchaChange}
                                 />
                                 {errors.captcha && (

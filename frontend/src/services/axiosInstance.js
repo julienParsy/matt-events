@@ -1,8 +1,16 @@
 import axios from 'axios';
 
+// Racine d'API (ex: https://api.mattevents.fr ou https://<railway>.up.railway.app)
+const API_ROOT =
+    import.meta.env.VITE_API_URL ||
+    import.meta.env.VITE_API_BASE_URL || ''; // compat si tu avais déjà cette var
+
+// S'assure d'avoir .../api en baseURL, sans doublon
+const baseURL = API_ROOT.endsWith('/api') ? API_ROOT : `${API_ROOT}/api`;
+
 const axiosInstance = axios.create({
-    baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001/api',
-    withCredentials: false // ou true si tu utilises des cookies d’auth
+    baseURL,
+    withCredentials: false, // passe à true si tu utilises des cookies d’auth
 });
 
 // Ajoute le token JWT à chaque requête si présent

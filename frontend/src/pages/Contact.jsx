@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import styles from "../styles/pages/Contact.module.css";
 import stylesBtn from "../styles/components/Button.module.css";
+import http from "../services/axiosInstance";
 
 export default function Contact() {
     const [form, setForm] = useState({
@@ -23,12 +24,7 @@ export default function Contact() {
         setLoading(true);
         setError("");
         try {
-            const res = await fetch("http://localhost:3001/api/contact", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(form),
-            });
-            if (!res.ok) throw new Error("Erreur serveur");
+            await http.post("/contact", form);
             setSent(true);
             setForm({ nom: "", email: "", message: "" });
         } catch {
