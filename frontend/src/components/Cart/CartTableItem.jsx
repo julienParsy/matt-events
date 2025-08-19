@@ -1,7 +1,6 @@
 // src/components/Cart/CartTableItem.jsx
 import React from 'react';
 import PropTypes from 'prop-types';
-// import styles from '../../styles/components/button.module.css';
 
 export default function CartTableItem({ item, onUpdate, onRemove }) {
     const total = (item.prix * item.quantite).toFixed(2);
