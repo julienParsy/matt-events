@@ -2,7 +2,7 @@
 import React from 'react';
 import overlayStyles from '../styles/components/Overlay.module.css';
 import modalStyles from '../styles/components/Modal.module.css';
-import videoStyles from '../styles/components/video.module.css';
+import videoStyles from '../styles/components/Video.module.css';
 import Video from './Video';
 
 export default function ProductOverlay({ produit, onClose }) {
