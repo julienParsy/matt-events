@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Editor } from "@tinymce/tinymce-react";
 import axiosInstance from "../services/axiosInstance";
 import styles from '../styles/pages/AboutSection.module.css';
-import stylesBtn from '../styles/components/button.module.css';
+import stylesBtn from '../styles/components/Button.module.css';
 import stylesModal from '../styles/components/Modal.module.css';
 import { useLocation } from "react-router-dom";
 import NavAdmin from '../pages/admin/NavAdmin';
