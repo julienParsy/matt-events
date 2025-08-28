@@ -1,8 +1,6 @@
-# robots.txt pour mattevents.fr
+# robots.txt pour www.mattevents.fr
 User-agent: *
 Allow: /
-
-# Évite l’indexation de l’admin si tu veux
 Disallow: /admin
 
-Sitemap: https://mattevents.fr/sitemap.xml
+Sitemap: https://www.mattevents.fr/sitemap.xml
