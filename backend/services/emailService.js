@@ -1,24 +1,64 @@
 // /app/services/emailService.js
 const nodemailer = require("nodemailer");
 
+// Utilise fetch global (Node 18+) sinon fallback dynamique vers node-fetch
+const doFetch = async (...args) => {
+    if (typeof fetch !== "undefined") return fetch(...args);
+    const { default: f } = await import("node-fetch");
+    return f(...args);
+};
+
 const USER = process.env.EMAIL_USER;
 const PASS = process.env.EMAIL_PASS;
 
-const HOST_PRIMARY = process.env.SMTP_HOST || "smtp.mail.ovh.net"; // ← préfère smtp.mail.ovh.net
-const HOST_FALLBACK = "ssl0.ovh.net";
+const FROM_EMAIL = process.env.FROM_EMAIL || process.env.MAIL_SENDER_EMAIL || USER;
+const FROM_NAME = process.env.MAIL_SENDER_NAME || "Matt'events";
+const DEFAULT_TO = process.env.EMAIL_TO || process.env.EMAIL_RECEIVER || USER || FROM_EMAIL;
 
-const PORT = Number(process.env.SMTP_PORT || 587); // ← par défaut 587
-const SECURE = PORT === 465;
+// ----------- Provider 1: Brevo API (HTTPS 443) -----------
+async function sendMailBrevo({ to, subject, text, html, replyTo, attachments }) {
+    const apiKey = process.env.BREVO_API_KEY;
+    if (!apiKey) throw new Error("BREVO_API_KEY missing");
 
-function buildTransport(host, port) {
+    const payload = {
+        sender: { email: FROM_EMAIL, name: FROM_NAME },
+        to: [{ email: to }],
+        subject,
+        textContent: text,
+        htmlContent: html,
+        replyTo: { email: replyTo || FROM_EMAIL },
+        attachment: (attachments || []).map(a => ({
+            name: a.filename || "file",
+            content: Buffer.isBuffer(a.content)
+                ? a.content.toString("base64")
+                : Buffer.from(String(a.content)).toString("base64"),
+        })),
+    };
+
+    const r = await doFetch("https://api.brevo.com/v3/smtp/email", {
+        method: "POST",
+        headers: { "api-key": apiKey, "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+    });
+
+    if (!r.ok) {
+        const body = await r.text();
+        throw new Error(`BREVO_ERROR ${r.status}: ${body.slice(0, 500)}`);
+    }
+    return r.json();
+}
+
+// ----------- Provider 2: SMTP (pour le local/dev) -----------
+function buildSMTP() {
+    const host = process.env.SMTP_HOST || "smtp.mail.ovh.net";
+    const port = Number(process.env.SMTP_PORT || 587);
     return nodemailer.createTransport({
-        name: process.env.SMTP_NAME || "api.mattevents.fr", // EHLO
         host,
         port,
-        secure: port === 465,            // 465 = TLS implicite, 587 = STARTTLS
-        requireTLS: port === 587,        // STARTTLS attendu sur 587
-        family: 4,                       // ← force IPv4 (évite certains timeouts IPv6)
-        auth: { user: USER, pass: PASS },
+        secure: port === 465,
+        requireTLS: port === 587,
+        family: 4,
+        auth: USER && PASS ? { user: USER, pass: PASS } : undefined,
         tls: { rejectUnauthorized: false, servername: host },
         connectionTimeout: 15000,
         greetingTimeout: 10000,
@@ -26,61 +66,37 @@ function buildTransport(host, port) {
         pool: true,
         maxConnections: 3,
         maxMessages: 50,
-        // logger: true, debug: true, // active si besoin
     });
 }
 
-function isNetErr(err) {
-    const s = String(err && (err.code || err.response || err.message || err));
-    return /timeout|ETIMEDOUT|ECONNREFUSED|ESOCKET|EHOSTUNREACH|ECONNRESET|ENOTFOUND|TLSSocket|read ECONNRESET/i.test(s);
+async function sendMailSMTP({ to, subject, text, html, replyTo, attachments }) {
+    const transporter = buildSMTP();
+    return transporter.sendMail({
+        from: `"${FROM_NAME}" <${FROM_EMAIL}>`,
+        to, replyTo: replyTo || FROM_EMAIL, subject, text, html, attachments,
+    });
 }
 
-const primary = buildTransport(HOST_PRIMARY, PORT);
-
+// ----------- Façade -----------
 async function sendMail(opts) {
-    const defaults = {
-        from: `"Matt'events" <${process.env.FROM_EMAIL || USER}>`,
-        to: process.env.EMAIL_TO || process.env.EMAIL_RECEIVER || USER,
-        headers: { "X-Mailer": "Matt'events Mailer" },
-    };
-    const msg = { ...defaults, ...opts };
+    const to = opts.to || DEFAULT_TO;
+    const msg = { ...opts, to };
 
+    if (process.env.BREVO_API_KEY) {
+        return sendMailBrevo(msg);
+    } else {
+        return sendMailSMTP(msg); // utile en local
+    }
+}
+
+async function verifyEmailProvider() {
+    if (process.env.BREVO_API_KEY) return { ok: true, provider: "brevo" };
     try {
-        return await primary.sendMail(msg);
-    } catch (err) {
-        if (!isNetErr(err)) throw err;
-
-        // Fallback 1 : même host, port alternatif
-        const otherPort = (PORT === 465) ? 587 : 465;
-        try {
-            const tAltPort = buildTransport(HOST_PRIMARY, otherPort);
-            return await tAltPort.sendMail(msg);
-        } catch (e2) {
-            if (!isNetErr(e2)) throw e2;
-        }
-
-        // Fallback 2 : autre host (OVH), port alternatif
-        const tAltHost = buildTransport(HOST_FALLBACK, otherPort);
-        return await tAltHost.sendMail(msg);
+        await buildSMTP().verify();
+        return { ok: true, provider: "smtp" };
+    } catch (e) {
+        return { ok: false, provider: "smtp", error: String(e?.message || e) };
     }
 }
 
-async function verifySMTP() {
-    const targets = [
-        { host: HOST_PRIMARY, port: PORT },
-        { host: HOST_PRIMARY, port: PORT === 465 ? 587 : 465 },
-        { host: HOST_FALLBACK, port: PORT === 465 ? 587 : 465 },
-    ];
-
-    for (const t of targets) {
-        try {
-            await buildTransport(t.host, t.port).verify();
-            return { ok: true, host: t.host, port: t.port };
-        } catch (e) {
-            if (!isNetErr(e)) throw e;
-        }
-    }
-    throw new Error("SMTP_UNREACHABLE");
-}
-
-module.exports = { sendMail, verifySMTP };
+module.exports = { sendMail, verifyEmailProvider };
