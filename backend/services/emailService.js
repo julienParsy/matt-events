@@ -24,16 +24,18 @@ async function sendMailBrevo({ to, subject, text, html, replyTo, attachments }) 
         sender: { email: FROM_EMAIL, name: FROM_NAME },
         to: [{ email: to }],
         subject,
-        textContent: text,
-        htmlContent: html,
+        ...(text ? { textContent: text } : {}),
+        ...(html ? { htmlContent: html } : {}),
         replyTo: { email: replyTo || FROM_EMAIL },
-        attachment: (attachments || []).map(a => ({
+    };
+    if (attachments && attachments.length > 0) {
+        payload.attachment = attachments.map(a => ({
             name: a.filename || "file",
             content: Buffer.isBuffer(a.content)
                 ? a.content.toString("base64")
                 : Buffer.from(String(a.content)).toString("base64"),
-        })),
-    };
+        }));
+    }
 
     const r = await doFetch("https://api.brevo.com/v3/smtp/email", {
         method: "POST",
