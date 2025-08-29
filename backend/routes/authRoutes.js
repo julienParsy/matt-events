@@ -5,7 +5,7 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const pool = require('../config/db');
 const crypto = require('crypto');
-const { sendMail } = require('../mailer');
+const { sendMail } = require('../services/emailService');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'uneCleSuperSecrete';
 
