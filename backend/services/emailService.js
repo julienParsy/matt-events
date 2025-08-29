@@ -3,26 +3,30 @@ const nodemailer = require("nodemailer");
 
 const USER = process.env.EMAIL_USER;
 const PASS = process.env.EMAIL_PASS;
-const HOST_PRIMARY = process.env.SMTP_HOST || "ssl0.ovh.net";
-const HOST_FALLBACK = "smtp.mail.ovh.net";
 
-const PORT = Number(process.env.SMTP_PORT || 465); // 465 ou 587 selon ENV
-const SECURE = PORT === 465;                       // <-- clé du fix
+const HOST_PRIMARY = process.env.SMTP_HOST || "smtp.mail.ovh.net"; // ← préfère smtp.mail.ovh.net
+const HOST_FALLBACK = "ssl0.ovh.net";
+
+const PORT = Number(process.env.SMTP_PORT || 587); // ← par défaut 587
+const SECURE = PORT === 465;
 
 function buildTransport(host, port) {
     return nodemailer.createTransport({
+        name: process.env.SMTP_NAME || "api.mattevents.fr", // EHLO
         host,
         port,
-        secure: port === 465, // <-- ne JAMAIS forcer true sur 587
+        secure: port === 465,            // 465 = TLS implicite, 587 = STARTTLS
+        requireTLS: port === 587,        // STARTTLS attendu sur 587
+        family: 4,                       // ← force IPv4 (évite certains timeouts IPv6)
         auth: { user: USER, pass: PASS },
-        tls: { rejectUnauthorized: false },
-        connectionTimeout: 20000,
-        greetingTimeout: 15000,
-        socketTimeout: 30000,
+        tls: { rejectUnauthorized: false, servername: host },
+        connectionTimeout: 15000,
+        greetingTimeout: 10000,
+        socketTimeout: 20000,
         pool: true,
         maxConnections: 3,
         maxMessages: 50,
-        // logger: true, debug: true, // ← active pour debug seulement
+        // logger: true, debug: true, // active si besoin
     });
 }
 
@@ -31,7 +35,6 @@ function isNetErr(err) {
     return /timeout|ETIMEDOUT|ECONNREFUSED|ESOCKET|EHOSTUNREACH|ECONNRESET|ENOTFOUND|TLSSocket|read ECONNRESET/i.test(s);
 }
 
-// transport primaire selon l'ENV
 const primary = buildTransport(HOST_PRIMARY, PORT);
 
 async function sendMail(opts) {
@@ -47,8 +50,8 @@ async function sendMail(opts) {
     } catch (err) {
         if (!isNetErr(err)) throw err;
 
-        // Fallback 1 : même host, autre port
-        const otherPort = SECURE ? 587 : 465;
+        // Fallback 1 : même host, port alternatif
+        const otherPort = (PORT === 465) ? 587 : 465;
         try {
             const tAltPort = buildTransport(HOST_PRIMARY, otherPort);
             return await tAltPort.sendMail(msg);
@@ -56,34 +59,28 @@ async function sendMail(opts) {
             if (!isNetErr(e2)) throw e2;
         }
 
-        // Fallback 2 : autre host (OVH), même autre port
-        try {
-            const tAltHost = buildTransport(HOST_FALLBACK, otherPort);
-            return await tAltHost.sendMail(msg);
-        } catch (e3) {
-            throw e3; // toujours en échec → remonte l’erreur
-        }
+        // Fallback 2 : autre host (OVH), port alternatif
+        const tAltHost = buildTransport(HOST_FALLBACK, otherPort);
+        return await tAltHost.sendMail(msg);
     }
 }
 
 async function verifySMTP() {
-    try {
-        await primary.verify();
-        return { ok: true, host: HOST_PRIMARY, port: PORT };
-    } catch (err) {
-        if (!isNetErr(err)) throw err;
-        const otherPort = SECURE ? 587 : 465;
+    const targets = [
+        { host: HOST_PRIMARY, port: PORT },
+        { host: HOST_PRIMARY, port: PORT === 465 ? 587 : 465 },
+        { host: HOST_FALLBACK, port: PORT === 465 ? 587 : 465 },
+    ];
 
+    for (const t of targets) {
         try {
-            const tAltPort = buildTransport(HOST_PRIMARY, otherPort);
-            await tAltPort.verify();
-            return { ok: true, host: HOST_PRIMARY, port: otherPort };
-        } catch (e2) {
-            const tAltHost = buildTransport(HOST_FALLBACK, otherPort);
-            await tAltHost.verify();
-            return { ok: true, host: HOST_FALLBACK, port: otherPort };
+            await buildTransport(t.host, t.port).verify();
+            return { ok: true, host: t.host, port: t.port };
+        } catch (e) {
+            if (!isNetErr(e)) throw e;
         }
     }
+    throw new Error("SMTP_UNREACHABLE");
 }
 
 module.exports = { sendMail, verifySMTP };
