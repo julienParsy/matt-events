@@ -1,26 +1,34 @@
-const nodemailer = require('nodemailer');
-require('dotenv').config(); // Si besoin
+// backend/mailer.js
+const nodemailer = require("nodemailer");
 
-async function sendContactMail({ nom, email, message }) {
-    const transporter = nodemailer.createTransport({
-        service: 'gmail',
-        auth: {
-            user: process.env.EMAIL_USER,
-            pass: process.env.EMAIL_PASS,
+const transporter = nodemailer.createTransport({
+    host: process.env.SMTP_HOST || "ssl0.ovh.net",
+    port: Number(process.env.SMTP_PORT || 465),
+    secure: true, // true pour 465
+    auth: {
+        user: process.env.EMAIL_USER, // ex: contact@mattevents.fr
+        pass: process.env.EMAIL_PASS,
+    },
+    tls: {
+        // Railway peut être tatillon sur les certifs
+        rejectUnauthorized: false,
+    },
+    // Anti timeouts si pics :
+    pool: true,
+    maxConnections: 3,
+    maxMessages: 50,
+});
+
+async function sendMail(opts) {
+    const defaults = {
+        from: `"Matt'events" <${process.env.FROM_EMAIL || process.env.EMAIL_USER}>`,
+        to: process.env.EMAIL_TO || process.env.EMAIL_RECEIVER || process.env.EMAIL_USER,
+        headers: {
+            "X-Priority": "3",
+            "X-Mailer": "Matt'events Mailer",
         },
-    });
-
-    const mailOptions = {
-        from: email,
-        to: process.env.EMAIL_RECEIVER,
-        subject: `Contact via site : ${nom}`,
-        text: `Message de ${nom} (${email}) :\n\n${message}`,
     };
-
-    await transporter.sendMail(mailOptions);
+    return transporter.sendMail({ ...defaults, ...opts });
 }
 
-module.exports = {
-    // ...tes autres exports
-    sendContactMail,
-};
+module.exports = { transporter, sendMail };
