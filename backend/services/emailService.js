@@ -1,35 +1,38 @@
 // /app/services/emailService.js
 const nodemailer = require("nodemailer");
 
-const HOST = process.env.SMTP_HOST || "ssl0.ovh.net";
 const USER = process.env.EMAIL_USER;
 const PASS = process.env.EMAIL_PASS;
+const HOST_PRIMARY = process.env.SMTP_HOST || "ssl0.ovh.net";
+const HOST_FALLBACK = "smtp.mail.ovh.net";
 
-function buildTransport({ port, secure }) {
+const PORT = Number(process.env.SMTP_PORT || 465); // 465 ou 587 selon ENV
+const SECURE = PORT === 465;                       // <-- clé du fix
+
+function buildTransport(host, port) {
     return nodemailer.createTransport({
-        host: HOST,
+        host,
         port,
-        secure,                // 465 => true, 587 => false
+        secure: port === 465, // <-- ne JAMAIS forcer true sur 587
         auth: { user: USER, pass: PASS },
         tls: { rejectUnauthorized: false },
-        // ↓ évite les 2 minutes de blocage
-        connectionTimeout: 20000,  // 20s
+        connectionTimeout: 20000,
         greetingTimeout: 15000,
         socketTimeout: 30000,
         pool: true,
         maxConnections: 3,
         maxMessages: 50,
-        // Active les logs si besoin, désactive une fois ok
-        logger: true, debug: true,
+        // logger: true, debug: true, // ← active pour debug seulement
     });
 }
 
-const t465 = buildTransport({ port: Number(process.env.SMTP_PORT || 465), secure: true });
-
 function isNetErr(err) {
-    const msg = String(err && (err.code || err.response || err.message || err));
-    return /ETIMEDOUT|ECONNREFUSED|ESOCKET|EHOSTUNREACH|ECONNRESET|ENOTFOUND|TLSSocket/i.test(msg);
+    const s = String(err && (err.code || err.response || err.message || err));
+    return /timeout|ETIMEDOUT|ECONNREFUSED|ESOCKET|EHOSTUNREACH|ECONNRESET|ENOTFOUND|TLSSocket|read ECONNRESET/i.test(s);
 }
+
+// transport primaire selon l'ENV
+const primary = buildTransport(HOST_PRIMARY, PORT);
 
 async function sendMail(opts) {
     const defaults = {
@@ -37,30 +40,49 @@ async function sendMail(opts) {
         to: process.env.EMAIL_TO || process.env.EMAIL_RECEIVER || USER,
         headers: { "X-Mailer": "Matt'events Mailer" },
     };
+    const msg = { ...defaults, ...opts };
 
     try {
-        return await t465.sendMail({ ...defaults, ...opts });
+        return await primary.sendMail(msg);
     } catch (err) {
-        // Fallback si problème réseau/port 465
-        if (isNetErr(err)) {
-            const t587 = buildTransport({ port: 587, secure: false });
-            return await t587.sendMail({ ...defaults, ...opts });
+        if (!isNetErr(err)) throw err;
+
+        // Fallback 1 : même host, autre port
+        const otherPort = SECURE ? 587 : 465;
+        try {
+            const tAltPort = buildTransport(HOST_PRIMARY, otherPort);
+            return await tAltPort.sendMail(msg);
+        } catch (e2) {
+            if (!isNetErr(e2)) throw e2;
         }
-        throw err;
+
+        // Fallback 2 : autre host (OVH), même autre port
+        try {
+            const tAltHost = buildTransport(HOST_FALLBACK, otherPort);
+            return await tAltHost.sendMail(msg);
+        } catch (e3) {
+            throw e3; // toujours en échec → remonte l’erreur
+        }
     }
 }
 
 async function verifySMTP() {
     try {
-        await t465.verify();
-        return { ok: true, port: 465 };
+        await primary.verify();
+        return { ok: true, host: HOST_PRIMARY, port: PORT };
     } catch (err) {
-        if (isNetErr(err)) {
-            const t587 = buildTransport({ port: 587, secure: false });
-            await t587.verify();
-            return { ok: true, port: 587 };
+        if (!isNetErr(err)) throw err;
+        const otherPort = SECURE ? 587 : 465;
+
+        try {
+            const tAltPort = buildTransport(HOST_PRIMARY, otherPort);
+            await tAltPort.verify();
+            return { ok: true, host: HOST_PRIMARY, port: otherPort };
+        } catch (e2) {
+            const tAltHost = buildTransport(HOST_FALLBACK, otherPort);
+            await tAltHost.verify();
+            return { ok: true, host: HOST_FALLBACK, port: otherPort };
         }
-        throw err;
     }
 }
 
