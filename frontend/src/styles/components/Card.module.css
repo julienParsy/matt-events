@@ -1,26 +1,7 @@
 /* src/styles/components/Card.module.css */
 @import '../_variables.css';
 
-.nom {
-  font-size: clamp(0.9rem, 1vw, 1.1rem);
-  font-weight: 700;
-  color: var(--color-card-h3);
-
-
-  white-space: normal;
-  overflow-wrap: break-word;
-  word-wrap: break-word;
-  text-align: center;
-
-
-  max-height: 4.2em;
-
-  line-height: 1.4em;
-  overflow: hidden;
-
-  margin: 0.3rem 0;
-}
-
+.nom,
 .modele,
 .prix,
 .stock {
