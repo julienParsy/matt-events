@@ -78,7 +78,7 @@ export default function EditablePage({ slug, isAdmin }) {
                 />
                 <label className={stylesModal.modalLabel} htmlFor="Contenu">Edition du contenu :</label>
                     <Editor
-                        apiKey="jisb6yrtug7i1nzoue1qo59tahy3h0jpmumfi1g3eixw3gcz"
+                        apiKey={import.meta.env.VITE_TINYMCE_API_KEY}
                         value={draft}
                         init={{
                             height: 400,
