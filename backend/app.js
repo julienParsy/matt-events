@@ -132,7 +132,7 @@ app.use('/api/admins', adminRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/categories', categoriesRoutes);
 app.use('/api/packs', packRoutes);
-app.use('/api', contactRoutes);
+app.use('/api/contact', contactRoutes);
 app.use('/api/pages', pageRoutes);
 
 // 8) Gestion des erreurs (toujours en dernier)

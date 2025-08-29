@@ -2,6 +2,8 @@
 const router = require("express").Router();
 const { sendMail } = require("../services/emailService");
 
+router.get('/ping', (_req,res)=>res.json({ ok:true }));
+
 router.post("/", async (req, res) => {
     try {
         const name = (req.body?.name || req.body?.nom || "").toString().trim();
