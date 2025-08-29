@@ -1,44 +1,47 @@
-# 🎉 Matt'events - Plateforme de location de matériel événementiel
+# Matt'events - Plateforme de location de matériel événementiel
 
-Application web complète permettant de louer du matériel son/lumière, avec génération de devis/factures en PDF, interface admin sécurisée, et gestion du stock.
-
-## 🚀 Stack technique
-
-- **Frontend** : React (Vite), CSS Modules, Firebase Auth + Storage
-- **Backend** : Node.js, Express.js, PostgreSQL, PDFKit, Nodemailer
-- **Déploiement** : Vercel (frontend) + Railway (backend + base de données)
+Application web complète permettant la gestion de la location de matériel son et lumière.  
+Le projet inclut un catalogue public avec panier, une interface d’administration sécurisée et un système de génération automatique de devis et factures en PDF.
 
 ---
 
-## 📦 Fonctionnalités
+## Stack technique
 
-### 🛒 Côté public
-
-- Parcours du catalogue par catégorie
-- Ajout au panier de produits et packs
-- Génération de demande de location (avec PDF automatique)
-- Sélection du type de retrait/livraison
-- Validation protégée par Google reCAPTCHA
-
-### 🔐 Côté admin
-
-- Connexion via email/mot de passe
-- Gestion des produits, packs, catégories
-- Téléversement des images (Firebase Storage)
-- Gestion des demandes : validation, PDF devis/factures, statut
-- Configuration du logo, email, et mot de passe
+- **Frontend** : React (Vite), CSS Modules, Firebase Auth et Storage  
+- **Backend** : Node.js, Express.js, PostgreSQL, PDFKit, Nodemailer  
+- **Déploiement** : Vercel (frontend), Railway (backend et base de données)  
 
 ---
 
-## 🧰 Installation en local
+## Fonctionnalités principales
 
-### 📁 Prérequis
+### Côté public
 
-- Node.js ≥ 18
-- PostgreSQL
-- Compte Gmail (ou SMTP équivalent pour envoi d’emails)
+- Consultation du catalogue par catégories  
+- Ajout au panier de produits et packs  
+- Génération de demandes de location avec PDF automatique  
+- Sélection du mode de retrait ou livraison  
+- Validation des formulaires protégée par Google reCAPTCHA  
 
-### ⚙️ Variables d’environnement
+### Côté administration
+
+- Connexion sécurisée par email et mot de passe  
+- Gestion des produits, packs et catégories  
+- Téléversement d’images via Firebase Storage  
+- Suivi des demandes avec génération de devis et factures en PDF  
+- Gestion des paramètres du site (logo, email, mot de passe)  
+
+---
+
+## Installation locale
+
+### Prérequis
+
+- Node.js ≥ 18  
+- PostgreSQL  
+- Compte Gmail ou autre SMTP pour l’envoi d’emails  
+
+### Variables d’environnement
 
 #### `backend/.env`
 
@@ -61,11 +64,9 @@ VITE_FIREBASE_STORAGE_BUCKET=...
 VITE_RECAPTCHA_SITE_KEY=clé_site_google
 ```
 
----
+### Lancer en développement
 
-## ▶️ Lancer en développement
-
-### Backend
+Backend :  
 
 ```bash
 cd backend
@@ -73,7 +74,7 @@ npm install
 npm start
 ```
 
-### Frontend
+Frontend :  
 
 ```bash
 cd frontend
@@ -81,54 +82,43 @@ npm install
 npm run dev
 ```
 
-Accès :
+Accès :  
 
-- Frontend : [http://localhost:5173](http://localhost:5173)
-- Backend : [http://localhost:3001](http://localhost:3001)
+- Frontend : <http://localhost:5173>  
+- Backend : <http://localhost:3001>  
 
 ---
 
-## 🌐 Déploiement
+## Déploiement
 
 ### Backend (Railway)
 
-1. Créer un projet Node.js sur [https://railway.app](https://railway.app)
-2. Connecter ton repo GitHub
-3. Ajouter les variables `.env`
-4. Déployer automatiquement
+1. Créer un projet Node.js sur <https://railway.app>  
+2. Connecter le dépôt GitHub  
+3. Ajouter les variables d’environnement  
+4. Déployer automatiquement  
 
 ### Frontend (Vercel)
 
-1. Connecter ton repo sur [https://vercel.com](https://vercel.com)
-2. Ajouter les variables `.env` dans "Environment Variables"
-3. Déploiement automatique
+1. Connecter le dépôt sur <https://vercel.com>  
+2. Ajouter les variables d’environnement dans "Environment Variables"  
+3. Déploiement automatique  
 
 ---
 
-## 🗃 Base de données
+## Sécurité
 
-Un script d’export est disponible :
-
-```bash
-cd backend/export_database_json
-node export_all_tables.js
-```
-
-Tu peux également utiliser les fichiers JSON de `/seed/` pour recréer la base.
+- Authentification JWT pour l’administration  
+- Mots de passe hashés avec bcrypt  
+- Protection des formulaires via reCAPTCHA v2  
+- Données sensibles isolées dans des fichiers `.env`  
+- Limitation des requêtes avec express-rate-limit  
 
 ---
 
-## 🔒 Sécurité
+## Crédits
 
-- Authentification via JWT côté admin
-- Mots de passe hashés (`bcrypt`)
-- reCAPTCHA v2 pour protéger les formulaires
-- Données sensibles protégées via `.env`
-- Limiteur de requêtes (`express-rate-limit`)
+Projet fullstack personnel développé dans le cadre d’un exercice de mise en production.  
+Icônes, visuels et images utilisés : libres de droit ou hébergés sur Firebase.
 
 ---
-
-## 🤝 Crédits
-
-- Développé dans le cadre d'un projet fullstack personnel
-- Icônes, visuels et images libres ou hébergés
