@@ -9,10 +9,11 @@ router.post("/", async (req, res) => {
         const message = (req.body?.message || "").toString().trim();
 
         if (!email || !message) {
-            return res.status(400).json({ message: "Email et message requis." });
+            return res.status(400).json({ ok: false, error: "EMAIL_OR_MESSAGE_MISSING" });
         }
 
         await sendMail({
+            to: process.env.EMAIL_TO || process.env.EMAIL_RECEIVER || process.env.EMAIL_USER,
             replyTo: email,
             subject: `Nouveau message de contact${name ? " – " + name : ""}`,
             text: `De: ${name || "Anonyme"} <${email}>\n\n${message}`,
@@ -24,8 +25,12 @@ router.post("/", async (req, res) => {
 
         res.json({ ok: true });
     } catch (e) {
-        console.error("CONTACT 500:", e?.code || e?.response || e?.message || e);
-        res.status(500).json({ ok: false, error: "MAIL_SEND_FAILED" });
+        const errMsg = e?.response || e?.message || e?.code || String(e);
+        console.error("CONTACT 500:", {
+            code: e?.code, response: e?.response, command: e?.command, port: e?.port
+        });
+        // TEMPORAIRE: renvoie l'erreur réelle pour diagnostiquer
+        res.status(500).json({ ok: false, error: errMsg });
     }
 });
 
