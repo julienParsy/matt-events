@@ -1,5 +1,5 @@
 // backend/utils/sendWithEmail.js
-const { sendMail } = require('../mailer');
+const { sendMail } = require('../../services/emailService');
 
 function toNumber(v) { const n = Number(v); return Number.isFinite(n) ? n : 0; }
 function getQty(p) { return toNumber(p?.quantite ?? p?.quantity ?? 1) || 1; }
