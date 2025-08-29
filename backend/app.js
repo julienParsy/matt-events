@@ -122,6 +122,10 @@ const packRoutes = require('./routes/packRoutes');
 const contactRoutes = require('./routes/contactRoutes');
 const pageRoutes = require('./routes/pageRoutes');
 
+const debugRoutes = require("./routes/debugRoutes");
+app.use("/api/debug", debugRoutes);
+
+
 app.use('/api/demande', pdfRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/admins', adminRoutes);
