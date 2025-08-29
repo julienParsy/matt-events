@@ -26,10 +26,11 @@ export default function ProductOverlay({ produit, onClose }) {
                         />
                     </div>
                 )}
-                <p className={modalStyles.modalText}>
-                    {produit.description || "Aucune description disponible."}
-                </p>
-
+                {produit.description
+                    ? produit.description.split('\n').map((line, i) => (
+                        <p key={i} className={modalStyles.modalText}>{line}</p>
+                    ))
+                    : <p className={modalStyles.modalText}>Aucune description disponible.</p>}
             </div>
         </div>
     );
