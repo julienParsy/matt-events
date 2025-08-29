@@ -1,34 +1,67 @@
-// backend/mailer.js
+// /app/services/emailService.js
 const nodemailer = require("nodemailer");
 
-const transporter = nodemailer.createTransport({
-    host: process.env.SMTP_HOST || "ssl0.ovh.net",
-    port: Number(process.env.SMTP_PORT || 465),
-    secure: true, // true pour 465
-    auth: {
-        user: process.env.EMAIL_USER, // ex: contact@mattevents.fr
-        pass: process.env.EMAIL_PASS,
-    },
-    tls: {
-        // Railway peut être tatillon sur les certifs
-        rejectUnauthorized: false,
-    },
-    // Anti timeouts si pics :
-    pool: true,
-    maxConnections: 3,
-    maxMessages: 50,
-});
+const HOST = process.env.SMTP_HOST || "ssl0.ovh.net";
+const USER = process.env.EMAIL_USER;
+const PASS = process.env.EMAIL_PASS;
+
+function buildTransport({ port, secure }) {
+    return nodemailer.createTransport({
+        host: HOST,
+        port,
+        secure,                // 465 => true, 587 => false
+        auth: { user: USER, pass: PASS },
+        tls: { rejectUnauthorized: false },
+        // ↓ évite les 2 minutes de blocage
+        connectionTimeout: 20000,  // 20s
+        greetingTimeout: 15000,
+        socketTimeout: 30000,
+        pool: true,
+        maxConnections: 3,
+        maxMessages: 50,
+        // Active les logs si besoin, désactive une fois ok
+        logger: true, debug: true,
+    });
+}
+
+const t465 = buildTransport({ port: Number(process.env.SMTP_PORT || 465), secure: true });
+
+function isNetErr(err) {
+    const msg = String(err && (err.code || err.response || err.message || err));
+    return /ETIMEDOUT|ECONNREFUSED|ESOCKET|EHOSTUNREACH|ECONNRESET|ENOTFOUND|TLSSocket/i.test(msg);
+}
 
 async function sendMail(opts) {
     const defaults = {
-        from: `"Matt'events" <${process.env.FROM_EMAIL || process.env.EMAIL_USER}>`,
-        to: process.env.EMAIL_TO || process.env.EMAIL_RECEIVER || process.env.EMAIL_USER,
-        headers: {
-            "X-Priority": "3",
-            "X-Mailer": "Matt'events Mailer",
-        },
+        from: `"Matt'events" <${process.env.FROM_EMAIL || USER}>`,
+        to: process.env.EMAIL_TO || process.env.EMAIL_RECEIVER || USER,
+        headers: { "X-Mailer": "Matt'events Mailer" },
     };
-    return transporter.sendMail({ ...defaults, ...opts });
+
+    try {
+        return await t465.sendMail({ ...defaults, ...opts });
+    } catch (err) {
+        // Fallback si problème réseau/port 465
+        if (isNetErr(err)) {
+            const t587 = buildTransport({ port: 587, secure: false });
+            return await t587.sendMail({ ...defaults, ...opts });
+        }
+        throw err;
+    }
 }
 
-module.exports = { transporter, sendMail };
+async function verifySMTP() {
+    try {
+        await t465.verify();
+        return { ok: true, port: 465 };
+    } catch (err) {
+        if (isNetErr(err)) {
+            const t587 = buildTransport({ port: 587, secure: false });
+            await t587.verify();
+            return { ok: true, port: 587 };
+        }
+        throw err;
+    }
+}
+
+module.exports = { sendMail, verifySMTP };
