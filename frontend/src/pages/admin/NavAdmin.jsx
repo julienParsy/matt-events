@@ -63,6 +63,13 @@ export default function NavAdmin() {
             >
                 Politique de confidentialité
             </NavLink>
+            <NavLink
+                to="/mentions-legales"
+                className={styles.link}
+                state={{ edit: true }}
+            >
+                Mentions légales
+            </NavLink>
 
         </nav>
     );

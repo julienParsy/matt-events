@@ -3,6 +3,7 @@ import Cart from '../components/Cart';
 import ReCAPTCHA from 'react-google-recaptcha';
 import styles from '../styles/components/Cart.module.css';
 import modalStyles from '../styles/components/Modal.module.css';
+import stylesCaptcha from "../styles/components/Recaptcha.module.css";
 import http from '../services/axiosInstance';
 
 const deliveryOptions = [
@@ -235,7 +236,7 @@ export default function CartPage({ cart, setCart }) {
                             </div>
 
 
-                            <div className="mt-3">
+                        <div className={stylesCaptcha.container}>
                                 <ReCAPTCHA
                                     sitekey={import.meta.env.VITE_RECAPTCHA_SITE_KEY}
                                     onChange={handleCaptchaChange}

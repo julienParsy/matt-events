@@ -17,6 +17,7 @@ import CartPage from './pages/CartPage';
 import AboutSection from './pages/AboutSection';
 import Contact from './pages/Contact';
 import PrivacyPolicy from './pages/PrivacyPolicy';
+import MentionsLegales from "./pages/MentionsLegales";
 import ResetPassword from './pages/ResetPassword';
 import AdminCategories from './pages/admin/Categories';
 import AdminSettings from './pages/admin/AdminSettings';
@@ -83,7 +84,6 @@ function App() {
               path="/admin"
               element={isAdmin ? <AdminPanel /> : <Navigate to="/login" />}
             />
-            <Route path="/confidentialite" element={<PrivacyPolicy />} />
             <Route
               path="/admin/categories"
               element={isAdmin ? <AdminCategories /> : <Navigate to="/login" />}
@@ -105,6 +105,8 @@ function App() {
               element={isAdmin ? <AdminLogoSettings /> : <Navigate to="/login" />}
             />
             <Route path="/a-propos" element={<AboutSection />} />
+            <Route path="/confidentialite" element={<PrivacyPolicy />} />
+            <Route path="/mentions-legales" element={<MentionsLegales />} />
             <Route path="/reset-password/:token" element={<ResetPassword />} />
             <Route
               path="/contact"

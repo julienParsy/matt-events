@@ -1,22 +1,18 @@
-// src/pages/Contact.jsx+
+// src/pages/Contact.jsx
 import React, { useState, useRef } from "react";
 import ReCAPTCHA from "react-google-recaptcha";
 import styles from "../styles/pages/Contact.module.css";
 import stylesBtn from "../styles/components/Button.module.css";
+import stylesCaptcha from "../styles/components/Recaptcha.module.css";
 import http from "../services/axiosInstance";
 
 export default function Contact() {
-    const [form, setForm] = useState({
-        nom: "",
-        email: "",
-        message: "",
-    });
+    const [form, setForm] = useState({ nom: "", email: "", message: "" });
     const [sent, setSent] = useState(false);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
     const [captchaToken, setCaptchaToken] = useState("");
     const recaptchaRef = useRef(null);
-
 
     function handleChange(e) {
         setForm({ ...form, [e.target.name]: e.target.value });
@@ -24,24 +20,29 @@ export default function Contact() {
 
     async function handleSubmit(e) {
         e.preventDefault();
-        setLoading(true);
         setError("");
+
+        if (!captchaToken) {
+            setError("Merci de valider le captcha");
+            return;
+        }
+
+        setLoading(true);
         try {
-            await http.post("/contact", form);
-            if (!captchaToken) { setError("Merci de valider le captcha"); setLoading(false); return; }
             await http.post("/contact", { ...form, recaptchaToken: captchaToken });
+
             setSent(true);
             setForm({ nom: "", email: "", message: "" });
             setCaptchaToken("");
             recaptchaRef.current?.reset();
-        } catch {
+        } catch (err) {
+            console.error("Erreur lors de l'envoi du message:", err);
             setError("Erreur lors de l'envoi du message. Merci de réessayer !");
             setSent(false);
         } finally {
             setLoading(false);
         }
     }
-
 
     return (
         <section className={styles.contactSection}>
@@ -50,6 +51,7 @@ export default function Contact() {
                 Une question, un besoin spécifique, un devis personnalisé ?<br />
                 Remplissez le formulaire ci-dessous, nous reviendrons vers vous rapidement.
             </p>
+
             {sent ? (
                 <div className={styles.confirmation}>
                     <p>
@@ -59,9 +61,10 @@ export default function Contact() {
                 </div>
             ) : (
                 <form className={styles.contactForm} onSubmit={handleSubmit} autoComplete="off">
-                    <label>
+                    <label htmlFor="nom">
                         Nom&nbsp;:
                         <input
+                            id="nom"
                             type="text"
                             name="nom"
                             value={form.nom}
@@ -70,9 +73,11 @@ export default function Contact() {
                             autoComplete="name"
                         />
                     </label>
-                    <label>
+
+                    <label htmlFor="email">
                         Email&nbsp;:
                         <input
+                            id="email"
                             type="email"
                             name="email"
                             value={form.email}
@@ -81,9 +86,11 @@ export default function Contact() {
                             autoComplete="email"
                         />
                     </label>
-                    <label>
+
+                    <label htmlFor="message">
                         Votre message&nbsp;:
                         <textarea
+                            id="message"
                             name="message"
                             value={form.message}
                             onChange={handleChange}
@@ -92,27 +99,27 @@ export default function Contact() {
                             maxLength={1500}
                         />
                     </label>
-                    <ReCAPTCHA
-                        ref={recaptchaRef}
-                        sitekey={import.meta.env.VITE_RECAPTCHA_SITE_KEY}
-                        onChange={setCaptchaToken}
-                    />
-                    <button className={`${stylesBtn.button} ${stylesBtn.btnConnexion}`} type="submit" disabled={loading}>
 
+                    <div className={stylesCaptcha.container}>
+                        <ReCAPTCHA
+                            ref={recaptchaRef}
+                            sitekey={import.meta.env.VITE_RECAPTCHA_SITE_KEY}
+                            onChange={setCaptchaToken}
+                        />
+                    </div>
+
+                    <button
+                        className={`${stylesBtn.button} ${stylesBtn.btnConnexion}`}
+                        type="submit"
+                        disabled={loading}
+                    >
                         Envoyer
                     </button>
+
                     {error && <div className={styles.error}>{error}</div>}
                     {loading && <div className={styles.loading}>Envoi en cours…</div>}
-
                 </form>
             )}
-            {/* <div className={styles.directContact}>
-                <p>
-                    <span role="img" aria-label="phone">📞</span> Par téléphone : <a href="tel:+33600000000">06 00 00 00 00</a>
-                    <br />
-                    <span role="img" aria-label="mail">📧</span> Par email : <a href="mailto:contact@mattevents.fr">contact@mattevents.fr</a>
-                </p>
-            </div> */}
         </section>
     );
 }

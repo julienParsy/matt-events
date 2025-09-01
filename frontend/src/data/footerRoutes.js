@@ -13,6 +13,10 @@ const footerRoutes = [
         name: 'Politique de confidentialité',
         path: '/confidentialite',
     },
+    {
+        name: 'Mentions légales',
+        path: '/mentions-legales',
+    },
 ];
 
 export default footerRoutes;

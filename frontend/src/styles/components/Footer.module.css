@@ -50,6 +50,11 @@
     transition: color 0.2s ease;
 }
 
+.footerLinks a.active::after {
+    width: 100%;
+    background-color: var(--color-secondary);
+}
+
 /* Soulignement animé, accessible (désactivé si reduce motion) */
 .footerLinks a::after {
     content: '';
@@ -62,8 +67,13 @@
     transition: width 0.25s ease;
 }
 
-.footerLinks a:hover { color: var(--color-link); }
-.footerLinks a:hover::after { width: 100%; }
+.footerLinks a:hover { 
+    color: var(--color-text); 
+}
+
+.footerLinks a:hover::after { 
+    width: 100%; 
+}
 
 /* Focus visible clavier */
 .footerLinks a:focus-visible {
