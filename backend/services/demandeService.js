@@ -32,9 +32,13 @@ async function deleteDemande(id) {
     await demandeModel.deleteDemande(id);
 }
 
-async function generateDevis(id, frais) {
+async function generateDevis(id, data) {
     const d = await demandeModel.getDemandeById(id);
     if (!d) throw Object.assign(new Error('Demande non trouvée'), { status: 404 });
+
+    // Priorité à l'adresse passée depuis le formulaire admin, sinon à celle stockée
+    const adresse = data.adresse || d.adresse || '-';
+
     return generateDevisPDF({
         produits: d.produits,
         email: d.email,
@@ -43,13 +47,21 @@ async function generateDevis(id, frais) {
         telephone: d.telephone,
         eventDate: d.event_date,
         deliveryType: d.deliverytype,
-        frais
+        adresse,
+        frais: {
+            montage: data.montage,
+            livraison: data.livraison,
+            caution: data.caution
+        }
     });
 }
 
-async function generateFacture(id, frais) {
+async function generateFacture(id, data) {
     const d = await demandeModel.getDemandeById(id);
     if (!d) throw Object.assign(new Error('Demande non trouvée'), { status: 404 });
+
+    const adresse = data.adresse || d.adresse || '-';
+
     return generateFacturePDF({
         produits: d.produits,
         email: d.email,
@@ -60,9 +72,20 @@ async function generateFacture(id, frais) {
         deliveryType: d.deliverytype,
         factureNumero: `FAC${id}`,
         dateFacture: new Date().toLocaleDateString('fr-FR'),
-        frais
+        adresse,
+        frais: {
+            montage: data.montage,
+            livraison: data.livraison,
+            caution: data.caution
+        }
     });
 }
+
+// si tu veux, tu peux mettre à jour l'adresse en BDD pour garder une trace
+async function updateAdresse(id, adresse) {
+    await demandeModel.updateAdresse(id, adresse);
+}
+
 
 async function generateDemande(id) {
     const d = await demandeModel.getDemandeById(id);
@@ -74,14 +97,17 @@ async function generateDemande(id) {
         prenom: d.prenom,
         telephone: d.telephone,
         eventDate: d.event_date,
-        deliveryType: d.deliverytype
+        deliveryType: d.deliverytype,
+        adresse: d.adresse 
     });
 }
+
 
 module.exports = {
     createDemandeAndSendEmail,
     getDemandeById,
     getAllDemandes,
+    updateAdresse,
     updateDemandeStatut,
     updateFrais,
     deleteDemande,

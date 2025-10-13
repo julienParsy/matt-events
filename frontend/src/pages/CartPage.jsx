@@ -18,7 +18,8 @@ const initialForm = {
     telephone: '',
     email: '',
     eventDate: '',
-    deliveryType: "pickup", // par défaut
+    deliveryType: "pickup",
+    adresse: '',
 };
 
 export default function CartPage({ cart, setCart }) {
@@ -194,6 +195,16 @@ export default function CartPage({ cart, setCart }) {
                                     )}
                                 </div>
                             ))}
+
+                            <div>
+                                <label className={modalStyles.modalLabel}>Adresse</label>
+                                <input
+                                    name="adresse"
+                                    value={form.adresse || ''}
+                                    onChange={handleChange}
+                                    className={modalStyles.modalInput}
+                                />
+                            </div>
 
                             <label className={modalStyles.modalLabel}>
                                 Date de votre événement *

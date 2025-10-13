@@ -47,13 +47,15 @@ function addHeader(doc) {
     doc.restore();
 }
 
-function renderClientBox(doc, { nom, prenom, telephone, email, eventDate }, x, width) {
+function renderClientBox(doc, { nom, prenom, telephone, email, eventDate, adresse }, x, width) {
     const padding = 10, lineHeight = 18, titleHeight = 20;
     const dateStr = eventDate ? new Date(eventDate).toLocaleDateString('fr-FR', { dateStyle: 'full' }) : '-';
+    const adresseStr = adresse || '-'; // si adresse non fournie
     const lines = [
         `Nom : ${prenom} ${nom}`,
         `Téléphone : ${telephone}`,
         `Email : ${email}`,
+        `Adresse : ${adresseStr}`,
         `Date de l’événement : ${dateStr}`
     ];
     const boxHeight = titleHeight + lines.length * lineHeight + padding * 2;
@@ -71,6 +73,8 @@ function renderClientBox(doc, { nom, prenom, telephone, email, eventDate }, x, w
     });
     doc.moveDown(2);
 }
+
+
 
 function renderTable(doc, produits, itemX, modelX, qtyX, unitX, totalX, fullWidth) {
     const headerY = doc.y;

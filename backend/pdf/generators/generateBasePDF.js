@@ -9,7 +9,7 @@ function toNumber(v) {
 
 function generateBasePDF(doc, args) {
     const {
-        produits, email, nom, prenom, telephone, eventDate, deliveryType, frais = {},
+        produits, email, nom, prenom, telephone, eventDate, adresse, deliveryType, frais = {},
         titre = '', couleurTitre = '#000', couleurTotal = '#000',
         showConditions = true, includeCaution = true, caution = 0, dateLabel = ''
     } = args;
@@ -50,7 +50,7 @@ function generateBasePDF(doc, args) {
             .moveDown();
     }
 
-    renderClientBox(doc, { nom, prenom, telephone, email, eventDate }, itemX, fullWidth);
+    renderClientBox(doc, { nom, prenom, telephone, email, eventDate, adresse }, itemX, fullWidth);
 
     const optionsText = deliveryType === "setup"
         ? "Livraison avec installation (montage/démontage demandés)"

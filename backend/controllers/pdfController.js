@@ -1,4 +1,5 @@
 const demandeService = require('../services/demandeService');
+const { generateDevis, generateFacture, updateAdresse } = demandeService;
 
 exports.createDemande = async (req, res, next) => {
     try {
@@ -14,6 +15,7 @@ exports.createDemande = async (req, res, next) => {
         // Regroupe tout pour le service
         const data = {
             ...client,
+            adresse: client.adresse,
             produits,
             captchaToken,
             download
@@ -33,36 +35,27 @@ exports.createDemande = async (req, res, next) => {
 };
 
 
-exports.generateDevis = async (req, res, next) => {
-    try {
-        const { id } = req.params;
-        const { montage = 0, livraison = 0, caution = 0 } = req.body;
-        const pdfBuffer = await demandeService.generateDevis(id, { montage, livraison, caution });
-        res.set({
-            'Content-Type': 'application/pdf',
-            'Content-Disposition': `attachment; filename=devis_${id}.pdf`,
-            'Content-Length': pdfBuffer.length
-        });
-        res.send(pdfBuffer);
-    } catch (err) {
-        next(err);
-    }
+exports.generateDevis = async (req, res) => {
+    const { id } = req.params;
+    const data = req.body; // adresse, montage, livraison, caution
+
+    // On peut sauvegarder l'adresse si elle existe
+    if (data.adresse) await updateAdresse(id, data.adresse);
+
+    const pdfBuffer = await generateDevis(id, data);
+    res.setHeader('Content-Type', 'application/pdf');
+    res.send(pdfBuffer);
 };
 
-exports.generateFacture = async (req, res, next) => {
-    try {
-        const { id } = req.params;
-        const { montage = 0, livraison = 0, caution = 0 } = req.body;
-        const pdfBuffer = await demandeService.generateFacture(id, { montage, livraison, caution });
-        res.set({
-            'Content-Type': 'application/pdf',
-            'Content-Disposition': `attachment; filename=facture_${id}.pdf`,
-            'Content-Length': pdfBuffer.length
-        });
-        res.send(pdfBuffer);
-    } catch (err) {
-        next(err);
-    }
+exports.generateFacture = async (req, res) => {
+    const { id } = req.params;
+    const data = req.body;
+
+    if (data.adresse) await updateAdresse(id, data.adresse);
+
+    const pdfBuffer = await generateFacture(id, data);
+    res.setHeader('Content-Type', 'application/pdf');
+    res.send(pdfBuffer);
 };
 
 exports.generateDemande = async (req, res, next) => {

@@ -3,17 +3,27 @@ const db = require('../config/db');
 // Création d'une demande
 async function createDemande(data) {
     const insertQuery = `
-        INSERT INTO demandes (produits, email, nom, prenom, telephone, event_date, statut, deliverytype, montage, livraison, caution)
-        VALUES ($1, $2, $3, $4, $5, $6, 'en_attente', $7, $8, $9, $10)
+        INSERT INTO demandes (produits, email, nom, prenom, telephone, event_date, statut, deliverytype, montage, livraison, caution, adresse)
+        VALUES ($1, $2, $3, $4, $5, $6, 'en_attente', $7, $8, $9, $10, $11)
         RETURNING *
     `;
     const values = [
-        JSON.stringify(data.produits), data.email, data.nom, data.prenom, data.telephone,
-        data.eventDate, data.deliveryType, data.montage, data.livraison, data.caution
+        JSON.stringify(data.produits),
+        data.email,
+        data.nom,
+        data.prenom,
+        data.telephone,
+        data.eventDate,
+        data.deliveryType,
+        data.montage,
+        data.livraison,
+        data.caution,
+        data.adresse // ajout de l'adresse
     ];
     const { rows } = await db.query(insertQuery, values);
     return rows[0];
 }
+
 
 // Récupération
 async function getDemandeById(id) {
@@ -28,6 +38,10 @@ async function getAllDemandes() {
 
 async function updateDemandeStatut(id, statut) {
     await db.query('UPDATE demandes SET statut = $1 WHERE id = $2', [statut, id]);
+}
+
+async function updateAdresse(id, adresse) {
+    await db.query('UPDATE demandes SET adresse = $1 WHERE id = $2', [adresse, id]);
 }
 
 async function updateFrais(id, montage, livraison, caution) {
@@ -48,5 +62,6 @@ module.exports = {
     getAllDemandes,
     updateDemandeStatut,
     updateFrais,
+    updateAdresse,
     deleteDemande
 };

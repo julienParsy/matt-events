@@ -11,6 +11,7 @@ export default function AdminDevisFacture() {
     const { id } = useParams();
     const [demande, setDemande] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [adresse, setAdresse] = useState('');
     const [montage, setMontage] = useState(0);
     const [livraison, setLivraison] = useState(0);
     const [caution, setCaution] = useState(0);
@@ -21,6 +22,7 @@ export default function AdminDevisFacture() {
             try {
                 const res = await axiosInstance.get(`/demande/${id}`);
                 setDemande(res.data);
+                setAdresse(res.data.adresse || ''); // <- pré-remplissage
             } catch (err) {
                 console.error("Erreur récupération de la demande :", err);
             } finally {
@@ -30,10 +32,12 @@ export default function AdminDevisFacture() {
         fetchDemande();
     }, [id]);
 
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
             const res = await axiosInstance.post(`/demande/${id}/${typeDoc}`, {
+                adresse,
                 montage: parseFloat(montage),
                 livraison: parseFloat(livraison),
                 caution: parseFloat(caution)
@@ -71,6 +75,19 @@ export default function AdminDevisFacture() {
                         <span className={stylesBack.breadcrumbSep}>/</span>
                         <span className={stylesBack.breadcrumbItemActive}>Générer {typeDoc === 'devis' ? 'un devis' : 'une facture'}  </span>
                     </nav>
+                    <div className={styles.formGroup}>
+                        <label className={modalStyles.modalLabel} htmlFor="adresse">Adresse du client</label>
+                        <input
+                            type="text"
+                            id="adresse"
+                            value={adresse}
+                            onChange={(e) => setAdresse(e.target.value)}
+                            className={modalStyles.modalInput}
+                            placeholder="Ex : 12 rue de la Paix, Lille"
+                            required
+                        />
+                    </div>
+
                 <div className={styles.formGroup}>
                     <label className={modalStyles.modalLabel} htmlFor="montage">Frais de montage / démontage (€)</label>
                     <input
