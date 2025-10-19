@@ -14,19 +14,29 @@ export default function PackModal({ isOpen, mode, pack, onClose, onSuccess }) {
         description: '',
         prix: '',
         image_url: '',
-        produits: []
+        produits: [],
+        stock: '',
+        sous_categorie_id: ''
     });
+
     const [products, setProducts] = useState([]);
+    const [sousCategories, setSousCategories] = useState([]);
     const [loading, setLoading] = useState(false);
     const [imageFile, setImageFile] = useState(null);
     const [selectedProdId, setSelectedProdId] = useState('');
     const [selectedProdQty, setSelectedProdQty] = useState(1);
-    const [error, setError] = useState(''); // Pour afficher les erreurs
+    const [error, setError] = useState('');
 
     useEffect(() => {
         axiosInstance.get('/products')
             .then(res => setProducts(res.data))
             .catch(err => console.error('Erreur chargement produits', err));
+    }, []);
+
+    useEffect(() => {
+        axiosInstance.get('/sous-categories')
+            .then(res => setSousCategories(res.data))
+            .catch(err => console.error('Erreur chargement sous-catégories', err));
     }, []);
 
     useEffect(() => {
@@ -39,11 +49,21 @@ export default function PackModal({ isOpen, mode, pack, onClose, onSuccess }) {
                 produits: pack.produits.map(p => ({
                     produit_id: p.id,
                     quantite: p.quantite
-                }))
+                })),
+                stock: pack.stock || '',
+                sous_categorie_id: pack.sous_categorie_id || ''
             });
             setImageFile(null);
         } else if (mode === 'add') {
-            setForm({ nom: '', description: '', prix: '', image_url: '', produits: [] });
+            setForm({
+                nom: '',
+                description: '',
+                prix: '',
+                image_url: '',
+                produits: [],
+                stock: '',
+                sous_categorie_id: ''
+            });
             setImageFile(null);
         }
         setError('');
@@ -60,36 +80,49 @@ export default function PackModal({ isOpen, mode, pack, onClose, onSuccess }) {
         }
     };
 
-    function addProductToForm() {
+    const addProductToForm = () => {
+        if (!selectedProdId) return;
+
         const prod = products.find(p => p.id === selectedProdId);
         if (!prod) return;
-        const stock = prod.stock ?? 1;
-        const totalAsked = selectedProdQty;
 
-        if (totalAsked > stock) {
+        const stock = prod.stock ?? 1;
+        let qty = selectedProdQty;
+        if (qty < 1) qty = 1;
+        if (qty > stock) {
             setError(`Stock insuffisant pour ${prod.nom} — ${prod.modele} (max: ${stock})`);
             return;
         }
+
         setForm(prev => {
-            const others = prev.produits.filter(p => p.produit_id !== selectedProdId);
-            const newProduits = [
-                ...others,
-                { produit_id: selectedProdId, quantite: totalAsked }
-            ];
+            const existing = prev.produits.find(p => p.produit_id === selectedProdId);
+            let newProduits;
+            if (existing) {
+                newProduits = prev.produits.map(p =>
+                    p.produit_id === selectedProdId
+                        ? { ...p, quantite: qty }
+                        : p
+                );
+            } else {
+                newProduits = [...prev.produits, { produit_id: selectedProdId, quantite: qty }];
+            }
+
             const descList = newProduits
                 .map(item => {
-                    const prod2 = products.find(p => p.id === item.produit_id);
-                    return prod2 ? `- ${prod2.nom} — ${prod2.modele} × ${item.quantite}` : '';
+                    const p2 = products.find(p => p.id === item.produit_id);
+                    return p2 ? `- ${p2.nom} — ${p2.modele} × ${item.quantite}` : '';
                 })
                 .join('\n');
+
             return { ...prev, produits: newProduits, description: descList };
         });
+
         setSelectedProdId('');
         setSelectedProdQty(1);
         setError('');
-    }
+    };
 
-    function removeProductFromForm(produit_id) {
+    const removeProductFromForm = produit_id => {
         setForm(prev => {
             const filtered = prev.produits.filter(p => p.produit_id !== produit_id);
             const descList = filtered
@@ -100,14 +133,13 @@ export default function PackModal({ isOpen, mode, pack, onClose, onSuccess }) {
                 .join('\n');
             return { ...prev, produits: filtered, description: descList };
         });
-    }
+    };
 
     const handleSubmit = async e => {
         e.preventDefault();
         setError('');
         setLoading(true);
 
-        // Validation personnalisée
         if (!form.nom.trim()) {
             setError('Le nom du pack est obligatoire.');
             setLoading(false);
@@ -115,6 +147,11 @@ export default function PackModal({ isOpen, mode, pack, onClose, onSuccess }) {
         }
         if (!form.prix || Number(form.prix) <= 0) {
             setError('Le prix doit être supérieur à 0.');
+            setLoading(false);
+            return;
+        }
+        if (!form.stock || Number(form.stock) < 0) {
+            setError('Le stock doit être renseigné et supérieur ou égal à 0.');
             setLoading(false);
             return;
         }
@@ -138,6 +175,7 @@ export default function PackModal({ isOpen, mode, pack, onClose, onSuccess }) {
             const payload = {
                 ...form,
                 prix: Number(form.prix),
+                stock: Number(form.stock),
                 image_url: imageUrl,
                 produits: form.produits
             };
@@ -167,7 +205,6 @@ export default function PackModal({ isOpen, mode, pack, onClose, onSuccess }) {
             onClose={onClose}
         >
             <form onSubmit={handleSubmit} encType="multipart/form-data">
-                {/* Message d'erreur */}
                 {error && <div style={{ color: 'red', marginBottom: '1em' }}>{error}</div>}
 
                 <label className={formStyles.modalLabel}>
@@ -181,6 +218,7 @@ export default function PackModal({ isOpen, mode, pack, onClose, onSuccess }) {
                         required
                     />
                 </label>
+
                 <label className={formStyles.modalLabel}>
                     Description
                     <textarea
@@ -190,6 +228,7 @@ export default function PackModal({ isOpen, mode, pack, onClose, onSuccess }) {
                         onChange={handleChange}
                     />
                 </label>
+
                 <label className={formStyles.modalLabel}>
                     Prix (€)
                     <input
@@ -203,17 +242,38 @@ export default function PackModal({ isOpen, mode, pack, onClose, onSuccess }) {
                         step={0.01}
                     />
                 </label>
+
                 <label className={formStyles.modalLabel}>
                     Stock
                     <input
                         className={formStyles.modalInput}
                         name="stock"
                         type="number"
-                        value={form.stock || ''}
-                        onChange={e => handleChange({ target: { name: 'stock', value: e.target.value } })}
+                        value={form.stock}
+                        onChange={handleChange}
                         required
+                        min={0}
                     />
                 </label>
+
+                <label className={formStyles.modalLabel}>
+                    Sous-catégorie
+                    <select
+                        className={formStyles.modalSelect}
+                        name="sous_categorie_id"
+                        value={form.sous_categorie_id || ''}
+                        onChange={handleChange}
+                        required
+                    >
+                        <option value="">— Choisir une sous-catégorie —</option>
+                        {sousCategories.map(sc => (
+                            <option key={sc.id} value={sc.id}>
+                                {sc.nom}
+                            </option>
+                        ))}
+                    </select>
+                </label>
+
                 <label className={formStyles.modalLabel}>
                     Image
                     <input
@@ -231,14 +291,11 @@ export default function PackModal({ isOpen, mode, pack, onClose, onSuccess }) {
                         className={`${btnStyles.button} ${btnStyles.btnFileUpload}`}
                         onClick={() => document.getElementById('pack-file-upload').click()}
                     >
-                        {imageFile
-                            ? imageFile.name
-                            : form.image_url
-                                ? 'Image actuelle'
-                                : 'Choisir un fichier'}
+                        {imageFile ? imageFile.name : form.image_url ? 'Image actuelle' : 'Choisir un fichier'}
                     </button>
                 </div>
 
+                {/* Sélection des produits */}
                 <section className={formStyles.modalLabel}>
                     <h4>Sélectionner les produits</h4>
                     <div className={formStyles.productSelector}>
@@ -257,14 +314,13 @@ export default function PackModal({ isOpen, mode, pack, onClose, onSuccess }) {
                                 </option>
                             ))}
                         </select>
+
                         <input
                             type="number"
                             min="1"
-                            max={
-                                selectedProdId
-                                    ? products.find(p => p.id === selectedProdId)?.stock ?? 1
-                                    : 1
-                            }
+                            max={selectedProdId
+                                ? products.find(p => p.id === selectedProdId)?.stock ?? 1
+                                : 1}
                             value={selectedProdQty}
                             onChange={e => {
                                 const prod = products.find(p => p.id === selectedProdId);
@@ -285,12 +341,12 @@ export default function PackModal({ isOpen, mode, pack, onClose, onSuccess }) {
                             disabled={
                                 !selectedProdId ||
                                 selectedProdQty < 1 ||
-                                (selectedProdId &&
-                                    selectedProdQty > (products.find(p => p.id === selectedProdId)?.stock ?? 1))
+                                (selectedProdId && selectedProdQty > (products.find(p => p.id === selectedProdId)?.stock ?? 1))
                             }
                         >
                             Ajouter
                         </button>
+
                         {selectedProdId && (
                             <span style={{ fontSize: '0.85em', color: '#888', marginLeft: 6 }}>
                                 (max: {products.find(p => p.id === selectedProdId)?.stock ?? 1})
@@ -301,14 +357,41 @@ export default function PackModal({ isOpen, mode, pack, onClose, onSuccess }) {
                     <ul className={listProductsStyles.productList}>
                         {form.produits.map(({ produit_id, quantite }) => {
                             const prod = products.find(p => p.id === produit_id);
+                            const stock = prod?.stock ?? 1;
+
                             return (
                                 <li key={produit_id} className={listProductsStyles.productListItem}>
-                                    <span>
-                                        {prod
-                                            ? `${prod.nom} — ${prod.modele}`
-                                            : 'Produit inconnu'}
-                                    </span>
-                                    <span className={formStyles.productQty}>× {quantite}</span>
+                                    <span>{prod ? `${prod.nom} — ${prod.modele}` : 'Produit inconnu'}</span>
+
+                                    {/* Modification directe de la quantité */}
+                                    <input
+                                        type="number"
+                                        min="1"
+                                        max={stock}
+                                        value={quantite}
+                                        onChange={e => {
+                                            let newQty = Number(e.target.value);
+                                            if (newQty < 1) newQty = 1;
+                                            if (newQty > stock) newQty = stock;
+
+                                            setForm(prev => {
+                                                const updated = prev.produits.map(p =>
+                                                    p.produit_id === produit_id ? { ...p, quantite: newQty } : p
+                                                );
+
+                                                const descList = updated
+                                                    .map(item => {
+                                                        const p2 = products.find(p => p.id === item.produit_id);
+                                                        return p2 ? `- ${p2.nom} — ${p2.modele} × ${item.quantite}` : '';
+                                                    })
+                                                    .join('\n');
+
+                                                return { ...prev, produits: updated, description: descList };
+                                            });
+                                        }}
+                                        className={formStyles.productQty}
+                                    />
+
                                     <button
                                         type="button"
                                         className={`${btnStyles.button} ${btnStyles.supprimer}`}
@@ -324,21 +407,11 @@ export default function PackModal({ isOpen, mode, pack, onClose, onSuccess }) {
                 </section>
 
                 <div className={formStyles.modalButtons}>
-                    <button
-                        type="button"
-                        className={formStyles.btnCancel}
-                        onClick={onClose}
-                    >
+                    <button type="button" className={formStyles.btnCancel} onClick={onClose}>
                         Annuler
                     </button>
-                    <button
-                        type="submit"
-                        disabled={loading}
-                        className={`${btnStyles.button} ${btnStyles.btnNew}`}
-                    >
-                        {loading
-                            ? 'Enregistrement...'
-                            : (mode === 'edit' ? 'Mettre à jour' : 'Ajouter')}
+                    <button type="submit" disabled={loading} className={`${btnStyles.button} ${btnStyles.btnNew}`}>
+                        {loading ? 'Enregistrement...' : mode === 'edit' ? 'Mettre à jour' : 'Ajouter'}
                     </button>
                 </div>
             </form>

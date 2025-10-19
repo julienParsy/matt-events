@@ -5,6 +5,7 @@ import ProductModal from '../../components/Modal/ProductModal';
 import PackCard from '../../components/PackCard';
 import PackModal from '../../components/Modal/PackModal';
 import CategoryNav from '../../components/CategoryNav';
+import SousCategoryNav from '../../components/SousCategoryNav';
 import NavAdmin from './NavAdmin';
 import btnStyles from '../../styles/components/Button.module.css';
 import styles from '../../styles/components/CategoryList.module.css';
@@ -18,6 +19,8 @@ export default function AdminPanel() {
     const [groupedCatalog, setGroupedCatalog] = useState([]);
     const [packs, setPacks] = useState([]);
     const [categories, setCategories] = useState([]);
+    const [sousCategories, setSousCategories] = useState([]);
+    const [selectedSousCategory, setSelectedSousCategory] = useState(null);
     const [selectedCategory, setSelectedCategory] = useState(null);
 
     // Modal états (produit et pack)
@@ -43,6 +46,12 @@ export default function AdminPanel() {
             .then(setCategories)
             .catch(err => console.error('❌ Erreur chargement catégories :', err));
 
+    }, []);
+
+    useEffect(() => {
+        axiosInstance.get('/sous-categories')
+            .then(res => setSousCategories(res.data))
+            .catch(err => console.error('❌ Erreur chargement sous-catégories :', err));
     }, []);
 
     const refreshCatalog = async () => {
@@ -146,8 +155,12 @@ export default function AdminPanel() {
     // Pour la vue "toutes catégories" (mélangé packs et produits)
     const displayedAllItems = filterAndSortItems(allItems);
     // Pour la vue packs uniquement
+    const filteredPacks = selectedSousCategory
+        ? packs.filter(p => Number(p.sous_categorie_id) === Number(selectedSousCategory.id))
+        : packs;
+
     const displayedPacks = filterAndSortItems(
-        packs.map(pack => ({ ...pack, _type: 'pack' }))
+        filteredPacks.map(pack => ({ ...pack, _type: 'pack' }))
     );
     // Pour la vue produits par catégorie
     function getDisplayedProductsFlat(produits) {
@@ -168,7 +181,16 @@ export default function AdminPanel() {
                 categories={categories}
                 selectedCategory={selectedCategory}
                 onSelectCategory={setSelectedCategory}
-            />
+                />
+                
+            {isPackView && sousCategories.length > 0 && (
+                <SousCategoryNav
+                    sousCategories={sousCategories}
+                    selectedSousCategory={selectedSousCategory}
+                    onSelectSousCategory={setSelectedSousCategory}
+                />
+            )}
+
 
             <div className={styles.search}>
                 <select

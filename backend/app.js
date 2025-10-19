@@ -121,6 +121,7 @@ const categoriesRoutes = require('./routes/categoryRoutes');
 const packRoutes = require('./routes/packRoutes');
 const contactRoutes = require('./routes/contactRoutes');
 const pageRoutes = require('./routes/pageRoutes');
+const sousCategorieRoutes = require('./routes/sousCategorieRoutes');
 
 const debugRoutes = require("./routes/debugRoutes");
 app.use("/api/debug", debugRoutes);
@@ -134,6 +135,9 @@ app.use('/api/categories', categoriesRoutes);
 app.use('/api/packs', packRoutes);
 app.use('/api/contact', contactRoutes);
 app.use('/api/pages', pageRoutes);
+app.use('/api/sous-categories', sousCategorieRoutes);
+
+
 
 // 8) Gestion des erreurs (toujours en dernier)
 app.use(errorHandler);
