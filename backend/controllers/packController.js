@@ -41,10 +41,10 @@ exports.createPack = async (req, res, next) => {
 // Mettre à jour un pack
 exports.updatePack = async (req, res, next) => {
     try {
-        const { nom, description, prix, image_url, produits, stock } = req.body;
+        const { nom, description, prix, image_url, produits, stock, sous_categorie_id } = req.body;
         await packService.updatePack(
             req.params.id,
-            { nom, description, prix, image_url, stock },
+            { nom, description, prix, image_url, stock, sous_categorie_id }, // ← ajouté
             produits
         );
         res.sendStatus(204);

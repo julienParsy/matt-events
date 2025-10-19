@@ -24,7 +24,7 @@ async function createPack(packData, produits) {
 }
 
 async function updatePack(id, packData, produits) {
-    await packModel.updatePack(id, packData);
+    await packModel.updatePack(id, packData); 
     await packModel.deletePackProducts(id);
     for (const item of produits) {
         await packModel.insertPackProduct(id, item.produit_id, item.quantite);

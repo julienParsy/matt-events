@@ -1,30 +1,9 @@
+// src/routes/sousCategorieRoutes.js
 const express = require('express');
 const router = express.Router();
-const sousCategorieService = require('../services/sousCategorieService');
+const sousCategorieController = require('../controllers/sousCategorieController');
 
-// GET /sous-categories
-router.get('/', async (req, res) => {
-    try {
-        const sousCategories = await sousCategorieService.getAllSousCategories();
-        res.json(sousCategories);
-    } catch (err) {
-        console.error('Erreur get sous-catégories :', err);
-        res.status(500).json({ message: err.message });
-    }
-});
-
-// POST /sous-categories
-router.post('/', async (req, res) => {
-    try {
-        const { nom } = req.body;
-        if (!nom) return res.status(400).json({ message: 'Nom requis' });
-
-        const newSousCat = await sousCategorieService.createSousCategorie(nom);
-        res.status(201).json(newSousCat);
-    } catch (err) {
-        console.error('Erreur création sous-catégorie :', err);
-        res.status(500).json({ message: err.message });
-    }
-});
+router.get('/', sousCategorieController.getAllSousCategories);
+router.post('/', sousCategorieController.createSousCategorie);
 
 module.exports = router;
