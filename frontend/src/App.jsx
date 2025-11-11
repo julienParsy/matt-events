@@ -29,7 +29,7 @@ import { ToastContainer } from 'react-toastify';
 import './styles/Global.css';
 import 'react-toastify/dist/ReactToastify.css';
 import HomePage from './pages/HomePage';
-import AdminDevisFacture from './pages/admin/AdminDevisFacture';
+import AdminDocumentModal from './pages/admin/AdminDocumentModal';
 
 
 function App() {
@@ -118,7 +118,7 @@ function App() {
                 />
               }
             />
-            <Route path="/admin/demande/:id/devis" element={<AdminDevisFacture />} />
+            <Route path="/admin/demande/:id/devis" element={<AdminDocumentModal />} />
 
           </Routes>
             <ScrollToTopButton />

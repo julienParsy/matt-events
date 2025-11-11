@@ -5,12 +5,12 @@ import styles from '../styles/components/CategoryNav.module.css';
 const SOUS_PACKS_KEY = 'sous_packs';
 
 const sousCategoryColors = [
-    '#e67e22', // orange foncé
-    '#16a085', // vert émeraude
-    '#8e44ad', // violet profond
-    '#2980b9', // bleu
-    '#c0392b', // rouge foncé
-    '#27ae60'  // vert clair
+    '#e67e22', 
+    '#16a085', 
+    '#8e44ad', 
+    '#2980b9', 
+    '#c0392b', 
+    '#27ae60'  
 ];
 
 const getSousCategoryColor = key => {

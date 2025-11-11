@@ -13,7 +13,7 @@ function generateDemandePDF(args) {
         const totalTableWidth = 440; // à adapter selon ton layout
         generateBasePDF(doc, {
             ...args,
-            titre: 'Demande de location',
+            titre: `Demande de location #${args.demandeNumero || ''}`,
             couleurTitre: '#007ACC',
             couleurTotal: '#007ACC',
             showConditions: false, // on gère les conditions nous-même sur nouvelle page
@@ -30,13 +30,20 @@ function generateDemandePDF(args) {
 
         doc.moveDown(1);
 
-        drawSectionTitle(doc, "RETRAIT & LIVRAISON");
+        drawSectionTitle(doc, "Retrait & Livraison");
         drawBulletList(doc, [
             "Retrait sur place (uniquement sur rendez-vous à Erre - 59171)",
             "Livraison avec installation (sur devis selon distance et prestation)"
         ]);
 
-        drawSectionTitle(doc, "FRAIS DE MONTAGE / DÉMONTAGE");
+        drawSectionTitle(doc, "Arrhes & Paiement");
+        drawBulletList(doc, [
+            "Un acompte de 30% est demandé pour valider la réservation",
+            "Le solde est à régler au plus tard le jour de l'événement",
+            "Moyens de paiement acceptés : carte bancaire, virement, espèces, chèques"
+        ]);
+
+        drawSectionTitle(doc, "TARIFS D'INSTALLATION SONO & LUMIÈRE");
         drawBulletList(doc, [
             "Petite installation : 2 enceintes + jeux de lumière simples — 30 €",
             "Installation moyenne : Sonorisation + lumières + structure légère — 50 à 90 €",
@@ -57,7 +64,6 @@ function generateDemandePDF(args) {
         drawBulletList(doc, [
             "Une caution est demandée selon le type de matériel loué : de 30 € à 800 €",
             "Caution rendue à la restitution du matériel, sous réserve de bon état",
-            "Moyens de paiement acceptés : espèces, virement, carte, chèques (avec pièce d’identité)"
         ]);
 
         doc.end();

@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const rateLimit = require('express-rate-limit');
 const verifyCaptcha = require('../middleware/verifyCaptcha');
-const { isAdmin, verifyToken } = require('../middleware/authMiddleware'); // ← à adapter selon ton projet
+const { isAdmin, verifyToken } = require('../middleware/authMiddleware'); 
 
 const pdfController = require('../controllers/pdfController');
 
@@ -25,6 +25,7 @@ router.get('/:id', verifyToken, isAdmin, pdfController.getDemandeById);
 router.put('/:id', verifyToken, isAdmin, pdfController.updateDemandeStatut);
 router.put('/:id/frais', verifyToken, isAdmin, pdfController.updateFrais);
 router.delete('/:id', verifyToken, isAdmin, pdfController.deleteDemande);
+router.post('/:id/bonCommande', verifyToken, isAdmin, pdfController.generateBonCommande);
 
 
 

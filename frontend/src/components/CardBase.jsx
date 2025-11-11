@@ -4,16 +4,16 @@ import btnStyles from '../styles/components/Button.module.css';
 import cardStyles from '../styles/components/Card.module.css';
 
 export default function CardBase({
-    item,                // objet : produit ou pack
-    isPack = false,      // permet de customiser certains labels
+    item,                
+    isPack = false,      
     cart = [],
     isAdmin = false,
     onAdd,
     onDelete,
     onEdit,
     onUpdate,
-    OverlayComponent,    // composant overlay (ProductOverlay/PackOverlay...)
-    ModalComponent,      // composant modal édition (ProductModal/PackModal...)
+    OverlayComponent,    
+    ModalComponent,      
     modalMode = 'edit',
 }) {
     const [showModal, setShowModal] = useState(false);

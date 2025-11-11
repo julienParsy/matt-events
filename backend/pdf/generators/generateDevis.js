@@ -10,7 +10,7 @@ function generateDevisPDF(args) {
 
         generateBasePDF(doc, {
             ...args,
-            titre: 'DEVIS',
+            titre: `DEVIS #${args.devisNumero || ''}`,
             couleurTitre: '#00A0E3',
             couleurTotal: '#00A0E3',
             showConditions: true,

@@ -11,7 +11,7 @@ function generateFacturePDF(args) {
 
         generateBasePDF(doc, {
             ...args,
-            titre: `FACTURE ${args.factureNumero || ''}`,
+            titre: `FACTURE #${args.factureNumero || ''}`,
             couleurTitre: '#198754',
             couleurTotal: '#198754',
             showConditions: true,

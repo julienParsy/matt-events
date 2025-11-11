@@ -47,6 +47,7 @@ async function generateDevis(id, data) {
         telephone: d.telephone,
         eventDate: d.event_date,
         deliveryType: d.deliverytype,
+        devisNumero: `${id}`,
         adresse,
         frais: {
             montage: data.montage,
@@ -70,7 +71,7 @@ async function generateFacture(id, data) {
         telephone: d.telephone,
         eventDate: d.event_date,
         deliveryType: d.deliverytype,
-        factureNumero: `FAC${id}`,
+        factureNumero: `${id}`,
         dateFacture: new Date().toLocaleDateString('fr-FR'),
         adresse,
         frais: {
@@ -98,6 +99,7 @@ async function generateDemande(id) {
         telephone: d.telephone,
         eventDate: d.event_date,
         deliveryType: d.deliverytype,
+        demandeNumero: `${id}`,
         adresse: d.adresse 
     });
 }

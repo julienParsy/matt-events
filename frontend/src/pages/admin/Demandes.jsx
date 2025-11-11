@@ -1,11 +1,11 @@
 import React, { useEffect, useState, useContext } from 'react';
-import { Link } from 'react-router-dom'; // ✅ Ajout pour le lien
 import axiosInstance from '../../services/axiosInstance';
 import NavAdmin from './NavAdmin';
 import btnStyles from '../../styles/components/Button.module.css';
 import modalStyles from '../../styles/components/Modal.module.css';
 import styles from '../../styles/pages/AdminDemandes.module.css';
 import stylesBack from '../../styles/components/BackButton.module.css';
+import AdminDocumentModal from './AdminDocumentModal';
 import { AuthContext } from "../../contexts/AuthContext";
 
 export default function AdminDemandes() {
@@ -13,20 +13,8 @@ export default function AdminDemandes() {
     const [filtre, setFiltre] = useState('toutes');
     const [selectedIds, setSelectedIds] = useState([]);
     const [selectAll, setSelectAll] = useState(false);
+    const [modal, setModal] = useState({ open: false, type: '', id: null });
     const { user, token } = useContext(AuthContext);
-
-    const generatePDF = async (id) => {
-        try {
-            const response = await axiosInstance.get(`/demande/${id}/pdf`, {
-                responseType: 'blob'
-            });
-            const blob = new Blob([response.data], { type: 'application/pdf' });
-            const url = window.URL.createObjectURL(blob);
-            window.open(url, '_blank');
-        } catch {
-            alert("Erreur lors de la génération du PDF");
-        }
-    };
 
     useEffect(() => {
         if (token && user && user.role === "admin") {
@@ -90,6 +78,23 @@ export default function AdminDemandes() {
         setSelectAll(!selectAll);
     };
 
+    const handleDemandePDF = async (id) => {
+        try {
+            const res = await axiosInstance.get(`/demande/${id}/pdf`, { responseType: 'blob' });
+            const url = window.URL.createObjectURL(new Blob([res.data], { type: 'application/pdf' }));
+            window.open(url, '_blank');
+        } catch (err) {
+                console.error("Erreur génération bon de commande :", err.response || err);
+                alert(`Erreur lors de la génération du bon de commande: ${err.response?.data?.message || err.message}`);
+        }
+    };
+
+    const openModal = (id, type) => {
+        setModal({ open: true, id, type });
+    };
+
+    const closeModal = () => setModal({ open: false, id: null, type: '' });
+
     const filtered = demandes.filter(d =>
         filtre === 'toutes' ? true : d.statut === filtre
     );
@@ -97,7 +102,7 @@ export default function AdminDemandes() {
     return (
         <div>
             <div className='banner'>
-            <h1 >Gestion des demandes</h1>
+                <h1>Gestion des demandes</h1>
                 <NavAdmin />
             </div>
 
@@ -158,20 +163,17 @@ export default function AdminDemandes() {
                                     <td>{d.telephone}</td>
                                     <td>{new Date(d.created_at).toLocaleDateString('fr-FR')}</td>
                                     <td>
-                                    <button
-                                        className={btnStyles.linkBtn}
-                                        onClick={() => generatePDF(d.id)}
-                                    >
-                                        Générer la demande {d.id}
-                                    </button>
-                                    <br />
-                                    <Link
-                                        to={`/admin/demande/${d.id}/devis`}
-                                        className={btnStyles.linkBtn}
-                                    >
-                                        Générer devis/facture
-                                    </Link>
-                                </td>
+                                        <button
+                                            className={btnStyles.linkBtn}
+                                            onClick={() => handleDemandePDF(d.id)}
+                                        >
+                                            Demande PDF
+                                        </button>
+                                        <br />
+                                        <button className={btnStyles.linkBtn} onClick={() => openModal(d.id)}>
+                                            Devis / Facture / Bon de commande
+                                        </button>
+                                    </td>
                                     <td>
                                         <span className={`${styles.statut} ${styles[d.statut]}`}>
                                             {d.statut}
@@ -209,6 +211,11 @@ export default function AdminDemandes() {
                     </table>
                 </div>
             </div>
+
+            {modal.open && (
+                <AdminDocumentModal id={modal.id} closeModal={closeModal} />
+            )}
+
         </div>
     );
 }

@@ -3,6 +3,7 @@
 const { generateDevisPDF } = require('./generators/generateDevis');
 const { generateFacturePDF } = require('./generators/generateFacture');
 const { generateDemandePDF } = require('./generators/generateDemande');
+const { generateBonCommandePDF } = require('./generators/generateBonCommande');
 const { sendWithEmail } = require('./generators/sendWithEmail');
 
 async function generatePDFAndSendEmail(data) {
@@ -15,5 +16,6 @@ module.exports = {
     generatePDFAndSendEmail,
     generateDemandePDF,
     generateDevisPDF,
-    generateFacturePDF
+    generateFacturePDF,
+    generateBonCommandePDF
 };

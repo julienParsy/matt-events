@@ -1,67 +1,106 @@
+// backend/controllers/pdfController.js
+const { generateBonCommandePDF } = require('../pdf/pdfService');
 const demandeService = require('../services/demandeService');
 const { generateDevis, generateFacture, updateAdresse } = demandeService;
 
-exports.createDemande = async (req, res, next) => {
-    try {
-        // Validation et normalisation du body
-        const { client, produits, captchaToken, download } = req.body;
+// Fonction utilitaire pour convertir en nombre
+function toNumber(value) {
+    const n = Number(value);
+    return Number.isFinite(n) ? n : 0;
+}
 
-        // Validation robuste :
+// --- CONTROLLERS ---
+
+async function getAllDemandes(req, res, next) {
+    try {
+        const demandes = await demandeService.getAllDemandes();
+        res.json(demandes);
+    } catch (err) {
+        next(err);
+    }
+}
+
+
+// Crée une demande et envoie le PDF par email si nécessaire
+async function createDemande(req, res, next) {
+    try {
+        const { client, produits, captchaToken, download = true } = req.body;
+
         if (!client || typeof client !== 'object')
             return res.status(400).json({ message: "Informations client manquantes !" });
         if (!produits || !Array.isArray(produits) || produits.length === 0)
             return res.status(400).json({ message: "Aucun produit sélectionné !" });
 
-        // Regroupe tout pour le service
-        const data = {
-            ...client,
-            adresse: client.adresse,
-            produits,
-            captchaToken,
-            download
-        };
-
+        const data = { ...client, adresse: client.adresse, produits, captchaToken, download };
         const { pdfBuffer } = await demandeService.createDemandeAndSendEmail(data);
+
+        if (!pdfBuffer) return res.status(500).json({ message: "Erreur génération PDF" });
 
         res.set({
             'Content-Type': 'application/pdf',
-            'Content-Disposition': 'attachment; filename=demande.pdf',
+            'Content-Disposition': download
+                ? `attachment; filename=demande_${data.id || 'new'}.pdf`
+                : 'inline',
             'Content-Length': pdfBuffer.length
         });
         res.send(pdfBuffer);
     } catch (err) {
         next(err);
     }
-};
+}
 
+// Génère un devis
+async function generateDevisController(req, res, next) {
+    try {
+        const { id } = req.params;
+        const data = req.body;
 
-exports.generateDevis = async (req, res) => {
-    const { id } = req.params;
-    const data = req.body; // adresse, montage, livraison, caution
+        if (data.adresse) await updateAdresse(id, data.adresse);
 
-    // On peut sauvegarder l'adresse si elle existe
-    if (data.adresse) await updateAdresse(id, data.adresse);
+        const pdfBuffer = await generateDevis(id, data);
+        if (!pdfBuffer) return res.status(500).json({ message: "Erreur génération PDF" });
 
-    const pdfBuffer = await generateDevis(id, data);
-    res.setHeader('Content-Type', 'application/pdf');
-    res.send(pdfBuffer);
-};
+        res.set({
+            'Content-Type': 'application/pdf',
+            'Content-Disposition': `attachment; filename=devis_${id}.pdf`,
+            'Content-Length': pdfBuffer.length
+        });
+        res.send(pdfBuffer);
+    } catch (err) {
+        next(err);
+    }
+}
 
-exports.generateFacture = async (req, res) => {
-    const { id } = req.params;
-    const data = req.body;
+// Génère une facture
+async function generateFactureController(req, res, next) {
+    try {
+        const { id } = req.params;
+        const data = req.body;
 
-    if (data.adresse) await updateAdresse(id, data.adresse);
+        if (data.adresse) await updateAdresse(id, data.adresse);
 
-    const pdfBuffer = await generateFacture(id, data);
-    res.setHeader('Content-Type', 'application/pdf');
-    res.send(pdfBuffer);
-};
+        const pdfBuffer = await generateFacture(id, data);
+        if (!pdfBuffer) return res.status(500).json({ message: "Erreur génération PDF" });
 
-exports.generateDemande = async (req, res, next) => {
+        res.set({
+            'Content-Type': 'application/pdf',
+            'Content-Disposition': `attachment; filename=facture_${id}.pdf`,
+            'Content-Length': pdfBuffer.length
+        });
+        res.send(pdfBuffer);
+    } catch (err) {
+        next(err);
+    }
+}
+
+// Génère une demande PDF
+async function generateDemande(req, res, next) {
     try {
         const { id } = req.params;
         const pdfBuffer = await demandeService.generateDemande(id);
+
+        if (!pdfBuffer) return res.status(500).json({ message: "Erreur génération PDF" });
+
         res.set({
             'Content-Type': 'application/pdf',
             'Content-Disposition': `attachment; filename=demande_${id}.pdf`,
@@ -71,18 +110,45 @@ exports.generateDemande = async (req, res, next) => {
     } catch (err) {
         next(err);
     }
-};
+}
 
-exports.getAllDemandes = async (req, res, next) => {
+// Génère un bon de commande PDF
+async function generateBonCommande(req, res) {
     try {
-        const rows = await demandeService.getAllDemandes();
-        res.json(rows);
-    } catch (err) {
-        next(err);
-    }
-};
+        const { id } = req.params;
+        const { paymentLink, montage, livraison, caution } = req.body;
 
-exports.updateDemandeStatut = async (req, res, next) => {
+        if (!paymentLink) {
+            return res.status(400).json({ message: "Lien de paiement manquant" });
+        }
+
+        const demande = await demandeService.getDemandeById(id);
+        if (!demande) {
+            return res.status(404).json({ message: "Demande introuvable" });
+        }
+
+        // Injection des valeurs
+        demande.lienPaiement = paymentLink;
+        demande.montage = toNumber(montage);
+        demande.livraison = toNumber(livraison);
+        demande.caution = toNumber(caution);
+
+        const pdfBuffer = await generateBonCommandePDF(demande);
+        if (!pdfBuffer) return res.status(500).json({ message: "Erreur génération PDF" });
+
+        res.set({
+            'Content-Type': 'application/pdf',
+            'Content-Disposition': `attachment; filename=bon_commande_${id}.pdf`
+        });
+        res.send(pdfBuffer);
+    } catch (err) {
+        console.error("Erreur generateBonCommande :", err);
+        res.status(500).json({ message: "Erreur lors de la génération du bon de commande" });
+    }
+}
+
+// Met à jour le statut d'une demande
+async function updateDemandeStatut(req, res, next) {
     try {
         const { id } = req.params;
         const { statut } = req.body;
@@ -91,9 +157,10 @@ exports.updateDemandeStatut = async (req, res, next) => {
     } catch (err) {
         next(err);
     }
-};
+}
 
-exports.deleteDemande = async (req, res, next) => {
+// Supprime une demande
+async function deleteDemande(req, res, next) {
     try {
         const { id } = req.params;
         await demandeService.deleteDemande(id);
@@ -101,9 +168,10 @@ exports.deleteDemande = async (req, res, next) => {
     } catch (err) {
         next(err);
     }
-};
+}
 
-exports.updateFrais = async (req, res, next) => {
+// Met à jour les frais
+async function updateFrais(req, res, next) {
     try {
         const { id } = req.params;
         const { montage = 0, livraison = 0, caution = 0 } = req.body;
@@ -112,9 +180,10 @@ exports.updateFrais = async (req, res, next) => {
     } catch (err) {
         next(err);
     }
-};
+}
 
-exports.getDemandeById = async (req, res, next) => {
+// Récupère une demande par ID
+async function getDemandeById(req, res, next) {
     try {
         const { id } = req.params;
         const demande = await demandeService.getDemandeById(id);
@@ -125,4 +194,18 @@ exports.getDemandeById = async (req, res, next) => {
     } catch (err) {
         next(err);
     }
+}
+
+// --- EXPORTS ---
+module.exports = {
+    createDemande,
+    generateDevis: generateDevisController,
+    generateFacture: generateFactureController,
+    generateDemande,
+    generateBonCommande,
+    updateDemandeStatut,
+    deleteDemande,
+    updateFrais,
+    getDemandeById,
+    getAllDemandes
 };

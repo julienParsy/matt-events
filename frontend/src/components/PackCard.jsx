@@ -1,6 +1,6 @@
 // src/components/PackCard.jsx
 import CardBase from './CardBase';
-import ProductOverlay from './Overlay'; // Si le même overlay sert pour pack
+import ProductOverlay from './Overlay'; 
 import PackModal from './Modal/PackModal';
 
 export default function PackCard({ pack, onAddPack, ...props }) {

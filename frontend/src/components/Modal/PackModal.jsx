@@ -16,7 +16,8 @@ export default function PackModal({ isOpen, mode, pack, onClose, onSuccess }) {
         image_url: '',
         produits: [],
         stock: '',
-        sous_categorie_id: ''
+        sous_categorie_id: '',
+        video_url: ''
     });
 
     const [products, setProducts] = useState([]);
@@ -177,6 +178,7 @@ export default function PackModal({ isOpen, mode, pack, onClose, onSuccess }) {
                 prix: Number(form.prix),
                 stock: Number(form.stock),
                 image_url: imageUrl,
+                video_url: form.video_url,
                 produits: form.produits
             };
 
@@ -227,6 +229,18 @@ export default function PackModal({ isOpen, mode, pack, onClose, onSuccess }) {
                         value={form.description}
                         onChange={handleChange}
                     />
+                </label>
+
+                <label className={formStyles.modalLabel}>
+                       Lien vidéo (URL)
+                       <input
+                className={formStyles.modalInput}
+                                    name="video_url"
+                                    type="url"
+                                    placeholder="Lien vidéo (URL)"
+                                    value={form.video_url}
+                                    onChange={handleChange}
+                />
                 </label>
 
                 <label className={formStyles.modalLabel}>
