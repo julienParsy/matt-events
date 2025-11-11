@@ -28,6 +28,11 @@ async function updateFrais(id, montage, livraison, caution) {
     await demandeModel.updateFrais(id, montage, livraison, caution);
 }
 
+// si tu veux, tu peux mettre à jour l'adresse en BDD pour garder une trace
+async function updateAdresse(id, adresse) {
+    await demandeModel.updateAdresse(id, adresse);
+}
+
 async function deleteDemande(id) {
     await demandeModel.deleteDemande(id);
 }
@@ -82,15 +87,12 @@ async function generateFacture(id, data) {
     });
 }
 
-// si tu veux, tu peux mettre à jour l'adresse en BDD pour garder une trace
-async function updateAdresse(id, adresse) {
-    await demandeModel.updateAdresse(id, adresse);
-}
-
-
 async function generateDemande(id) {
     const d = await demandeModel.getDemandeById(id);
     if (!d) throw Object.assign(new Error('Demande non trouvée'), { status: 404 });
+
+    const adresse = d.adresse || '-';
+
     return generateDemandePDF({
         produits: d.produits,
         email: d.email,
@@ -100,10 +102,15 @@ async function generateDemande(id) {
         eventDate: d.event_date,
         deliveryType: d.deliverytype,
         demandeNumero: `${id}`,
-        adresse: d.adresse 
+        adresse,
+        frais: {
+            montage: d.montage,
+            livraison: d.livraison,
+            caution: d.caution
+        },
+        dateLabel: `Date de l'événement : ${d.event_date || 'Non précisée'}`
     });
 }
-
 
 module.exports = {
     createDemandeAndSendEmail,

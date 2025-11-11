@@ -24,12 +24,12 @@ exports.getPackById = async (req, res, next) => {
 // Créer un pack
 exports.createPack = async (req, res, next) => {
     try {
-        const { nom, description, prix, image_url, produits, stock } = req.body;
+        const { nom, description, prix, image_url, produits, stock, sous_categorie_id, video_url } = req.body;
         if (!nom || !produits || !prix || !stock) {
             return res.status(400).json({ message: 'Champs obligatoires manquants' });
         }
         const pack = await packService.createPack(
-            { nom, description, prix, image_url, stock },
+            { nom, description, prix, image_url, stock, sous_categorie_id, video_url },
             produits
         );
         res.status(201).json(pack);
@@ -41,10 +41,10 @@ exports.createPack = async (req, res, next) => {
 // Mettre à jour un pack
 exports.updatePack = async (req, res, next) => {
     try {
-        const { nom, description, prix, image_url, produits, stock, sous_categorie_id } = req.body;
+        const { nom, description, prix, image_url, produits, stock, sous_categorie_id, video_url } = req.body;
         await packService.updatePack(
             req.params.id,
-            { nom, description, prix, image_url, stock, sous_categorie_id }, // ← ajouté
+            { nom, description, prix, image_url, stock, sous_categorie_id, video_url },
             produits
         );
         res.sendStatus(204);

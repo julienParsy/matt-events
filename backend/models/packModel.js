@@ -25,22 +25,22 @@ async function getPackById(id) {
 }
 
 // Crée un pack
-async function createPack({ nom, description, prix, image_url, stock, sous_categorie_id }) {
+async function createPack({ nom, description, prix, image_url, stock, sous_categorie_id, video_url }) {
     const insertPack = await db.query(
-        `INSERT INTO packs (nom, description, prix, image_url, stock, sous_categorie_id)
-         VALUES ($1,$2,$3,$4,$5,$6) RETURNING *`,
-        [nom, description, prix, image_url, stock, sous_categorie_id]
+        `INSERT INTO packs (nom, description, prix, image_url, stock, sous_categorie_id, video_url)
+         VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING *`,
+        [nom, description, prix, image_url, stock, sous_categorie_id, video_url]
     );
     return insertPack.rows[0];
 }
 
 // Met à jour un pack
-async function updatePack(id, { nom, description, prix, image_url, stock, sous_categorie_id }) {
+async function updatePack(id, { nom, description, prix, image_url, stock, sous_categorie_id, video_url }) {
     await db.query(
         `UPDATE packs
-         SET nom=$1, description=$2, prix=$3, image_url=$4, stock=$5, sous_categorie_id=$6, updated_at=now()
-         WHERE id=$7`,
-        [nom, description, prix, image_url, stock, sous_categorie_id, id]
+         SET nom=$1, description=$2, prix=$3, image_url=$4, stock=$5, sous_categorie_id=$6, video_url=$7, updated_at=now()
+         WHERE id=$8`,
+        [nom, description, prix, image_url, stock, sous_categorie_id, video_url, id]
     );
 }
 

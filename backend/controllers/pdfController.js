@@ -127,13 +127,17 @@ async function generateBonCommande(req, res) {
             return res.status(404).json({ message: "Demande introuvable" });
         }
 
-        // Injection des valeurs
-        demande.lienPaiement = paymentLink;
-        demande.montage = toNumber(montage);
-        demande.livraison = toNumber(livraison);
-        demande.caution = toNumber(caution);
+        // Préparer l'objet à passer au PDF
+        const pdfData = {
+            ...demande,
+            eventDate: demande.event_date || 'Non précisée',
+            lienPaiement: paymentLink,
+            montage: toNumber(montage),
+            livraison: toNumber(livraison),
+            caution: toNumber(caution)
+        };
 
-        const pdfBuffer = await generateBonCommandePDF(demande);
+        const pdfBuffer = await generateBonCommandePDF(pdfData);
         if (!pdfBuffer) return res.status(500).json({ message: "Erreur génération PDF" });
 
         res.set({

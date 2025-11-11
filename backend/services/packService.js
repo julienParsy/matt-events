@@ -16,7 +16,7 @@ async function fetchPackById(id) {
 }
 
 async function createPack(packData, produits) {
-    const pack = await packModel.createPack(packData);
+    const pack = await packModel.createPack(packData); 
     for (const item of produits) {
         await packModel.insertPackProduct(pack.id, item.produit_id, item.quantite);
     }

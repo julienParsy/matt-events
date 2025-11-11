@@ -33,7 +33,13 @@ export default function AdminDocumentModal({ id, closeModal }) {
         e.preventDefault();
         try {
             const endpoint = `/demande/${id}/${typeDoc}`;
-            const body = { adresse, montage: parseFloat(montage), livraison: parseFloat(livraison), caution: parseFloat(caution) };
+            const body = {
+                adresse,
+                montage: parseFloat(montage),
+                livraison: parseFloat(livraison),
+                caution: parseFloat(caution),
+                eventDate: demande.event_date || demande.eventDate || null, 
+            };
             if (typeDoc === 'bonCommande') body.paymentLink = paymentLink;
 
             const res = await axiosInstance.post(endpoint, body, { responseType: 'blob' });
@@ -51,6 +57,7 @@ export default function AdminDocumentModal({ id, closeModal }) {
             alert(`Erreur lors de la génération du ${typeDoc}.`);
         }
     };
+
 
     if (loading) return <p>Chargement...</p>;
     if (!demande) return <p>Demande introuvable.</p>;
