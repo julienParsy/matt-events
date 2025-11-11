@@ -66,9 +66,6 @@ function generateBonCommandePDF(args) {
             includeCaution: true,
             frais,
             customTotals,
-            dateLabel: args.eventDate
-                ? `Date de l'événement : ${args.eventDate}`
-                : `Émis le ${new Date().toLocaleDateString('fr-FR')}`,
             lienPaiement: args.lienPaiement || '—',
             customConditionsText: `
 - Le client est responsable du matériel pendant la période de location.

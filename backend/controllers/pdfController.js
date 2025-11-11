@@ -113,6 +113,17 @@ async function generateDemande(req, res, next) {
 }
 
 // Génère un bon de commande PDF
+function formatFrenchDate(date) {
+    if (!date) return 'Non précisée';
+    const d = new Date(date);
+    return d.toLocaleDateString('fr-FR', {
+        weekday: 'long',
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
+    });
+}
+
 async function generateBonCommande(req, res) {
     try {
         const { id } = req.params;
@@ -130,11 +141,12 @@ async function generateBonCommande(req, res) {
         // Préparer l'objet à passer au PDF
         const pdfData = {
             ...demande,
-            eventDate: demande.event_date || 'Non précisée',
+            eventDate: formatFrenchDate(demande.event_date), 
             lienPaiement: paymentLink,
             montage: toNumber(montage),
             livraison: toNumber(livraison),
-            caution: toNumber(caution)
+            caution: toNumber(caution),
+            deliveryType: demande.deliverytype
         };
 
         const pdfBuffer = await generateBonCommandePDF(pdfData);
