@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "query-string": "^9.3.1",
     "react-helmet-async": "^2.0.5"
   }
 }
