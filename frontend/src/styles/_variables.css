@@ -71,4 +71,13 @@
     /* Radius, transition */
     --btn-radius: 8px;
     --btn-transition: 0.25s;
+
+    /* Hauteur de la navbar (réduite sur mobile, voir plus bas) */
+    --navbar-height: 104px;
+}
+
+@media (max-width: 900px) {
+    :root {
+        --navbar-height: 84px;
+    }
 }

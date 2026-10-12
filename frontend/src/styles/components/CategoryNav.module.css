@@ -1,58 +1,86 @@
+/* src/styles/components/CategoryNav.module.css
+   Filtres en pastilles qui passent à la ligne : tout reste visible,
+   sur ordinateur comme sur mobile (aucun défilement caché). */
 @import '../_variables.css';
 
 .navCategory {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    gap: 1vh;
-    margin: 1rem 0;
     align-items: center;
+    gap: 0.5rem;
+    margin: 1rem 0;
+    padding: 0;
 }
 
-.btnSelectedCategory {
-    position: relative;
-    background-color: transparent;
+/* Sous-catégories : un cran plus discret, juste sous la barre principale */
+.sub {
+    gap: 0.4rem;
+    margin-top: 0.25rem;
+}
+
+.pill {
+    padding: 0.45rem 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 999px;
+    /* Léger fond sombre : reste lisible sur le dégradé de la bannière */
+    background: rgba(0, 0, 0, 0.25);
     color: var(--color-text);
+    font: inherit;
+    font-size: 0.95rem;
     font-weight: 600;
-    border: none;
-    border-radius: 0;
+    line-height: 1.3;
     cursor: pointer;
-    transition: all 0.3s ease;
-    font-size: 1rem;
-    z-index: 1;
-    overflow: visible;
+    transition: background-color 0.2s, border-color 0.2s, color 0.2s;
 }
 
-/* Ligne fine en bas à l'hover */
-.btnSelectedCategory::after {
-    content: '';
-    position: absolute;
-    left: 0;
-    bottom: -2px;
-    width: 0;
-    height: 2px;
-    background-color: currentColor;
-    transition: width 0.3s ease;
+.pill:hover {
+    border-color: var(--color-subtitle);
+    background: rgba(0, 0, 0, 0.4);
 }
 
-/* Extension de la ligne au hover */
-.btnSelectedCategory:hover::after {
-    width: 100%;
+.pill:focus-visible {
+    outline: 2px solid var(--color-label);
+    outline-offset: 2px;
 }
 
-/* Glow en bas uniquement */
-.btnSelectedCategory:hover {
-    color: currentColor;
-    text-shadow: 0 0 30px currentColor;
+.pill.active {
+    background: var(--color-link-hover);
+    border-color: var(--color-link-hover);
+    color: #fff;
 }
 
-/* Actif = ligne visible + glow */
-.active::after {
-    width: 100%;
+.sub .pill {
+    padding: 0.35rem 0.85rem;
+    font-size: 0.875rem;
+    font-weight: 500;
 }
 
-.active {
-    /* font-weight: 600; */
-    color: currentColor;
-    text-shadow: 0 0 40px currentColor;
+.sub .pill.active {
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+    color: #fff;
+}
+
+/* Mobile : pastilles plus compactes pour limiter le nombre de lignes */
+@media (max-width: 480px) {
+    .navCategory {
+        gap: 0.4rem;
+    }
+
+    .pill {
+        padding: 0.35rem 0.8rem;
+        font-size: 0.85rem;
+    }
+
+    .sub .pill {
+        padding: 0.3rem 0.7rem;
+        font-size: 0.8rem;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .pill {
+        transition: none;
+    }
 }

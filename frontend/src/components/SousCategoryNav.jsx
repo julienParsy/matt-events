@@ -4,47 +4,34 @@ import styles from '../styles/components/CategoryNav.module.css';
 
 const SOUS_PACKS_KEY = 'sous_packs';
 
-const sousCategoryColors = [
-    '#e67e22', 
-    '#16a085', 
-    '#8e44ad', 
-    '#2980b9', 
-    '#c0392b', 
-    '#27ae60'  
-];
-
-const getSousCategoryColor = key => {
-    const hash = typeof key === 'string' ? key.length : Number(key);
-    return sousCategoryColors[hash % sousCategoryColors.length];
-};
-
 export default function SousCategoryNav({ sousCategories = [], selectedSousCategory, onSelectSousCategory }) {
     const isAllActive = selectedSousCategory === null;
 
     return (
-        <div className={styles.navCategory} role="toolbar" aria-label="Filtrer par sous-catégorie">
+        <div
+            className={`${styles.navCategory} ${styles.sub}`}
+            role="toolbar"
+            aria-label="Filtrer par sous-catégorie"
+        >
             <button
                 type="button"
-                className={`${styles.btnSelectedCategory} ${isAllActive ? styles.active : ''}`}
+                className={`${styles.pill} ${isAllActive ? styles.active : ''}`}
                 aria-pressed={isAllActive}
                 onClick={() => onSelectSousCategory(null)}
-                style={{ color: isAllActive ? '#ffffff' : undefined }}
             >
                 Tous les packs
             </button>
 
             {sousCategories.map(sc => {
                 const isActive = selectedSousCategory?.id === sc.id;
-                const color = getSousCategoryColor(sc.id);
 
                 return (
                     <button
                         key={sc.id}
                         type="button"
-                        className={`${styles.btnSelectedCategory} ${isActive ? styles.active : ''}`}
+                        className={`${styles.pill} ${isActive ? styles.active : ''}`}
                         aria-pressed={isActive}
                         onClick={() => onSelectSousCategory(sc)}
-                        style={{ color: isActive ? color : undefined }}
                     >
                         {sc.nom}
                     </button>

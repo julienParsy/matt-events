@@ -1,29 +1,29 @@
- /* src/styles/components/CategoryList.module.css  */
- @import '../_variables.css';
+/* src/styles/components/CategoryList.module.css  */
+@import '../_variables.css';
 
 
 .cat {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-left: 1rem;
-  margin-right: 1rem;
-  padding: 1rem;
-  color: var(--color-text);
-  background: var(--color-bg);
-  box-shadow: 0 0 10px var(--color-global-shadow);
-  border-radius: 8px;
-  top: 0;
-  z-index: 999;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-left: 1rem;
+    margin-right: 1rem;
+    padding: 1rem;
+    color: var(--color-text);
+    background: var(--color-bg);
+    box-shadow: 0 0 10px var(--color-global-shadow);
+    border-radius: 8px;
+    top: 0;
+    z-index: 999;
 }
 
 .grid4 {
-display: grid;
-justify-items: center;
-align-items: center;
-grid-template-columns: repeat(8, 1fr);
-gap: 1.5rem;
-margin: 1.5rem 1.5rem;
+    display: grid;
+    justify-items: center;
+    align-items: center;
+    grid-template-columns: repeat(8, 1fr);
+    gap: 1.5rem;
+    margin: 1.5rem 1.5rem;
 
 }
 
@@ -32,121 +32,143 @@ margin: 1.5rem 1.5rem;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: clamp(0.75rem, 2vw, 2rem);
-    margin: 1rem 0;
-    flex-wrap: wrap;
-    /* passe sur plusieurs lignes si besoin */
+    gap: 0.75rem;
+    width: min(760px, 100%);
+    margin: 1rem auto 0.5rem;
 }
 
-/* conteneur optionnel pour forcer la largeur en responsive */
-.searchItem {
-    flex: 0 1 auto;
-    /* largeur contenue par défaut */
-    min-width: 220px;
-    /* évite les champs trop petits en tablette */
+/* Champ + icône loupe + bouton « effacer » */
+.searchField {
+    position: relative;
+    flex: 1 1 auto;
+    min-width: 0;
 }
 
-/* Select de tri */
+.searchIcon {
+    position: absolute;
+    top: 50%;
+    left: 1rem;
+    width: 18px;
+    height: 18px;
+    transform: translateY(-50%);
+    color: var(--color-text-secondary);
+    pointer-events: none;
+}
+
+/* Champ de recherche et select de tri : même style « pastille » que les filtres */
+.searchInput,
 .sortSelect {
-    padding: 0.55rem 1rem;
-    border-radius: 8px;
-    font-size: clamp(0.95rem, 0.3vw + 0.9rem, 1rem);
-    border: 1.5px solid var(--color-shadow);
-    background: var(--color-bg);
-    color: var(--color-text);
-    transition: border-color 0.2s, box-shadow 0.2s;
-    outline: none;
+    box-sizing: border-box;
     min-height: 44px;
     /* cible tactile */
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 999px;
+    background-color: rgba(0, 0, 0, 0.25);
+    color: var(--color-text);
+    font: inherit;
+    font-size: 1rem;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s, background-color 0.2s;
 }
 
-/* Champ de recherche */
 .searchInput {
-    padding: 0.55rem 1rem;
-    border-radius: 8px;
-    font-size: clamp(0.95rem, 0.3vw + 0.9rem, 1rem);
-    border: 1.5px solid var(--color-shadow);
-    background: var(--color-bg);
-    color: var(--color-text);
-    transition: border-color 0.2s, box-shadow 0.2s;
-    outline: none;
-    min-height: 44px;
-    /* cible tactile */
-    width: min(520px, 100%);
-    /* ne dépasse pas en desktop, 100% en mobile */
+    width: 100%;
+    padding: 0.55rem 2.5rem 0.55rem 2.75rem;
 }
 
-/* Focus et interaction */
-.sortSelect:focus,
-.searchInput:focus,
-.sortSelect:focus-visible,
-.searchInput:focus-visible {
-    border-color: var(--color-secondary);
-    box-shadow: 0 0 0 3px color-mix(in oklab, var(--color-secondary) 25%, transparent);
-}
-
-/* Placeholder */
 .searchInput::placeholder {
-    opacity: 0.8;
+    color: var(--color-text-secondary);
+    opacity: 0.75;
 }
 
-/* Petit confort pour type="search" (annule certains styles navigateur) */
-.searchInput[type="search"] {
-    -webkit-appearance: none;
-    appearance: none;
-}
-
+/* On remplace la croix native par notre bouton */
 .searchInput::-webkit-search-decoration,
 .searchInput::-webkit-search-cancel-button,
 .searchInput::-webkit-search-results-button,
 .searchInput::-webkit-search-results-decoration {
     -webkit-appearance: none;
+    appearance: none;
+}
+
+.searchClear {
+    position: absolute;
+    top: 50%;
+    right: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    transform: translateY(-50%);
+    border: none;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--color-text-secondary);
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.searchClear:hover,
+.searchClear:focus-visible {
+    background: rgba(255, 255, 255, 0.12);
+    color: var(--color-text);
+    outline: none;
+}
+
+/* Select : flèche personnalisée à la place de celle du navigateur */
+.sortSelect {
+    flex: 0 0 auto;
+    padding: 0.55rem 2.5rem 0.55rem 1.1rem;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23d1d5db' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.9rem center;
+}
+
+.sortSelect option {
+    background: var(--color-bg);
+    color: var(--color-text);
+}
+
+.searchInput:hover,
+.sortSelect:hover {
+    border-color: var(--color-subtitle);
+}
+
+.searchInput:focus,
+.sortSelect:focus,
+.searchInput:focus-visible,
+.sortSelect:focus-visible {
+    border-color: var(--color-secondary);
+    box-shadow: 0 0 0 3px color-mix(in oklab, var(--color-secondary) 30%, transparent);
 }
 
 /* ---------- Breakpoints ---------- */
 
-/* Tablette ~ ≤ 900px : on étire un peu */
-@media (max-width: 900px) {
+/* Mobile ≤ 600px : champ puis tri, chacun sur toute la largeur */
+@media (max-width: 600px) {
     .search {
-        justify-content: space-between;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.6rem;
+        padding: 0 0.25rem;
     }
 
-    .searchItem {
-        flex: 1 1 280px;
-    }
-
-    .searchInput,
+    .searchField,
     .sortSelect {
         width: 100%;
     }
 }
 
-/* Mobile ~ ≤ 600px : full-width en colonne */
-@media (max-width: 600px) {
-    .search {
-        flex-direction: column;
-        align-items: stretch;
-        gap: 0.75rem;
-        padding: 0 0.5rem;
-    }
-
-    .searchItem {
-        min-width: 100%;
-        flex: 1 1 auto;
-    }
-
-    .searchInput,
-    .sortSelect {
-        width: 80%;
-        font-size: 1rem;
-    }
-}
-
-/* Accessibilité : pas d’animations si l’utilisateur les réduit */
+/* Accessibilité : pas d'animations si l'utilisateur les réduit */
 @media (prefers-reduced-motion: reduce) {
 
     .sortSelect,
-    .searchInput {
+    .searchInput,
+    .searchClear {
         transition: none;
     }
 }
@@ -235,16 +257,19 @@ margin: 1.5rem 1.5rem;
         grid-template-columns: repeat(7, 1fr);
     }
 }
+
 @media (max-width: 3000px) {
     .grid4 {
         grid-template-columns: repeat(6, 1fr);
     }
 }
+
 @media (max-width: 2500px) {
     .grid4 {
         grid-template-columns: repeat(5, 1fr);
     }
 }
+
 /* Ecran - 5 colonnes */
 @media (max-width: 2080px) {
     .grid4 {
@@ -258,6 +283,7 @@ margin: 1.5rem 1.5rem;
         grid-template-columns: repeat(4, 1fr);
     }
 }
+
 /* Tablette - 3 colonnes */
 
 @media (max-width: 1280px) {
@@ -278,4 +304,5 @@ margin: 1.5rem 1.5rem;
 @media (max-width: 768px) {
     .grid4 {
         grid-template-columns: 1fr;
-    } }
+    }
+}

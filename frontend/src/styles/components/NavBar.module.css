@@ -5,7 +5,9 @@
 .navbar {
     background: var(--color-bg);
     box-shadow: 0 0 20px var(--color-global-shadow);
-    padding: 1.2rem 2rem;
+    height: var(--navbar-height, 80px);
+    padding: 0 1.5rem;
+    box-sizing: border-box;
     position: sticky;
     top: 0;
     z-index: 999;
@@ -15,12 +17,12 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    height: 150px;
+    height: 100%;
     position: relative;
 }
 
 .navbarLogo img {
-    max-height: 120px;
+    max-height: 88px;
     width: auto;
     border-radius: 50%;
     display: block;
@@ -170,7 +172,7 @@
     from {
         opacity: 0;
     }
-    
+
     to {
         opacity: 1;
     }
@@ -197,32 +199,33 @@
         pointer-events: none;
         transition: right 0.42s cubic-bezier(.68, -0.55, .27, 1.55), opacity 0.32s;
     }
-    
+
     .navbarLinks.active {
         right: 0;
         opacity: 1;
         pointer-events: auto;
     }
-    
+
     .navbarLogo img {
-        max-height: 120px;
+        max-height: 64px;
     }
-    
+
     .burger {
         display: flex;
         position: absolute;
-        top: 3.2rem;
-        right: 2.2rem;
+        top: 50%;
+        right: 0.25rem;
+        transform: translateY(-50%);
         z-index: 1010;
         background: none;
     }
-    
+
     .link {
         font-size: 1.24rem;
         font-weight: 700;
         margin-bottom: 0.8rem;
     }
-    
+
     .cartBadge {
         font-size: 1.15em;
         margin-left: 0.5em;
@@ -235,12 +238,12 @@
         padding: 2.2rem 1rem 2rem 1.2rem;
         border-radius: 0;
     }
-    
+
     .navbarLogo img {
-        max-height: 120px;
+        max-height: 64px;
     }
-    
-    
+
+
 }
 
 /* Tablette : on réduit un peu le gap et le padding */

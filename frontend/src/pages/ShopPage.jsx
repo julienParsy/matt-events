@@ -141,8 +141,43 @@ export default function ShopPage({ cart, setCart }) {
                 )}
 
                 <div className={styles.search}>
+                    <div className={styles.searchField}>
+                        <svg
+                            className={styles.searchIcon}
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            aria-hidden="true"
+                            focusable="false"
+                        >
+                            <circle cx="11" cy="11" r="8" />
+                            <path d="m21 21-4.3-4.3" />
+                        </svg>
+                        <input
+                            className={styles.searchInput}
+                            type="search"
+                            placeholder="Rechercher un produit ou un pack…"
+                            aria-label="Rechercher un produit ou un pack"
+                            value={search}
+                            onChange={e => setSearch(e.target.value)}
+                        />
+                        {search && (
+                            <button
+                                type="button"
+                                className={styles.searchClear}
+                                aria-label="Effacer la recherche"
+                                onClick={() => setSearch('')}
+                            >
+                                ✕
+                            </button>
+                        )}
+                    </div>
                     <select
                         className={styles.sortSelect}
+                        aria-label="Trier par prix"
                         value={sortByPrice || ''}
                         onChange={e => setSortByPrice(e.target.value || null)}
                     >
@@ -150,13 +185,6 @@ export default function ShopPage({ cart, setCart }) {
                         <option value="asc">Prix croissant</option>
                         <option value="desc">Prix décroissant</option>
                     </select>
-                    <input
-                        className={styles.searchInput}
-                        type="text"
-                        placeholder="Rechercher un produit ou un pack..."
-                        value={search}
-                        onChange={e => setSearch(e.target.value)}
-                    />
                 </div>
             </div>
 
