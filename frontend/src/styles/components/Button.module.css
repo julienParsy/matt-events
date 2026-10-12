@@ -30,25 +30,79 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    margin: 0 auto 1rem auto;
+    gap: 0.4rem;
+    margin: 0;
+    padding: 0.4rem 0.9rem;
+    transition:
+        background-color var(--btn-transition),
+        border-color var(--btn-transition);
+}
+
+/* Bouton vidéo : icône YouTube seule, sans encadrement
+   (bordure transparente conservée pour garder la même hauteur que « Description ») */
+.btnVideo {
+    padding: 0.4rem 0.7rem;
+    background-color: transparent;
+    border-color: transparent;
+}
+
+/* Couleurs du logo : rouge / blanc, inversées au survol */
+.ytBg {
+    fill: #ff0000;
+    transition: fill var(--btn-transition);
+}
+
+.ytPlay {
+    fill: #ffffff;
+    transition: fill var(--btn-transition);
+}
+
+.btnVideo:hover .ytBg,
+.btnVideo:focus-visible .ytBg {
+    fill: #ffffff;
+}
+
+.btnVideo:hover .ytPlay,
+.btnVideo:focus-visible .ytPlay {
+    fill: #ff0000;
+}
+
+.iconYoutube {
+    display: block;
+    width: 1.6rem;
+    height: auto;
+}
+
+.btnVoir:focus-visible {
+    outline: 2px solid var(--color-label);
+    outline-offset: 2px;
 }
 
 .btnVoirContainer {
     display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: stretch;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
 }
 
 .btnVoir:disabled {
     /* background-color: var(--color-modal-close); */
     border-color: var(--color-modal-close);
-    cursor:auto;
+    cursor: auto;
     color: #ccc;
 }
 
 .btnVoir:hover:not(:disabled) {
     background-color: var(--color-link-hover);
     border-color: var(--color-button-border-hover);
+}
+
+/* Placé après .btnVoir:hover pour l'emporter (même spécificité) :
+   pas de fond ni de bordure au survol, seul le logo change */
+.btnVideo:hover:not(:disabled) {
+    background-color: transparent;
+    border-color: transparent;
 }
 
 
@@ -64,6 +118,7 @@
     position: relative;
     transition: color 0.3s ease;
 }
+
 .linkBtn::after {
     content: '';
     position: absolute;
@@ -74,6 +129,7 @@
     background-color: var(--color-secondary);
     transition: width 0.3s ease;
 }
+
 .linkBtn:hover::after {
     width: 100%;
 }
@@ -181,4 +237,5 @@
     opacity: 0.6;
     background: transparent;
     border-color: var(--color-danger);
-    color: var(--color-danger);   }
+    color: var(--color-danger);
+}

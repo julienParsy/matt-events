@@ -8,17 +8,154 @@
     width: 100vw;
     height: 100vh;
     background: var(--color-bg-overlay);
+    backdrop-filter: blur(3px);
     display: flex;
     align-items: center;
     justify-content: center;
     z-index: 20000;
+    animation: overlayFade 0.18s ease-out;
 }
 
 .overlayContent {
     background: var(--color-bg-secondary);
-    padding: 2rem;
+    padding: 1.75rem 2rem 2rem;
+    border: 1px solid var(--color-modal-border);
     border-radius: 12px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+    max-width: 92vw;
+    max-height: 85vh;
     overflow-y: auto;
+    overscroll-behavior: contain;
     position: relative;
+    animation: overlayPop 0.2s ease-out;
+
+    /* Scrollbar discrète, comme sur les cartes */
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-secondary) transparent;
 }
 
+/* Mode description : largeur de lecture confortable (~65 caractères) */
+.overlayContentText {
+    width: 560px;
+}
+
+.overlayTitle {
+    margin: 0 0 1.25rem;
+    padding: 0 2rem 0.9rem 0;
+    border-bottom: 1px solid var(--color-modal-border);
+    font-size: 1.5rem;
+    font-weight: 700;
+    line-height: 1.25;
+    text-align: left;
+    color: var(--color-card-h3);
+}
+
+.overlayBody {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.overlayText {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.65;
+    text-align: left;
+    color: var(--color-text-secondary);
+}
+
+/* Contenu d'un pack : une ligne par produit, quantité à droite */
+.overlayList {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.overlayItem {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.7rem 0;
+    border-bottom: 1px solid var(--color-modal-border);
+}
+
+.overlayItem:first-child {
+    padding-top: 0;
+}
+
+.overlayItem:last-child {
+    padding-bottom: 0;
+    border-bottom: none;
+}
+
+.overlayItemInfo {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    min-width: 0;
+}
+
+.overlayItemName {
+    font-weight: 600;
+    color: var(--color-text);
+}
+
+.overlayItemDetail {
+    font-size: 0.9rem;
+    line-height: 1.4;
+    color: var(--color-text-secondary);
+}
+
+.overlayQty {
+    flex-shrink: 0;
+    font-weight: 600;
+    color: var(--color-primary-light);
+}
+
+.overlayEmpty {
+    margin: 0;
+    font-style: italic;
+    color: var(--color-modal-close);
+}
+
+@keyframes overlayFade {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes overlayPop {
+    from {
+        opacity: 0;
+        transform: translateY(8px) scale(0.98);
+    }
+
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+@media (max-width: 480px) {
+    .overlayContent {
+        padding: 1.25rem 1.25rem 1.5rem;
+    }
+
+    .overlayTitle {
+        font-size: 1.25rem;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+    .productOverlay,
+    .overlayContent {
+        animation: none;
+    }
+}
