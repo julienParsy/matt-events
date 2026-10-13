@@ -1,31 +1,36 @@
 /* src/styles/components/NavBar.module.css */
 @import '../_variables.css';
 
-/* ---- Barre principale ---- */
+/* =========================================================
+   Barre principale (ordinateur)
+   ========================================================= */
 .navbar {
-    background: var(--color-bg);
-    box-shadow: 0 0 20px var(--color-global-shadow);
-    height: var(--navbar-height, 80px);
-    padding: 0 1.5rem;
-    box-sizing: border-box;
     position: sticky;
     top: 0;
     z-index: 999;
+    height: var(--navbar-height, 104px);
+    padding: 0 1.5rem;
+    box-sizing: border-box;
+    background: var(--color-bg);
+    box-shadow: 0 0 20px var(--color-global-shadow);
 }
 
 .navbarContainer {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    gap: 1.25rem;
     height: 100%;
-    position: relative;
+}
+
+.navbarLogo a {
+    display: block;
 }
 
 .navbarLogo img {
+    display: block;
     max-height: 88px;
     width: auto;
     border-radius: 50%;
-    display: block;
     object-fit: cover;
     transition: transform 0.3s ease, filter 0.3s ease, box-shadow 0.3s ease;
 }
@@ -38,36 +43,83 @@
 
 .navbarLinks {
     display: flex;
-    gap: 1.5rem;
     align-items: center;
-    position: static;
-    background: none;
-    padding: 0;
-    min-width: unset;
-    height: auto;
-    box-shadow: none;
-    opacity: 1;
-    pointer-events: auto;
-    transform: none;
-    transition: none;
+    gap: 1.5rem;
+    margin-left: auto;
 }
 
-.admin {
+/* Zone d'actions à droite : icône panier (+ burger sur mobile) */
+.actions {
     display: flex;
     align-items: center;
-    position: relative;
-    gap: 1rem;
-    margin: 1rem 1rem 1rem 1rem;
-    padding: 1rem;
-    border-radius: 8px;
-    top: 0;
-    z-index: 998;
-    flex-direction: row;
-    flex-wrap: wrap;
+    gap: 0.25rem;
 }
 
+/* Éléments réservés au mobile : masqués sur ordinateur */
+.drawerHeader,
+.overlay,
+.burger,
+.cartLink {
+    display: none;
+}
+
+/* Icône panier : visible partout */
+.cartShortcut {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    color: var(--color-text);
+    text-decoration: none;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.cartShortcut svg {
+    width: 24px;
+    height: 24px;
+}
+
+.cartShortcut:hover {
+    background: rgba(100, 108, 255, 0.15);
+}
+
+/* Sur la page Panier */
+.cartShortcutActive {
+    background: rgba(100, 108, 255, 0.18);
+    color: #fff;
+    box-shadow: inset 0 0 0 1px var(--color-secondary);
+}
+
+.cartShortcutBadge {
+    position: absolute;
+    top: 3px;
+    right: 1px;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 5px;
+    box-sizing: border-box;
+    border-radius: 999px;
+    background: var(--color-link-hover);
+    color: #fff;
+    font-size: 0.7rem;
+    font-weight: 700;
+    line-height: 18px;
+    text-align: center;
+}
+
+/* Groupe admin : en ligne sur ordinateur */
+.adminGroup {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
 
 .link {
+    position: relative;
+    padding: 0.25rem 0;
     font-size: 1.15rem;
     font-weight: 500;
     text-decoration: none;
@@ -75,11 +127,10 @@
     background: none;
     border: none;
     cursor: pointer;
-    padding: 0.25rem 0;
-    position: relative;
     transition: color 0.3s ease;
 }
 
+/* Soulignement animé au survol / sur la page active */
 .link::after {
     content: '';
     position: absolute;
@@ -91,179 +142,240 @@
     transition: width 0.3s ease;
 }
 
-.link:hover::after {
+.link:hover::after,
+.link.active::after {
     width: 100%;
 }
 
-.link.active::after,
-.link:active::after {
-    width: 100%;
-    background-color: var(--color-secondary);
+.link:focus-visible,
+.burger:focus-visible,
+.drawerClose:focus-visible,
+.cartShortcut:focus-visible,
+.navbarLogo a:focus-visible {
+    outline: 2px solid var(--color-label);
+    outline-offset: 3px;
+}
+
+.link:focus-visible,
+.navbarLogo a:focus-visible {
+    border-radius: 8px;
 }
 
 .cartBadge {
-    background: var(--color-link-hover);
-    border-radius: 12px;
-    padding: 0 0.5em;
-    font-size: 0.98em;
     margin-left: 0.3em;
+    padding: 0 0.5em;
+    border-radius: 12px;
+    background: var(--color-link-hover);
+    font-size: 0.98em;
 }
 
-.connexionAdmin,
-.deconnexion {
-    height: 32px;
-    padding: 0 0.75rem;
-    font-size: 0.9rem;
-    line-height: 1;
-    border-radius: 8px;
-    border: 1px solid transparent;
-}
-
-
-.burger {
-    display: none;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    width: 42px;
-    height: 42px;
-    background: none;
-    border: none;
-    cursor: pointer;
-    z-index: 1001;
-    margin-left: 10px;
-    transition: opacity 0.2s;
-    gap: 4px;
-}
-
-.burger span {
-    display: block;
-    width: 27px;
-    height: 3.5px;
-    background: var(--color-secondary);
-    border-radius: 2px;
-    transition: all 0.35s cubic-bezier(.68, -0.55, .27, 1.55);
-    position: relative;
-}
-
-.burger.open span:nth-child(1) {
-    transform: translateY(7.7px) rotate(45deg);
-}
-
-.burger.open span:nth-child(2) {
-    opacity: 0;
-}
-
-.burger.open span:nth-child(3) {
-    transform: translateY(-7.7px) rotate(-45deg);
-}
-
-/* ---- Overlay fondu derrière menu mobile ---- */
-.overlay {
-    display: block;
-    position: fixed;
-    inset: 0;
-    background: var(--color-bg-overlay);
-    z-index: 900;
-    animation: overlayFadeIn 0.32s;
-}
-
-@keyframes overlayFadeIn {
-    from {
-        opacity: 0;
-    }
-
-    to {
-        opacity: 1;
-    }
-}
-
-/* ---- Mobile (<900px) : drawer & burger ---- */
+/* =========================================================
+   Mobile & tablette (≤ 900px) : panier + burger + panneau
+   ========================================================= */
 @media (max-width: 900px) {
+    :root {
+        --drawer-width: min(84vw, 360px);
+        --drawer-ease: cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .navbar {
+        padding: 0 1rem;
+    }
+
+    .navbarLogo img {
+        max-height: 64px;
+    }
+
+    /* --- Burger et bouton de fermeture : zones tactiles rondes --- */
+    .actions {
+        margin-left: auto;
+    }
+
+    .navbarLinks {
+        margin-left: 0;
+    }
+
+    .burger,
+    .drawerClose {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 44px;
+        height: 44px;
+        padding: 0;
+        border: none;
+        border-radius: 50%;
+        background: transparent;
+        color: var(--color-text);
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+
+    .burger:hover,
+    .drawerClose:hover {
+        background: rgba(100, 108, 255, 0.15);
+    }
+
+    .drawerClose svg {
+        width: 24px;
+        height: 24px;
+    }
+
+    /* --- Burger : trois barres fines --- */
+    .burger {
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    .burger span {
+        display: block;
+        width: 20px;
+        height: 2px;
+        border-radius: 2px;
+        background: var(--color-subtitle);
+    }
+
+    /* --- Fond sombre : toujours présent, il s'estompe --- */
+    .overlay {
+        display: block;
+        position: fixed;
+        inset: 0;
+        z-index: 900;
+        background: var(--color-bg-overlay);
+        backdrop-filter: blur(2px);
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.3s ease, visibility 0s linear 0.3s;
+    }
+
+    .overlayVisible {
+        opacity: 1;
+        visibility: visible;
+        transition-delay: 0s;
+    }
+
+    /* --- Panneau --- */
     .navbarLinks {
         position: fixed;
         top: 0;
-        right: -65vw;
-        height: 100vh;
-        background: var(--linear-gradient-navbar);
-        flex-direction: column;
-        align-items: flex-start;
-        justify-content: flex-start;
-        gap: 2rem;
-        padding: 2.5rem 2rem 2rem 2rem;
-        min-width: 65vw;
-        box-shadow: -4px 0 38px 0 var(--color-global-shadow);
-        border-radius: 0 0 0 32px;
-        z-index: 1002;
-        opacity: 0;
-        pointer-events: none;
-        transition: right 0.42s cubic-bezier(.68, -0.55, .27, 1.55), opacity 0.32s;
-    }
-
-    .navbarLinks.active {
         right: 0;
-        opacity: 1;
-        pointer-events: auto;
+        z-index: 1002;
+        width: var(--drawer-width);
+        height: 100vh;
+        height: 100dvh;
+        box-sizing: border-box;
+        flex-direction: column;
+        align-items: stretch;
+        justify-content: flex-start;
+        gap: 0.25rem;
+        padding: 0 1rem 1.25rem;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        background: var(--linear-gradient-navbar);
+        border-left: 1px solid var(--color-modal-border);
+        border-radius: 24px 0 0 24px;
+        box-shadow: -8px 0 40px rgba(0, 0, 0, 0.5);
+
+        /* Fermé : hors écran ET retiré de la navigation clavier */
+        transform: translateX(100%);
+        visibility: hidden;
+        transition: transform 0.35s var(--drawer-ease), visibility 0s linear 0.35s;
     }
 
-    .navbarLogo img {
-        max-height: 64px;
+    .drawerOpen {
+        transform: none;
+        visibility: visible;
+        transition-delay: 0s;
     }
 
-    .burger {
+    .drawerHeader {
         display: flex;
-        position: absolute;
-        top: 50%;
-        right: 0.25rem;
-        transform: translateY(-50%);
-        z-index: 1010;
-        background: none;
+        align-items: center;
+        justify-content: space-between;
+        flex-shrink: 0;
+        min-height: var(--navbar-height, 84px);
+        margin: 0 -0.25rem 0.5rem 0.5rem;
+        border-bottom: 1px solid var(--color-modal-border);
     }
 
+    .drawerTitle {
+        font-size: 0.8rem;
+        font-weight: 600;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--color-modal-close);
+    }
+
+    /* --- Liens : grandes lignes tactiles --- */
     .link {
-        font-size: 1.24rem;
-        font-weight: 700;
-        margin-bottom: 0.8rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        min-height: 48px;
+        padding: 0.7rem 1rem;
+        box-sizing: border-box;
+        border-radius: 12px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        transition: background-color 0.2s, color 0.2s;
+    }
+
+    .link::after {
+        display: none;
+    }
+
+    .link:hover {
+        background: rgba(100, 108, 255, 0.1);
+    }
+
+    /* Page active : pastille indigo + liseré à gauche */
+    .link.active {
+        background: rgba(100, 108, 255, 0.18);
+        color: #fff;
+        box-shadow: inset 3px 0 0 var(--color-secondary);
+    }
+
+    .cartLink {
+        display: flex;
     }
 
     .cartBadge {
-        font-size: 1.15em;
         margin-left: 0.5em;
-    }
-}
-
-@media (max-width: 600px) {
-    .navbarLinks {
-        width: 10vw;
-        padding: 2.2rem 1rem 2rem 1.2rem;
-        border-radius: 0;
+        font-size: 0.85rem;
+        font-weight: 700;
     }
 
-    .navbarLogo img {
-        max-height: 64px;
-    }
-
-
-}
-
-/* Tablette : on réduit un peu le gap et le padding */
-@media (max-width: 900px) {
-    .admin {
-        gap: 0.7rem;
-        margin: 2rem 1rem 1rem 2rem;
-        padding: 0.7rem;
-        font-size: 0.97em;
-    }
-}
-
-/* Mobile : flex en colonne et padding réduit */
-@media (max-width: 600px) {
-    .admin {
+    /* --- Zone admin, en bas du panneau --- */
+    .adminGroup {
         flex-direction: column;
-        align-items: flex-start;
-        gap: 0.5rem;
-        margin: 2rem 2rem;
-        padding: 0.5rem;
-        font-size: 0.95em;
+        align-items: stretch;
+        gap: 0.25rem;
+        margin-top: auto;
+        padding-top: 1rem;
+        border-top: 1px solid var(--color-modal-border);
+    }
+
+    .logout {
+        width: 100%;
+        min-height: 44px;
+        margin-top: 0.5rem;
+        font-size: 0.95rem;
+    }
+}
+
+/* =========================================================
+   Accessibilité : pas d'animations si l'utilisateur les réduit
+   ========================================================= */
+@media (prefers-reduced-motion: reduce) {
+
+    .navbarLogo img,
+    .link,
+    .link::after,
+    .navbarLinks,
+    .overlay,
+    .burger,
+    .cartShortcut,
+    .drawerClose {
+        transition: none;
     }
 }
