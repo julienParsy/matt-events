@@ -8,8 +8,16 @@ const {
 
 async function createDemandeAndSendEmail(data) {
     const demande = await demandeModel.createDemande(data);
-    const { info, pdfBuffer } = await generatePDFAndSendEmail(data);
-    return { info, pdfBuffer, id: demande.id };
+    try {
+        const { info, pdfBuffer } = await generatePDFAndSendEmail(data);
+        return { info, pdfBuffer, id: demande.id };
+    } catch (err) {
+        // Évite les doublons : le client réessaiera depuis son panier.
+        await demandeModel.deleteDemande(demande.id).catch((e) =>
+            console.error('Rollback de la demande impossible :', e)
+        );
+        throw err;
+    }
 }
 
 async function getDemandeById(id) {

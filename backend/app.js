@@ -1,5 +1,5 @@
 // app.js
-require('dotenv').config();
+require('./config/env'); // charge le .env et normalise les variables (doit rester en premier)
 const express = require('express');
 const app = express();
 const helmet = require('helmet');
@@ -79,20 +79,26 @@ const rawOrigins = (process.env.CORS_ORIGINS || process.env.CLIENT_URL || '')
     .map(s => s.trim())
     .filter(Boolean); // ex: "http://localhost:5173,https://mon-site.vercel.app,https://ton-domaine.fr"
 
+const escapeRegex = (str) => str.replace(/[.+?^${}()|[\]\\]/g, '\\$&');
+
+// "https://*.vercel.app" ou "*.vercel.app" : * = un seul sous-domaine (lettres, chiffres, tirets)
+const originMatchers = rawOrigins.map((allowed) => {
+    if (!allowed.includes('*')) return (origin) => origin === allowed;
+    const pattern = allowed.includes('://') ? allowed : `https?://${allowed}`;
+    const regex = new RegExp(`^${pattern.split('*').map(escapeRegex).join('[a-z0-9-]+')}$`, 'i');
+    return (origin) => regex.test(origin);
+});
+
 function isOriginAllowed(origin) {
-    if (!origin) return true; // Postman/curl
-    return rawOrigins.some(allowed => {
-        if (allowed === origin) return true;
-        // support "*.vercel.app"
-        if (allowed.startsWith('*.') && origin.endsWith(allowed.slice(1))) return true;
-        return false;
-    });
+    if (!origin) return true; // Postman/curl, appels serveur à serveur
+    return originMatchers.some((matches) => matches(origin));
 }
 
 app.use(cors({
     origin(origin, cb) {
         if (isOriginAllowed(origin)) return cb(null, true);
-        return cb(new Error(`Origin not allowed by CORS: ${origin}`));
+        console.warn(`[cors] Origine refusée : ${origin}`);
+        return cb(null, false); // pas d'en-têtes CORS : le navigateur bloque, sans erreur 500
     },
     credentials: true,
     optionsSuccessStatus: 204,
@@ -123,8 +129,9 @@ const contactRoutes = require('./routes/contactRoutes');
 const pageRoutes = require('./routes/pageRoutes');
 const sousCategorieRoutes = require('./routes/sousCategorieRoutes');
 
-const debugRoutes = require("./routes/debugRoutes");
-app.use("/api/debug", debugRoutes);
+if (process.env.NODE_ENV !== 'production' || process.env.ENABLE_DEBUG_ROUTES === 'true') {
+    app.use('/api/debug', require('./routes/debugRoutes'));
+}
 
 
 app.use('/api/demande', pdfRoutes);

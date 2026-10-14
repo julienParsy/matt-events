@@ -1,4 +1,17 @@
+/* src/styles/components/CartTable.module.css */
 @import '../_variables.css';
+
+.srOnly {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+    border: 0;
+}
 
 .tableWrapper {
     overflow-x: auto;
@@ -18,6 +31,7 @@
     padding: 0.75rem 1rem;
     border-bottom: 1px solid var(--color-border-td);
     text-align: center;
+    vertical-align: middle;
 }
 
 .cartTable th {
@@ -25,45 +39,249 @@
     color: var(--color-label);
 }
 
-.cartTable td input {
-    width: 50px;
-    text-align: center;
-    padding: 0.3rem;
+/* ---------- Article (miniature + nom) ---------- */
+.product {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 0.75rem;
+}
+
+.thumb {
+    width: 56px;
+    height: 56px;
+    object-fit: cover;
+    border-radius: 6px;
+    flex-shrink: 0;
+}
+
+/* Colonne « Article » alignée à gauche (desktop) : les miniatures forment une ligne droite */
+@media (min-width: 641px) {
+
+    .cartTable th:first-child,
+    .cartTable td:first-child {
+        text-align: left;
+        padding-left: 1.5rem;
+    }
+}
+
+/* ---------- Quantité : un seul bloc  [ − | 1 | + ] ---------- */
+.qty {
+    display: inline-flex;
+    align-items: stretch;
     border: 1px solid var(--color-border);
+    border-radius: 8px;
+    overflow: hidden;
     background-color: var(--color-bg);
-    color: white;
-    border-radius: 4px;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
-.cartTable td button {
-    margin: 0 0.3rem;
-    padding: 0.3rem 0.6rem;
-    background-color: transparent;
-    border: 1px solid var(--color-border-td);
-    color: white;
+.qty:focus-within {
+    border-color: var(--color-link);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-link) 28%, transparent);
+}
+
+/* « .qty .x » (2 classes) : bat les styles globaux éventuels sur button / input */
+.qty .qtyBtn {
+    display: grid;
+    place-items: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    margin: 0;
+    padding: 0;
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    color: var(--color-text);
     cursor: pointer;
-    border-radius: 4px;
+    transition: background-color 0.15s ease, color 0.15s ease;
 }
 
-.cartTable td button:hover {
+.qty .qtyBtn:hover:not(:disabled) {
     background-color: var(--color-link);
-    color: white;
+    color: #fff;
 }
 
+.qty .qtyBtn:active:not(:disabled) {
+    filter: brightness(0.9);
+}
+
+.qty .qtyBtn:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+}
+
+.qty .qtyBtn:focus-visible {
+    outline: 2px solid var(--color-link);
+    outline-offset: -3px;
+}
+
+.qty .qtyInput {
+    width: 3rem;
+    height: 2.25rem;
+    margin: 0;
+    padding: 0;
+    background: transparent;
+    border: none;
+    border-left: 1px solid var(--color-border);
+    border-right: 1px solid var(--color-border);
+    border-radius: 0;
+    box-shadow: none;
+    outline: none;
+    color: var(--color-text);
+    font: inherit;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    text-align: center;
+    appearance: textfield;
+    -moz-appearance: textfield;
+}
+
+.qty .qtyInput::-webkit-outer-spin-button,
+.qty .qtyInput::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.stockHint {
+    margin: 0.4rem 0 0;
+    font-size: 0.8rem;
+    opacity: 0.8;
+}
+
+/* ---------- Supprimer ---------- */
+.cartTable .removeBtn {
+    display: inline-grid;
+    place-items: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    margin: 0;
+    padding: 0;
+    background: transparent;
+    border: 1px solid var(--color-border-td);
+    border-radius: 8px;
+    color: var(--color-text);
+    cursor: pointer;
+    transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.cartTable .removeBtn:hover {
+    background-color: var(--color-danger);
+    border-color: var(--color-danger);
+    color: #fff;
+}
+
+.cartTable .removeBtn:focus-visible,
+.emptyLink:focus-visible {
+    outline: 2px solid var(--color-link);
+    outline-offset: 2px;
+}
+
+/* Écrans tactiles : zones de toucher plus grandes (~44px) */
+@media (pointer: coarse) {
+
+    .qty .qtyBtn,
+    .qty .qtyInput,
+    .cartTable .removeBtn {
+        height: 2.75rem;
+    }
+
+    .qty .qtyBtn,
+    .cartTable .removeBtn {
+        width: 2.75rem;
+    }
+}
+
+/* ---------- Total / état vide ---------- */
 .totalCart {
     background-color: var(--color-bg-th);
     color: var(--color-text);
-    margin: 0 2rem 1rem 2rem;
+    margin: 1rem 2rem;
     padding: 1rem;
     border-radius: 8px;
     text-align: center;
     font-weight: bold;
     font-size: 1.2rem;
-    margin-top: 1rem;
 }
 
 .empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+    margin: 2rem 0;
     text-align: center;
     font-size: 1.3rem;
-    margin: 2rem 0;
+}
+
+.empty p {
+    margin: 0;
+}
+
+.emptyLink {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--color-link);
+    text-decoration: underline;
+}
+
+/* ---------- Mobile : le tableau devient une pile de cartes ---------- */
+@media (max-width: 640px) {
+
+    .tableWrapper,
+    .totalCart {
+        margin-left: 1rem;
+        margin-right: 1rem;
+    }
+
+    .cartTable thead {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip: rect(0 0 0 0);
+    }
+
+    .cartTable,
+    .cartTable tbody,
+    .cartTable tr,
+    .cartTable td {
+        display: block;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .cartTable tr {
+        padding: 0.5rem;
+        border-bottom: 1px solid var(--color-border-td);
+    }
+
+    .cartTable td {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 1rem;
+        padding: 0.4rem 0.5rem;
+        border-bottom: none;
+        text-align: right;
+    }
+
+    .cartTable td::before {
+        content: attr(data-label);
+        font-weight: 600;
+        color: var(--color-label);
+        text-align: left;
+    }
+
+    .product {
+        justify-content: flex-end;
+    }
+
+    .cartTable td.actions {
+        justify-content: flex-end;
+    }
+
+    .cartTable td.actions::before {
+        content: none;
+    }
 }

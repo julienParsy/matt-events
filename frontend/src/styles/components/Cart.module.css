@@ -1,5 +1,18 @@
-/* src/styles/components/CartPage.module.css */
+/* src/styles/components/Cart.module.css — page panier + formulaire de demande */
 @import '../_variables.css';
+
+/* ---------- Utilitaires ---------- */
+.srOnly {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+    border: 0;
+}
 
 .spinner {
     width: 18px;
@@ -18,10 +31,18 @@
     }
 }
 
+@media (prefers-reduced-motion: reduce) {
+    .spinner {
+        animation-duration: 1.6s;
+    }
+}
+
+/* ---------- Messages ---------- */
 .error {
     color: var(--color-danger);
     font-size: 0.85rem;
     margin-top: 4px;
+    margin-bottom: 0.5rem;
 }
 
 .successMessage {
@@ -31,47 +52,75 @@
     margin: 15px auto;
 }
 
-.totalCart {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    margin-top: 20px;
-    font-weight: 600;
-    font-size: 1.2rem;
+.recap {
+    margin: -0.5rem 0 1rem;
+    font-size: 0.9rem;
+    opacity: 0.8;
 }
 
+/* ---------- Annulation de suppression ---------- */
+.undoZone {
+    min-height: 2.5rem;
+    display: flex;
+    justify-content: center;
+}
+
+.undoToast {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin: 0.5rem 0;
+    font-size: 0.95rem;
+}
+
+.undoBtn {
+    background: none;
+    border: none;
+    padding: 0;
+    color: var(--color-link);
+    text-decoration: underline;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+/* ---------- Bloc « Faire une demande » ---------- */
 .divDemande {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    margin-top: 1.5rem;
-    margin-bottom: 1.5rem;
+    gap: 0.75rem;
+    margin: 1.5rem 0;
 }
 
-.btnDiv {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-top: 10px;
-    margin-bottom: 20px;
+.totalText {
+    margin: 0;
+    font-size: 1.1rem;
 }
 
 .btnEmail {
-    display: flex;
+    display: inline-flex;
     justify-content: center;
     align-items: center;
+    gap: 0.5rem;
+    min-width: 11rem;
+    min-height: 2.75rem;
+    padding: 0.6rem 1.5rem;
     background-color: var(--color-button-bg);
-    padding: 10px 10px;
+    color: inherit;
     border: 2px solid var(--color-primary);
-    border-radius: 4px;
-    cursor: pointer;
+    border-radius: 8px;
+    font-size: 1rem;
     font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.1s ease;
 }
 
+.btnEmail:active:not(:disabled) {
+    transform: translateY(1px);
+}
 
-.btnEmail:hover {
+.btnEmail:hover:not(:disabled) {
     background-color: var(--color-primary);
 }
 
@@ -82,89 +131,60 @@
     color: var(--color-text);
 }
 
-.cartEmpty {
-    font-size: 1.5em;
-    text-align: center;
-    margin-bottom: 1rem; }
+.btnEmail:focus-visible,
+.undoBtn:focus-visible,
+.radioInput:focus-visible {
+    outline: 2px solid var(--color-secondary);
+    outline-offset: 2px;
+}
 
+/* ---------- Formulaire ---------- */
 .optionsGroup {
-    margin-top: 16px;
-    margin-bottom: 16px;
+    margin: 16px 0;
+    padding: 0;
+    border: none;
+}
+
+.optionsGroup legend {
+    padding: 0;
 }
 
 .optionsRadioList {
     display: flex;
     flex-direction: column;
-    gap: 0.75rem;
+    gap: 0.25rem;
     margin-top: 8px;
 }
 
 .radioLabel {
     display: flex;
     align-items: center;
-    position: relative;
+    gap: 10px;
     cursor: pointer;
     font-size: 1rem;
     padding: 8px 12px;
     border-radius: 6px;
-    transition: background 0.15s;
-    background: transparent;
+    transition: background-color 0.15s;
 }
 
 .radioLabel:hover {
-    background: var(--color-bg-secondary, #23243a);
+    background: var(--color-bg-secondary);
 }
 
+/* Radio natif : accent-color remplace tout l'habillage manuel d'avant. */
 .radioInput {
-    appearance: none;
-    -webkit-appearance: none;
     width: 1.1em;
     height: 1.1em;
-    border: 2px solid var(--color-primary);
-    border-radius: 50%;
-    margin-right: 10px;
-    position: relative;
+    margin: 0;
+    accent-color: var(--color-secondary);
     cursor: pointer;
-    background: transparent;
-    transition: border-color 0.2s;
 }
 
-.radioInput:checked {
-    border-color: var(--color-secondary);
-    background: var(--color-secondary);
-}
-
-.radioInput:checked+.radioCustom {
-    background: var(--color-secondary);
-    border-color: var(--color-secondary);
-}
-
-.radioCustom {
-    content: '';
-    display: inline-block;
-    width: 1.1em;
-    height: 1.1em;
-    border-radius: 50%;
-    background: transparent;
-    border: 2px solid var(--color-primary);
-    margin-right: 10px;
-    position: absolute;
-    left: 0;
-    top: 50%;
-    transform: translateY(-50%);
-    pointer-events: none;
-}
-
-.radioInput:checked+.radioCustom {
-    background: var(--color-secondary);
-    border-color: var(--color-secondary);
-}
-
-.radioLabel .radioInput {
-    position: relative;
-    z-index: 2;
-}
-
-.radioLabel .radioCustom {
-    z-index: 1;
+.downloadOption {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    margin: 12px 0 20px;
+    cursor: pointer;
 }

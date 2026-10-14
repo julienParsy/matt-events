@@ -1,4 +1,9 @@
+/* src/styles/components/Recaptcha.module.css */
 .container {
     display: flex;
-    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+    max-width: 100%;
+    overflow-x: auto;
+    /* le widget reCAPTCHA fait 304px : évite le débordement sur petit écran */
 }
