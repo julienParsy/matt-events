@@ -109,7 +109,11 @@ function AuthProvider({ children }) {
         const responseInterceptor = axiosInstance.interceptors.response.use(
             (response) => response,
             (error) => {
-                if (error.response && error.response.status === 401) {
+                // Un 401 sur /auth/* (ex. mauvais mot de passe) n'est pas une session expirée,
+                // et sans token il n'y a pas de session à fermer
+                const url = error.config?.url || '';
+                const isAuthRoute = /(^|\/)auth\//.test(url);
+                if (error.response?.status === 401 && !isAuthRoute && localStorage.getItem('token')) {
                     console.warn("🚨 Déconnexion par INTERCEPTOR AXIOS à", new Date(), error.config?.url);
                     logout(true);
                 }

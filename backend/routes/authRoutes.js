@@ -5,19 +5,43 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const pool = require('../config/db');
 const crypto = require('crypto');
+const rateLimit = require('express-rate-limit');
 const { sendMail } = require('../services/emailService');
 
-const JWT_SECRET = process.env.JWT_SECRET || 'uneCleSuperSecrete';
+const { getJwtSecret } = require('../config/jwt');
 
-// POST /login (identique à ton code)
-router.post('/login', async (req, res) => {
-    const { email, password } = req.body;
+// Anti brute-force : 10 échecs / 15 min / IP (les connexions réussies ne comptent pas)
+const loginLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 10,
+    skipSuccessfulRequests: true,
+    message: { message: 'Trop de tentatives. Réessayez dans 15 minutes.' },
+    standardHeaders: true,
+    legacyHeaders: false,
+});
+
+// Anti-spam des mails de réinitialisation : 5 demandes / 15 min / IP
+const forgotLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 5,
+    message: { message: 'Trop de demandes. Réessayez dans 15 minutes.' },
+    standardHeaders: true,
+    legacyHeaders: false,
+});
+
+// Email normalisé : espaces retirés (claviers mobiles), comparaison insensible à la casse
+const normalizeEmail = (v) => (v || '').toString().trim();
+
+// POST /login
+router.post('/login', loginLimiter, async (req, res) => {
+    const email = normalizeEmail(req.body?.email);
+    const password = req.body?.password;
     if (!email || !password)
         return res.status(400).json({ message: 'Email et mot de passe requis' });
 
     try {
         const result = await pool.query(
-            'SELECT id, email, mot_de_passe_hash, role FROM admins WHERE email = $1',
+            'SELECT id, email, mot_de_passe_hash, role FROM admins WHERE LOWER(email) = LOWER($1)',
             [email]
         );
         const user = result.rows[0];
@@ -28,7 +52,7 @@ router.post('/login', async (req, res) => {
 
         const token = jwt.sign(
             { id: user.id, email: user.email, role: user.role },
-            JWT_SECRET,
+            getJwtSecret(),
             { expiresIn: '2h' }
         );
 
@@ -40,12 +64,12 @@ router.post('/login', async (req, res) => {
 });
 
 // POST /forgot-password
-router.post('/forgot-password', async (req, res) => {
-    const { email } = req.body;
+router.post('/forgot-password', forgotLimiter, async (req, res) => {
+    const email = normalizeEmail(req.body?.email);
     if (!email) return res.status(400).json({ message: "Email requis" });
 
     try {
-        const result = await pool.query('SELECT id, email FROM admins WHERE email = $1', [email]);
+        const result = await pool.query('SELECT id, email FROM admins WHERE LOWER(email) = LOWER($1)', [email]);
         const user = result.rows[0];
 
         // Toujours renvoyer ok pour ne rien révéler

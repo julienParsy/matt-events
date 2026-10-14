@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const JWT_SECRET = process.env.JWT_SECRET || 'uneCleSuperSecrete';
+const { getJwtSecret } = require('../config/jwt');
 
 // Vérifie que le token JWT est présent et valide
 function verifyToken(req, res, next) {
@@ -9,7 +9,7 @@ function verifyToken(req, res, next) {
 
     const token = authHeader.split(' ')[1];
     try {
-        const decoded = jwt.verify(token, JWT_SECRET);
+        const decoded = jwt.verify(token, getJwtSecret());
         req.user = decoded; // { id, email, role }
         next();
     } catch (error) {
