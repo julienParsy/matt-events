@@ -1,167 +1,167 @@
-/* src/styles/pages/AdminDemandes.module.css */
+/* src/styles/pages/AdminDemandes.module.css
+   Compléments au tableau commun (AdminUI.module.css) */
 @import '../_variables.css';
 
-.adminSection {
-    background: var(--color-bg);
-    padding: 2.5rem 1.5rem;
-    border-radius: 18px;
-    margin: 2rem auto;
-    max-width: 900px;
-    max-width: 90%;
-    transition: padding 0.3s, margin 0.3s;
+.cellCheck {
+    width: 1%;
 }
 
-.table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 2rem;
-    font-size: 1.05rem;
-    /* min-width: 520px; */
-    /* Pour forcer le scroll horizontal sur petit écran */
+.table th.thActions,
+.cellActions {
+    text-align: right;
 }
 
-.table th,
-.table td {
-    padding: 0.9em 0.7em;
-    text-align: left;
-    border-bottom: 1px solid var(--color-border-td);
+.cellActions > div {
+    justify-content: flex-end;
 }
 
-.table th {
-    color: var(--color-secondary);
-    font-weight: 700;
-    background: var(--color-bg-th);
-    border-radius: 3px;
+.ref {
+    display: block;
+    margin-top: 0.1rem;
+    font-weight: 400;
 }
 
-.table tr:last-child td {
-    border-bottom: none;
-}
-
-.actions {
+.contact {
     display: flex;
-    gap: 0.6rem;
-    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.35rem;
+    width: fit-content;
+    max-width: 100%;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    color: var(--color-text);
+    font-size: 0.88rem;
+    text-decoration: none;
 }
 
-.statut {
-    font-weight: 600;
-    padding: 0.35em 1em;
-    border-radius: 20px;
-    text-transform: capitalize;
-    font-size: 1em;
+.contact + .contact {
+    margin-top: 0.2rem;
+    color: var(--color-text-secondary);
 }
 
-.en_attente {
-    background: var(--color-warning-bg);
-    color: var(--color-warning);
+.contact:hover {
+    color: var(--color-subtitle);
+    text-decoration: underline;
 }
 
-.traitée {
-    background: var(--color-success-bg);
-    color: var(--color-success);
+.contact svg {
+    flex-shrink: 0;
+    opacity: 0.7;
 }
 
-.refusée {
-    background: var(--color-danger-bg);
-    color: var(--color-danger);
+/* Valider / refuser : couleurs au survol */
+.ok:hover:not(:disabled) {
+    border-color: var(--color-primary);
+    background: var(--color-primary);
+    color: #fff;
 }
 
-/* -------- Responsive -------- */
-
-/* Tablette */
-@media (max-width: 1200px) {
-    .adminSection {
-        max-width: 70%;
-        margin: 1.5rem auto;
-        border-radius: 13px;
-        font-size: 0.98rem;
-    }
-
-    .table {
-        font-size: 0.97rem;
-        /* min-width: 420px; */
-    }
-
-    .table th,
-    .table td {
-        padding: 0.6em 0.4em;
-    }
-        .actions {
-    
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-            justify-content: flex-start;
-            gap: 0.5em;
-            margin-top: 0.4em;
-        }
+.ko:hover:not(:disabled) {
+    border-color: var(--color-warning);
+    background: var(--color-warning);
+    color: #fff;
 }
 
-
-/* Table très étroite : affichage "cartes" en bloc (mobile extrême) */
-@media (max-width: 1200px) {
-
-    .table,
-    .table thead,
-    .table tbody,
-    .table th,
-    .table td,
-    .table tr {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
+/* ---------- Mobile / tablette : une carte par demande ---------- */
+@media (max-width: 900px) {
+    .tableWrap {
+        overflow: visible;
+        border: none;
     }
 
     .table thead {
-        display: none;
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip: rect(0 0 0 0);
+    }
+
+    .table,
+    .table tbody,
+    .table tr,
+    .table td {
+        display: block;
+        width: 100%;
+        box-sizing: border-box;
     }
 
     .table tbody {
-        display: block;
-        width: 90%;
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
     }
 
     .table tr {
-        margin-bottom: 1.1em;
-        background: var(--color-bg-th);
-        border-radius: 8px;
-        box-shadow: 0 1px 6px #0002;
-        padding: 0.7em 0.4em;
-        width: 100%;
+        position: relative;
+        padding: 0.85rem 0.9rem;
+        border: 1px solid var(--color-border);
+        border-radius: 14px;
+        background: var(--color-bg-secondary);
     }
 
     .table td {
-        border: none;
-        position: relative;
-        margin-bottom: 0.4em;
+        padding: 0.3rem 0;
+        border-bottom: none;
+    }
+
+    /* Libellé à gauche, valeur à droite */
+    .table td[data-label] {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 1rem;
+        text-align: right;
+    }
+
+    .table td[data-label]::before {
+        content: attr(data-label);
+        flex-shrink: 0;
+        font-size: 0.78rem;
+        font-weight: 700;
+        letter-spacing: 0.03em;
+        text-transform: uppercase;
+        color: var(--color-label);
         text-align: left;
     }
 
-    .table td:before {
-        position: absolute;
-        top: 0;
-        left: 0.5em;
-        width: 44%;
-        white-space: nowrap;
-        font-weight: bold;
-        content: attr(data-label);
-        font-size: 0.96em;
+    .table td[data-label] > * {
+        min-width: 0;
     }
 
-    .actions {
-
+    /* Valeurs empilées et alignées à droite */
+    .value {
         display: flex;
         flex-direction: column;
-        align-items: center;
-        justify-content: flex-start;
-        gap: 0.5em;
-        margin-top: 0.4em;
+        align-items: flex-end;
+        min-width: 0;
     }
 
-        .tableContainer {
-            overflow-x: none;
-            overflow-y: none;
-            -webkit-overflow-scrolling: none;   }
+    .contact {
+        margin-left: auto;
+    }
+
+    /* Case à cocher en haut à droite de la carte */
+    .cellCheck {
+        position: absolute;
+        top: 0.85rem;
+        right: 0.9rem;
+        width: auto !important;
+        padding: 0 !important;
+    }
+
+    .table td[data-label='Client'] {
+        padding-right: 2rem;
+    }
+
+    .cellActions {
+        margin-top: 0.5rem;
+        padding-top: 0.75rem !important;
+        border-top: 1px solid var(--color-border);
+    }
+
+    .cellActions > div {
+        flex-wrap: wrap;
+    }
 }

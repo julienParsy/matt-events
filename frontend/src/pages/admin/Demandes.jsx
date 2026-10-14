@@ -1,221 +1,268 @@
+// src/pages/admin/Demandes.jsx
 import React, { useEffect, useState, useContext } from 'react';
+import {
+    Inbox, FileText, FileSignature, Check, X, Trash2, RotateCcw, Mail, Phone,
+} from 'lucide-react';
+import { toast } from 'react-toastify';
 import axiosInstance from '../../services/axiosInstance';
-import NavAdmin from './NavAdmin';
-import btnStyles from '../../styles/components/Button.module.css';
-import modalStyles from '../../styles/components/Modal.module.css';
-import styles from '../../styles/pages/AdminDemandes.module.css';
-import stylesBack from '../../styles/components/BackButton.module.css';
+import { AuthContext } from '../../contexts/AuthContext';
+import AdminHeader from '../../components/admin/AdminHeader';
 import AdminDocumentModal from './AdminDocumentModal';
-import { AuthContext } from "../../contexts/AuthContext";
+import { Alert } from '../../components/admin/FormControls';
+import ui from '../../styles/components/AdminUI.module.css';
+import styles from '../../styles/pages/AdminDemandes.module.css';
+
+const STATUTS = {
+    en_attente: { label: 'En attente', tag: ui.tagWarning },
+    traitée: { label: 'Traitée', tag: ui.tagSuccess },
+    refusée: { label: 'Refusée', tag: ui.tagDanger },
+};
+
+const FILTRES = [
+    { value: 'toutes', label: 'Toutes' },
+    { value: 'en_attente', label: 'En attente' },
+    { value: 'traitée', label: 'Traitées' },
+    { value: 'refusée', label: 'Refusées' },
+];
+
+const formatDate = value => (value ? new Date(value).toLocaleDateString('fr-FR') : '—');
 
 export default function AdminDemandes() {
     const [demandes, setDemandes] = useState([]);
+    const [loadError, setLoadError] = useState('');
     const [filtre, setFiltre] = useState('toutes');
     const [selectedIds, setSelectedIds] = useState([]);
-    const [selectAll, setSelectAll] = useState(false);
-    const [modal, setModal] = useState({ open: false, type: '', id: null });
+    const [documentFor, setDocumentFor] = useState(null);
     const { user, token } = useContext(AuthContext);
+    const canLoad = !!token && ['admin', 'superadmin'].includes(user?.role);
 
     useEffect(() => {
-        if (token && user && user.role === "admin") {
-            fetchDemandes();
-        }
-    }, [user, token]);
+        if (canLoad) fetchDemandes();
+    }, [canLoad]);
 
     const fetchDemandes = async () => {
         try {
             const res = await axiosInstance.get('/demande');
             setDemandes(res.data);
+            setLoadError('');
         } catch (err) {
-            console.error("Erreur fetch demandes:", err);
+            console.error('Erreur fetch demandes:', err);
+            setLoadError('Impossible de charger les demandes.');
         }
+    };
+
+    const filtered = demandes.filter(d => filtre === 'toutes' || d.statut === filtre);
+    const countFor = value => (value === 'toutes' ? demandes.length : demandes.filter(d => d.statut === value).length);
+    const allSelected = filtered.length > 0 && filtered.every(d => selectedIds.includes(d.id));
+
+    const changeFiltre = value => {
+        setFiltre(value);
+        setSelectedIds([]); // la sélection ne doit pas viser des lignes masquées
     };
 
     const updateStatut = async (id, statut) => {
-        await axiosInstance.put(`/demande/${id}`, { statut });
+        try {
+            await axiosInstance.put(`/demande/${id}`, { statut });
+            fetchDemandes();
+        } catch (err) {
+            toast.error(err.response?.data?.message || 'Impossible de changer le statut.');
+        }
+    };
+
+    const deleteIds = async (ids, question) => {
+        if (!ids.length || !window.confirm(question)) return;
+        const results = await Promise.allSettled(ids.map(id => axiosInstance.delete(`/demande/${id}`)));
+        const failed = results.filter(r => r.status === 'rejected').length;
+        if (failed) toast.error(`${failed} suppression(s) ont échoué.`);
+        else toast.success(ids.length > 1 ? `${ids.length} demandes supprimées.` : 'Demande supprimée.');
+        setSelectedIds([]);
         fetchDemandes();
     };
 
-    const supprimer = async (id) => {
-        if (window.confirm('Supprimer cette demande ?')) {
-            await axiosInstance.delete(`/demande/${id}`);
-            fetchDemandes();
-        }
-    };
+    const toggleSelect = id => setSelectedIds(prev => (prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]));
+    const toggleSelectAll = () => setSelectedIds(allSelected ? [] : filtered.map(d => d.id));
 
-    const supprimerSelection = async () => {
-        if (window.confirm('Supprimer les demandes sélectionnées ?')) {
-            await Promise.all(selectedIds.map(id => axiosInstance.delete(`/demande/${id}`)));
-            fetchDemandes();
-            setSelectedIds([]);
-            setSelectAll(false);
-        }
-    };
-
-    const supprimerToutes = async () => {
-        if (window.confirm('Supprimer toutes les demandes ?')) {
-            await Promise.all(filtered.map(d => axiosInstance.delete(`/demande/${d.id}`)));
-            fetchDemandes();
-            setSelectedIds([]);
-            setSelectAll(false);
-        }
-    };
-
-    const toggleSelect = (id) => {
-        if (selectedIds.includes(id)) {
-            setSelectedIds(selectedIds.filter(i => i !== id));
-        } else {
-            setSelectedIds([...selectedIds, id]);
-        }
-    };
-
-    const toggleSelectAll = () => {
-        if (selectAll) {
-            setSelectedIds([]);
-        } else {
-            setSelectedIds(filtered.map(d => d.id));
-        }
-        setSelectAll(!selectAll);
-    };
-
-    const handleDemandePDF = async (id) => {
+    const handleDemandePDF = async id => {
         try {
             const res = await axiosInstance.get(`/demande/${id}/pdf`, { responseType: 'blob' });
             const url = window.URL.createObjectURL(new Blob([res.data], { type: 'application/pdf' }));
             window.open(url, '_blank');
         } catch (err) {
-                console.error("Erreur génération bon de commande :", err.response || err);
-                alert(`Erreur lors de la génération du bon de commande: ${err.response?.data?.message || err.message}`);
+            console.error('Erreur génération PDF demande :', err.response || err);
+            toast.error('Erreur lors de la génération du PDF de la demande.');
         }
     };
 
-    const openModal = (id, type) => {
-        setModal({ open: true, id, type });
-    };
-
-    const closeModal = () => setModal({ open: false, id: null, type: '' });
-
-    const filtered = demandes.filter(d =>
-        filtre === 'toutes' ? true : d.statut === filtre
-    );
+    const pending = countFor('en_attente');
+    const filtreLabel = FILTRES.find(f => f.value === filtre)?.label.toLowerCase();
 
     return (
         <div>
-            <div className='banner'>
-                <h1>Gestion des demandes</h1>
-                <NavAdmin />
-            </div>
+            <AdminHeader
+                icon={Inbox}
+                title="Demandes"
+                subtitle={pending > 0
+                    ? `${pending} demande${pending > 1 ? 's' : ''} en attente de traitement`
+                    : 'Aucune demande en attente'}
+            />
 
-            <div className={`${styles.adminSection}`}>
-                <nav className={stylesBack.breadcrumb}>
-                    <span className={stylesBack.breadcrumbItem} onClick={() => window.location.href = '/admin'}>Admin</span>
-                    <span className={stylesBack.breadcrumbSep}>/</span>
-                    <span className={stylesBack.breadcrumbItemActive}>Gestion des demandes</span>
-                </nav>
-
-                <select
-                    className={modalStyles.modalSelect}
-                    value={filtre}
-                    onChange={e => setFiltre(e.target.value)}
-                >
-                    <option value="toutes">Toutes</option>
-                    <option value="en_attente">En attente</option>
-                    <option value="traitée">Traitée</option>
-                    <option value="refusée">Refusée</option>
-                </select>
-
-                {selectedIds.length > 0 && (
-                    <button className={`${btnStyles.button} ${btnStyles.supprimer}`} onClick={supprimerSelection}>
-                        Supprimer les {selectedIds.length} sélectionnées
-                    </button>
-                )}
-
-                <button className={`${btnStyles.button} ${btnStyles.supprimer}`} onClick={supprimerToutes}>
-                    Supprimer toutes les demandes
-                </button>
-
-                <div className={styles.container}>
-                    <table className={styles.table}>
-                        <thead>
-                            <tr>
-                                <th><input type="checkbox" onChange={toggleSelectAll} checked={selectAll} /></th>
-                                <th>Nom</th>
-                                <th>Email</th>
-                                <th>Téléphone</th>
-                                <th>Date</th>
-                                <th>PDF</th>
-                                <th>Statut</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {filtered.map(d => (
-                                <tr key={d.id}>
-                                    <td>
-                                        <input
-                                            type="checkbox"
-                                            checked={selectedIds.includes(d.id)}
-                                            onChange={() => toggleSelect(d.id)}
-                                        />
-                                    </td>
-                                    <td>{d.prenom} {d.nom}</td>
-                                    <td>{d.email}</td>
-                                    <td>{d.telephone}</td>
-                                    <td>{new Date(d.created_at).toLocaleDateString('fr-FR')}</td>
-                                    <td>
-                                        <button
-                                            className={btnStyles.linkBtn}
-                                            onClick={() => handleDemandePDF(d.id)}
-                                        >
-                                            Demande PDF
-                                        </button>
-                                        <br />
-                                        <button className={btnStyles.linkBtn} onClick={() => openModal(d.id)}>
-                                            Devis / Facture / Bon de commande
-                                        </button>
-                                    </td>
-                                    <td>
-                                        <span className={`${styles.statut} ${styles[d.statut]}`}>
-                                            {d.statut}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <div className={styles.actions}>
-                                            {d.statut !== 'traitée' && (
-                                                <button
-                                                    className={`${btnStyles.button} ${btnStyles.modifier}`}
-                                                    onClick={() => updateStatut(d.id, 'traitée')}
-                                                >
-                                                    Valider
-                                                </button>
-                                            )}
-                                            {d.statut !== 'refusée' && (
-                                                <button
-                                                    className={`${btnStyles.button} ${btnStyles.supprimer}`}
-                                                    onClick={() => updateStatut(d.id, 'refusée')}
-                                                >
-                                                    Refuser
-                                                </button>
-                                            )}
-                                            <button
-                                                className={`${btnStyles.button} ${btnStyles.supprimer}`}
-                                                onClick={() => supprimer(d.id)}
-                                            >
-                                                Supprimer
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
+            <div className={ui.page}>
+                <section className={ui.panel}>
+                    <div className={ui.toolbar}>
+                        <div className={ui.segmented} role="tablist" aria-label="Filtrer par statut">
+                            {FILTRES.map(f => (
+                                <button
+                                    key={f.value}
+                                    type="button"
+                                    role="tab"
+                                    aria-selected={filtre === f.value}
+                                    className={`${ui.segment} ${filtre === f.value ? ui.segmentActive : ''}`}
+                                    onClick={() => changeFiltre(f.value)}
+                                >
+                                    {f.label} <span className={ui.count}>{countFor(f.value)}</span>
+                                </button>
                             ))}
-                        </tbody>
-                    </table>
-                </div>
+                        </div>
+
+                        <div className={ui.headerActions}>
+                            {selectedIds.length > 0 ? (
+                                <button
+                                    type="button"
+                                    className={`${ui.btn} ${ui.btnDanger} ${ui.btnSmall}`}
+                                    onClick={() => deleteIds(selectedIds, `Supprimer les ${selectedIds.length} demandes sélectionnées ?`)}
+                                >
+                                    <Trash2 size={15} aria-hidden="true" /> Supprimer la sélection ({selectedIds.length})
+                                </button>
+                            ) : filtered.length > 0 && (
+                                <button
+                                    type="button"
+                                    className={`${ui.btn} ${ui.btnDanger} ${ui.btnSmall}`}
+                                    onClick={() => deleteIds(
+                                        filtered.map(d => d.id),
+                                        filtre === 'toutes'
+                                            ? `Supprimer les ${filtered.length} demandes ?`
+                                            : `Supprimer les ${filtered.length} demandes « ${filtreLabel} » ?`
+                                    )}
+                                >
+                                    <Trash2 size={15} aria-hidden="true" />
+                                    {filtre === 'toutes' ? 'Tout supprimer' : `Supprimer les ${filtreLabel}`}
+                                </button>
+                            )}
+                        </div>
+                    </div>
+
+                    {loadError && <Alert>{loadError}</Alert>}
+
+                    {filtered.length === 0 ? (
+                        <p className={ui.empty}>
+                            {filtre === 'toutes' ? 'Aucune demande pour le moment.' : `Aucune demande « ${filtreLabel} ».`}
+                        </p>
+                    ) : (
+                        <div className={`${ui.tableWrap} ${styles.tableWrap}`}>
+                            <table className={`${ui.table} ${styles.table}`}>
+                                <thead>
+                                    <tr>
+                                        <th>
+                                            <input
+                                                type="checkbox"
+                                                className={ui.checkbox}
+                                                checked={allSelected}
+                                                onChange={toggleSelectAll}
+                                                aria-label="Tout sélectionner"
+                                            />
+                                        </th>
+                                        <th>Client</th>
+                                        <th>Contact</th>
+                                        <th>Reçue le</th>
+                                        <th>Statut</th>
+                                        <th className={styles.thActions}>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {filtered.map(d => {
+                                        const statut = STATUTS[d.statut] || { label: d.statut, tag: ui.tagNeutral };
+                                        const selected = selectedIds.includes(d.id);
+                                        return (
+                                            <tr key={d.id} className={selected ? ui.rowSelected : ''}>
+                                                <td className={styles.cellCheck}>
+                                                    <input
+                                                        type="checkbox"
+                                                        className={ui.checkbox}
+                                                        checked={selected}
+                                                        onChange={() => toggleSelect(d.id)}
+                                                        aria-label={`Sélectionner la demande de ${d.prenom} ${d.nom}`}
+                                                    />
+                                                </td>
+                                                <td data-label="Client" className={ui.cellStrong}>
+                                                    <div className={styles.value}>
+                                                        {d.prenom} {d.nom}
+                                                        <span className={`${ui.cellMuted} ${styles.ref}`}>n° {d.id}</span>
+                                                    </div>
+                                                </td>
+                                                <td data-label="Contact">
+                                                    <div className={styles.value}>
+                                                        <a className={styles.contact} href={`mailto:${d.email}`}>
+                                                            <Mail size={14} aria-hidden="true" /> {d.email}
+                                                        </a>
+                                                        {d.telephone && (
+                                                            <a className={styles.contact} href={`tel:${d.telephone}`}>
+                                                                <Phone size={14} aria-hidden="true" /> {d.telephone}
+                                                            </a>
+                                                        )}
+                                                    </div>
+                                                </td>
+                                                <td data-label="Reçue le" className={ui.cellMuted}>{formatDate(d.created_at)}</td>
+                                                <td data-label="Statut">
+                                                    <span className={`${ui.tag} ${statut.tag}`}>{statut.label}</span>
+                                                </td>
+                                                <td className={styles.cellActions}>
+                                                    <div className={ui.listActions}>
+                                                        <button type="button" className={ui.iconBtn} onClick={() => handleDemandePDF(d.id)}
+                                                            title="Voir la demande (PDF)" aria-label={`Voir la demande n° ${d.id} en PDF`}>
+                                                            <FileText size={16} />
+                                                        </button>
+                                                        <button type="button" className={ui.iconBtn} onClick={() => setDocumentFor(d.id)}
+                                                            title="Devis / facture / bon de commande" aria-label={`Générer un document pour la demande n° ${d.id}`}>
+                                                            <FileSignature size={16} />
+                                                        </button>
+                                                        {d.statut !== 'traitée' && (
+                                                            <button type="button" className={`${ui.iconBtn} ${styles.ok}`} onClick={() => updateStatut(d.id, 'traitée')}
+                                                                title="Marquer comme traitée" aria-label={`Marquer la demande n° ${d.id} comme traitée`}>
+                                                                <Check size={16} />
+                                                            </button>
+                                                        )}
+                                                        {d.statut !== 'refusée' && (
+                                                            <button type="button" className={`${ui.iconBtn} ${styles.ko}`} onClick={() => updateStatut(d.id, 'refusée')}
+                                                                title="Refuser" aria-label={`Refuser la demande n° ${d.id}`}>
+                                                                <X size={16} />
+                                                            </button>
+                                                        )}
+                                                        {d.statut !== 'en_attente' && (
+                                                            <button type="button" className={ui.iconBtn} onClick={() => updateStatut(d.id, 'en_attente')}
+                                                                title="Remettre en attente" aria-label={`Remettre la demande n° ${d.id} en attente`}>
+                                                                <RotateCcw size={16} />
+                                                            </button>
+                                                        )}
+                                                        <button type="button" className={`${ui.iconBtn} ${ui.iconBtnDanger}`}
+                                                            onClick={() => deleteIds([d.id], `Supprimer la demande de ${d.prenom} ${d.nom} ?`)}
+                                                            title="Supprimer" aria-label={`Supprimer la demande n° ${d.id}`}>
+                                                            <Trash2 size={16} />
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        );
+                                    })}
+                                </tbody>
+                            </table>
+                        </div>
+                    )}
+                </section>
             </div>
 
-            {modal.open && (
-                <AdminDocumentModal id={modal.id} closeModal={closeModal} />
+            {documentFor !== null && (
+                <AdminDocumentModal id={documentFor} closeModal={() => setDocumentFor(null)} />
             )}
-
         </div>
     );
 }

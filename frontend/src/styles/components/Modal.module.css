@@ -1,15 +1,131 @@
 /* src/styles/components/Modal.module.css */
 @import '../_variables.css';
 
+/* =========================================================
+   Fenêtre modale (composant Modal + modales existantes)
+   ========================================================= */
 .modalOverlay {
     position: fixed;
     inset: 0;
-    background-color: var(--color-bg-overlay);
+    z-index: 9999;
     display: flex;
     justify-content: center;
     align-items: center;
     padding: 1rem;
-    z-index: 9999;
+    background-color: var(--color-bg-overlay);
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
+    animation: fadeIn 0.2s ease-out;
+}
+
+.modalContent {
+    position: relative;
+    width: 100%;
+    max-width: 400px;
+    max-height: 90vh;
+    padding: 1.5rem;
+    box-sizing: border-box;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    border: 1px solid var(--color-border);
+    border-radius: 18px;
+    background: var(--color-bg);
+    box-shadow: 0 24px 60px var(--color-elevated-shadow);
+    animation: popIn 0.22s ease-out;
+}
+
+/* Tailles du composant Modal */
+.sizeSm { max-width: 420px; }
+.sizeMd { max-width: 560px; }
+.sizeLg { max-width: 760px; }
+
+/* En-tête du composant Modal (titre + bouton fermer) */
+.modalHeader {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    margin: -0.25rem 0 1.25rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.modalHeader .modalTitle {
+    margin: 0;
+}
+
+.modalSubtitle {
+    margin: 0.25rem 0 0;
+    font-size: 0.9rem;
+    color: var(--color-text-secondary);
+}
+
+.modalHeaderClose {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border: 1px solid var(--color-border);
+    border-radius: 10px;
+    background: transparent;
+    color: var(--color-text-secondary);
+    cursor: pointer;
+    transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+}
+
+.modalHeaderClose:hover {
+    border-color: var(--color-danger);
+    background: var(--color-danger-bg);
+    color: var(--color-danger);
+}
+
+.modalBody {
+    display: block;
+}
+
+/* Bouton « fermer » positionné (modales qui n'utilisent pas l'en-tête) */
+.modalClose {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.2rem;
+    height: 2.2rem;
+    padding: 0;
+    border: none;
+    border-radius: 10px;
+    background: transparent;
+    color: var(--color-modal-close);
+    font-size: 1.25rem;
+    cursor: pointer;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.modalClose:hover:not(:disabled) {
+    background: var(--color-danger-bg);
+    color: var(--color-danger);
+}
+
+.modalTitle {
+    margin: 0 0 1rem;
+    font-size: 1.25rem;
+    font-weight: 700;
+    text-align: left;
+    color: var(--color-text);
+}
+
+/* Page plein écran centrée (réinitialisation du mot de passe) */
+.modalLogin {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .modalCenter {
@@ -21,32 +137,6 @@
     margin: 1.5rem;
 }
 
-.modalLogin {
-    position: fixed;
-    inset: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.modalBody {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 1rem;
-    padding: 1.5rem;
-}
-
-.modalForget {
-    background: none;
-    border: none;
-    color: var(--color-link);
-    cursor: pointer;
-    padding: 0;
-    text-decoration: underline;
-}
-
 .modalText {
     color: var(--color-text);
     font-size: 1rem;
@@ -56,48 +146,13 @@
     line-height: 1.5;
 }
 
-.modalContent {
-    background: var(--color-bg);
-    padding: 1.5rem;
-    border-radius: 8px;
-    width: 100%;
-    max-width: 400px;
-    box-shadow: 0 0 25px var(--color-modal-shadow);
-    position: relative;
-    max-height: 90vh;
-    overflow-y: auto;
-    overscroll-behavior: contain;
-}
-
-.modalClose {
-    position: absolute;
-    top: 8px;
-    right: 8px;
-    width: 2rem;
-    height: 2rem;
-    font-size: 1.25rem;
-    background: transparent;
+.modalForget {
+    padding: 0;
     border: none;
+    background: none;
+    color: var(--color-link);
+    text-decoration: underline;
     cursor: pointer;
-    color: var(--color-modal-close);
-    transition: color 0.3s ease;
-}
-
-.modalClose:hover:not(:disabled) {
-    color: var(--color-danger);
-}
-
-.modalTitle {
-    font-size: 1.25rem;
-    font-weight: 700;
-    margin-bottom: 1rem;
-    color: var(--color-label);
-}
-
-.modalLabel {
-    display: block;
-    font-weight: 600;
-    color: var(--color-label);
 }
 
 .mailDiv {
@@ -105,17 +160,14 @@
     justify-content: end;
 }
 
-.modalSelect {
-    appearance: none;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    padding-right: 2rem;
-    cursor: pointer;
-}
-
-.modalSelect option {
-    background-color: var(--color-modal-bg);
-    color: var(--color-text);
+/* =========================================================
+   Champs (formulaires des modales existantes)
+   ========================================================= */
+.modalLabel {
+    display: block;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--color-label);
 }
 
 .btnFileUpload,
@@ -123,18 +175,40 @@
 .modalTextarea,
 .modalInput,
 .modalFile {
-    background-color: transparent;
-    color: inherit;
     width: 100%;
-    padding: 0.5rem 0.75rem;
+    min-height: 42px;
+    margin-top: 0.4rem;
     margin-bottom: 0.75rem;
-    margin-top: 0.5rem;
-    box-shadow: 0 0 0 1px var(--color-input-shadow);
-    border: none;
-    border-radius: 6px;
-    font-size: 1rem;
+    padding: 0.55rem 0.85rem;
     box-sizing: border-box;
-    transition: box-shadow 0.2s ease;
+    border: 1.5px solid var(--color-border);
+    border-radius: 10px;
+    background-color: var(--color-bg-secondary);
+    color: var(--color-text);
+    font: inherit;
+    font-size: 1rem;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.modalSelect {
+    appearance: none;
+    -webkit-appearance: none;
+    padding-right: 2.4rem;
+    cursor: pointer;
+    background-image: var(--icon-chevron);
+    background-repeat: no-repeat;
+    background-position: right 0.85rem center;
+}
+
+.modalSelect option {
+    background-color: var(--color-modal-bg);
+    color: var(--color-text);
+}
+
+.modalInput:hover,
+.modalSelect:hover,
+.modalTextarea:hover {
+    border-color: var(--color-modal-close);
 }
 
 .modalInput:focus,
@@ -142,12 +216,13 @@
 .modalTextarea:focus,
 .modalFile:focus {
     outline: none;
-    box-shadow: 0 0 0 2px var(--color-global-shadow);
+    border-color: var(--color-secondary);
+    box-shadow: 0 0 0 4px var(--color-input-shadow-focus);
 }
 
 /* Champ invalide (piloté par aria-invalid dans le JSX) */
 .modalInput[aria-invalid='true'] {
-    box-shadow: 0 0 0 1px var(--color-danger);
+    border-color: var(--color-danger);
 }
 
 .modalButtons {
@@ -159,18 +234,21 @@
 }
 
 .btnCancel {
-    background-color: transparent;
-    color: inherit;
-    border-radius: 6px;
+    min-height: 40px;
     padding: 0.5rem 1rem;
-    border: 1px solid var(--color-danger);
+    border: 1px solid var(--color-border);
+    border-radius: 10px;
+    background-color: transparent;
+    color: var(--color-text);
+    font: inherit;
     font-weight: 600;
     cursor: pointer;
-    transition: background-color 0.2s ease;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
 }
 
 .btnCancel:hover:not(:disabled) {
-    background-color: var(--color-danger);
+    border-color: var(--color-secondary);
+    background-color: var(--color-hover-bg);
 }
 
 .btnCancel:disabled {
@@ -183,9 +261,34 @@
 }
 
 .modalClose:focus-visible,
+.modalHeaderClose:focus-visible,
 .btnCancel:focus-visible,
 .btnSave:focus-visible,
 .modalForget:focus-visible {
     outline: 2px solid var(--color-secondary);
     outline-offset: 2px;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes popIn {
+    from { opacity: 0; transform: translateY(8px) scale(0.98); }
+    to { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .modalOverlay,
+    .modalContent {
+        animation: none;
+    }
+}
+
+@media (max-width: 600px) {
+    .modalContent {
+        padding: 1.15rem;
+        border-radius: 16px;
+    }
 }

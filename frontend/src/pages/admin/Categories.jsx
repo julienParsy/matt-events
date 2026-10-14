@@ -1,18 +1,39 @@
+// src/pages/admin/Categories.jsx
 import React, { useState, useEffect } from 'react';
+import { FolderTree, Tags, Layers, Plus, Pencil, Trash2, Save } from 'lucide-react';
+import { toast } from 'react-toastify';
 import axiosInstance from '../../services/axiosInstance';
-import NavAdmin from './NavAdmin';
-import btnStyles from '../../styles/components/Button.module.css';
-import modalStyles from '../../styles/components/Modal.module.css';
-import styles from '../../styles/pages/AdminCategories.module.css';
-import stylesBack from '../../styles/components/BackButton.module.css';
+import AdminHeader from '../../components/admin/AdminHeader';
+import Modal from '../../components/Modal/Modal';
+import { Alert, SubmitButton } from '../../components/admin/FormControls';
+import ui from '../../styles/components/AdminUI.module.css';
+
+// Configuration des deux types gérés sur cette page
+const TYPES = {
+    categorie: {
+        endpoint: '/categories',
+        label: 'catégorie',
+        title: 'Catégories de produits',
+        desc: 'Classent les produits de la boutique.',
+        icon: Tags,
+    },
+    sousCategorie: {
+        endpoint: '/sous-categories',
+        label: 'sous-catégorie',
+        title: 'Sous-catégories de packs',
+        desc: 'Classent les packs dans l’onglet « Packs ».',
+        icon: Layers,
+    },
+};
 
 export default function AdminCategories() {
-    const [categories, setCategories] = useState([]);
-    const [sousCategories, setSousCategories] = useState([]);
-    const [modalOpen, setModalOpen] = useState(false);
-    const [editing, setEditing] = useState(null);
+    const [lists, setLists] = useState({ categorie: [], sousCategorie: [] });
+    const [loadError, setLoadError] = useState('');
+    // Fenêtre : { type, item } (item = null pour un ajout)
+    const [editor, setEditor] = useState(null);
     const [name, setName] = useState('');
-    const [isSousCategory, setIsSousCategory] = useState(false);
+    const [saving, setSaving] = useState(false);
+    const [formError, setFormError] = useState('');
 
     useEffect(() => {
         fetchAll();
@@ -21,191 +42,167 @@ export default function AdminCategories() {
     const fetchAll = async () => {
         try {
             const [catRes, sousCatRes] = await Promise.all([
-                axiosInstance.get('/categories'),
-                axiosInstance.get('/sous-categories')
+                axiosInstance.get(TYPES.categorie.endpoint),
+                axiosInstance.get(TYPES.sousCategorie.endpoint),
             ]);
-            setCategories(catRes.data);
-            setSousCategories(sousCatRes.data);
+            setLists({ categorie: catRes.data, sousCategorie: sousCatRes.data });
+            setLoadError('');
         } catch (err) {
             console.error('Erreur chargement admin', err);
+            setLoadError('Impossible de charger les catégories.');
         }
     };
 
-    const handleSubmit = async (e) => {
+    const openEditor = (type, item = null) => {
+        setEditor({ type, item });
+        setName(item?.nom || '');
+        setFormError('');
+    };
+
+    const closeEditor = () => setEditor(null);
+
+    const handleSubmit = async e => {
         e.preventDefault();
+        const nom = name.trim();
+        if (!nom) { setFormError('Le nom est obligatoire.'); return; }
+
+        const { type, item } = editor;
+        const { endpoint, label } = TYPES[type];
+        setSaving(true);
+        setFormError('');
         try {
-            if (editing) {
-                if (isSousCategory) {
-                    await axiosInstance.put(`/sous-categories/${editing.id}`, { nom: name });
-                } else {
-                    await axiosInstance.put(`/categories/${editing.id}`, { nom: name });
-                }
-            } else {
-                if (isSousCategory) {
-                    await axiosInstance.post('/sous-categories', { nom: name });
-                } else {
-                    await axiosInstance.post('/categories', { nom: name });
-                }
-            }
-            setModalOpen(false);
-            setEditing(null);
-            setName('');
-            setIsSousCategory(false);
+            if (item) await axiosInstance.put(`${endpoint}/${item.id}`, { nom });
+            else await axiosInstance.post(endpoint, { nom });
+            toast.success(item ? `${capitalize(label)} renommée.` : `${capitalize(label)} ajoutée.`);
+            closeEditor();
             fetchAll();
         } catch (err) {
-            console.error('Erreur sauvegarde', err);
+            setFormError(err.response?.data?.message || 'Erreur lors de l’enregistrement.');
+        } finally {
+            setSaving(false);
         }
     };
 
-    const handleDelete = async (id, sous = false) => {
-        if (window.confirm(`Supprimer cette ${sous ? 'sous-catégorie' : 'catégorie'} ?`)) {
-            try {
-                if (sous) {
-                    await axiosInstance.delete(`/sous-categories/${id}`);
-                } else {
-                    await axiosInstance.delete(`/categories/${id}`);
-                }
-                fetchAll();
-            } catch (err) {
-                console.error('Erreur suppression', err);
-            }
+    const handleDelete = async (type, item) => {
+        const { endpoint, label } = TYPES[type];
+        if (!window.confirm(`Supprimer la ${label} « ${item.nom} » ?`)) return;
+        try {
+            await axiosInstance.delete(`${endpoint}/${item.id}`);
+            toast.success(`${capitalize(label)} supprimée.`);
+            fetchAll();
+        } catch (err) {
+            toast.error(err.response?.data?.message || `Impossible de supprimer cette ${label} (elle est peut-être encore utilisée).`);
         }
     };
+
+    const total = lists.categorie.length + lists.sousCategorie.length;
 
     return (
         <div>
-            <div className='banner'>
-                <h1>Gestion des catégories et sous-catégories</h1>
-                <NavAdmin />
+            <AdminHeader
+                icon={FolderTree}
+                title="Catégories"
+                subtitle={`${total} élément${total > 1 ? 's' : ''} pour organiser la boutique`}
+            />
+
+            <div className={ui.page}>
+                {loadError && <Alert>{loadError}</Alert>}
+
+                <div className={ui.grid2}>
+                    {Object.entries(TYPES).map(([type, { title, desc, label, icon }]) => {
+                        const Icon = icon;
+                        return (
+                        <section key={type} className={ui.panel}>
+                            <div className={ui.panelHeader}>
+                                <h2 className={ui.panelTitle}>
+                                    <Icon size={20} aria-hidden="true" /> {title}
+                                    <span className={ui.count}>{lists[type].length}</span>
+                                </h2>
+                                <button
+                                    type="button"
+                                    className={`${ui.btn} ${ui.btnPrimary} ${ui.btnSmall}`}
+                                    onClick={() => openEditor(type)}
+                                >
+                                    <Plus size={16} aria-hidden="true" /> Ajouter
+                                </button>
+                            </div>
+                            <p className={ui.panelDesc}>{desc}</p>
+
+                            {lists[type].length === 0 ? (
+                                <p className={ui.empty}>Aucune {label} pour l’instant.</p>
+                            ) : (
+                                <ul className={ui.list}>
+                                    {lists[type].map(item => (
+                                        <li key={item.id} className={ui.listItem}>
+                                            <span className={ui.listMain} title={item.nom}>{item.nom}</span>
+                                            <div className={ui.listActions}>
+                                                <button
+                                                    type="button"
+                                                    className={ui.iconBtn}
+                                                    onClick={() => openEditor(type, item)}
+                                                    aria-label={`Renommer ${item.nom}`}
+                                                    title="Renommer"
+                                                >
+                                                    <Pencil size={16} />
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    className={`${ui.iconBtn} ${ui.iconBtnDanger}`}
+                                                    onClick={() => handleDelete(type, item)}
+                                                    aria-label={`Supprimer ${item.nom}`}
+                                                    title="Supprimer"
+                                                >
+                                                    <Trash2 size={16} />
+                                                </button>
+                                            </div>
+                                        </li>
+                                    ))}
+                                </ul>
+                            )}
+                        </section>
+                        );
+                    })}
+                </div>
             </div>
 
-            <div className={styles.adminSection}>
-                <nav className={stylesBack.breadcrumb}>
-                    <span className={stylesBack.breadcrumbItem} onClick={() => window.location.href = '/admin'}>Admin</span>
-                    <span className={stylesBack.breadcrumbSep}>/</span>
-                    <span className={stylesBack.breadcrumbItemActive}>Gestion des catégories</span>
-                </nav>
-
-                {/* --- Section Catégories --- */}
-                <h2>Catégories</h2>
-                <div className={styles.btnContainer}>
-                    <button
-                        className={`${btnStyles.button} ${btnStyles.btnNew}`}
-                        onClick={() => {
-                            setModalOpen(true);
-                            setEditing(null);
-                            setName('');
-                            setIsSousCategory(false);
-                        }}>
-                        Ajouter une catégorie
-                    </button>
-                </div>
-                <ul className={styles.categoryList}>
-                    {categories.map(cat => (
-                        <li className={styles.categoryItem} key={cat.id}>
-                            <span>{cat.nom}</span>
-                            <div className={styles.actions}>
-                                <button
-                                    className={`${btnStyles.button} ${btnStyles.modifier}`}
-                                    onClick={() => {
-                                        setModalOpen(true);
-                                        setEditing(cat);
-                                        setName(cat.nom);
-                                        setIsSousCategory(false);
-                                    }}>
-                                    Éditer
-                                </button>
-                                <button
-                                    className={`${btnStyles.button} ${btnStyles.supprimer}`}
-                                    onClick={() => handleDelete(cat.id)}>
-                                    Supprimer
-                                </button>
-                            </div>
-                        </li>
-                    ))}
-                </ul>
-
-                {/* --- Section Sous-catégories --- */}
-                <h2>Sous-catégories de packs</h2>
-                <div className={styles.btnContainer}>
-                    <button
-                        className={`${btnStyles.button} ${btnStyles.btnNew}`}
-                        onClick={() => {
-                            setModalOpen(true);
-                            setEditing(null);
-                            setName('');
-                            setIsSousCategory(true);
-                        }}>
-                        Ajouter une sous-catégorie
-                    </button>
-                </div>
-                <ul className={styles.categoryList}>
-                    {sousCategories.map(sc => (
-                        <li className={styles.categoryItem} key={sc.id}>
-                            <span>{sc.nom}</span>
-                            <div className={styles.actions}>
-                                <button
-                                    className={`${btnStyles.button} ${btnStyles.modifier}`}
-                                    onClick={() => {
-                                        setModalOpen(true);
-                                        setEditing(sc);
-                                        setName(sc.nom);
-                                        setIsSousCategory(true);
-                                    }}>
-                                    Éditer
-                                </button>
-                                <button
-                                    className={`${btnStyles.button} ${btnStyles.supprimer}`}
-                                    onClick={() => handleDelete(sc.id, true)}>
-                                    Supprimer
-                                </button>
-                            </div>
-                        </li>
-                    ))}
-                </ul>
-
-                {/* --- Modale --- */}
-                {modalOpen && (
-                    <div className={modalStyles.modalOverlay}>
-                        <div className={modalStyles.modalContent} style={{ maxWidth: 360 }}>
-                            <button className={modalStyles.modalClose} onClick={() => setModalOpen(false)}>
-                                &times;
-                            </button>
-                            <h3 className={modalStyles.modalTitle}>
-                                {editing ? (isSousCategory ? "Modifier la sous-catégorie" : "Modifier la catégorie")
-                                    : (isSousCategory ? "Nouvelle sous-catégorie" : "Nouvelle catégorie")}
-                            </h3>
-                            <form onSubmit={handleSubmit}>
-                                <label className={modalStyles.modalLabel}>
-                                    Nom
-                                    <input
-                                        className={modalStyles.modalInput}
-                                        value={name}
-                                        onChange={e => setName(e.target.value)}
-                                        placeholder="Nom"
-                                        required
-                                        autoFocus
-                                    />
-                                </label>
-
-                                <div className={modalStyles.modalButtons}>
-                                    <button
-                                        className={`${btnStyles.button} ${btnStyles.btnNew}`}
-                                        type="submit">
-                                        {editing ? "Mettre à jour" : "Ajouter"}
-                                    </button>
-                                    <button
-                                        className={`${btnStyles.button} ${btnStyles.btnCancel}`}
-                                        type="button"
-                                        onClick={() => setModalOpen(false)}>
-                                        Annuler
-                                    </button>
-                                </div>
-                            </form>
+            {editor && (
+                <Modal
+                    isOpen
+                    size="sm"
+                    title={editor.item
+                        ? `Renommer la ${TYPES[editor.type].label}`
+                        : `Nouvelle ${TYPES[editor.type].label}`}
+                    onClose={closeEditor}
+                >
+                    <form onSubmit={handleSubmit} className={ui.form} noValidate>
+                        <Alert>{formError}</Alert>
+                        <div className={ui.field}>
+                            <label className={ui.label} htmlFor="category-name">Nom</label>
+                            <input
+                                id="category-name"
+                                className={ui.input}
+                                value={name}
+                                onChange={e => setName(e.target.value)}
+                                placeholder={editor.type === 'categorie' ? 'Ex. Sonorisation' : 'Ex. Packs soirée'}
+                                maxLength={100}
+                                autoFocus
+                            />
                         </div>
-                    </div>
-                )}
-            </div>
+                        <div className={ui.formActions}>
+                            <button type="button" className={`${ui.btn} ${ui.btnSecondary}`} onClick={closeEditor}>
+                                Annuler
+                            </button>
+                            <SubmitButton loading={saving} icon={editor.item ? Save : Plus}>
+                                {editor.item ? 'Enregistrer' : 'Ajouter'}
+                            </SubmitButton>
+                        </div>
+                    </form>
+                </Modal>
+            )}
         </div>
     );
+}
+
+function capitalize(s) {
+    return s.charAt(0).toUpperCase() + s.slice(1);
 }

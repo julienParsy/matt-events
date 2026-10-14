@@ -1,25 +1,27 @@
-// src/components/PackModal.jsx
+// src/components/Modal/PackModal.jsx
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
+import { Save, Plus, Trash2, PackagePlus } from 'lucide-react';
 import { uploadImage } from '../../utils/upload';
 import Modal from './Modal';
 import axiosInstance from '../../services/axiosInstance';
-import formStyles from '../../styles/components/Modal.module.css';
-import listProductsStyles from '../../styles/components/CategoryList.module.css';
-import btnStyles from '../../styles/components/Button.module.css';
+import { Alert, ImagePicker, SubmitButton } from '../admin/FormControls';
+import ui from '../../styles/components/AdminUI.module.css';
+import styles from '../../styles/components/PackModal.module.css';
+
+const EMPTY = {
+    nom: '',
+    description: '',
+    prix: '',
+    image_url: '',
+    produits: [],
+    stock: '',
+    sous_categorie_id: '',
+    video_url: '',
+};
 
 export default function PackModal({ isOpen, mode, pack, onClose, onSuccess }) {
-    const [form, setForm] = useState({
-        nom: '',
-        description: '',
-        prix: '',
-        image_url: '',
-        produits: [],
-        stock: '',
-        sous_categorie_id: '',
-        video_url: ''
-    });
-
+    const [form, setForm] = useState(EMPTY);
     const [products, setProducts] = useState([]);
     const [sousCategories, setSousCategories] = useState([]);
     const [loading, setLoading] = useState(false);
@@ -27,162 +29,112 @@ export default function PackModal({ isOpen, mode, pack, onClose, onSuccess }) {
     const [selectedProdId, setSelectedProdId] = useState('');
     const [selectedProdQty, setSelectedProdQty] = useState(1);
     const [error, setError] = useState('');
+    const isEdit = mode === 'edit';
 
     useEffect(() => {
         axiosInstance.get('/products')
             .then(res => setProducts(res.data))
             .catch(err => console.error('Erreur chargement produits', err));
-    }, []);
-
-    useEffect(() => {
         axiosInstance.get('/sous-categories')
             .then(res => setSousCategories(res.data))
             .catch(err => console.error('Erreur chargement sous-catégories', err));
     }, []);
 
     useEffect(() => {
-        if (mode === 'edit' && pack) {
+        if (isEdit && pack) {
             setForm({
                 nom: pack.nom || '',
                 description: pack.description || '',
                 prix: pack.prix?.toString() || '',
                 image_url: pack.image_url || '',
-                produits: pack.produits.map(p => ({
-                    produit_id: p.id,
-                    quantite: p.quantite
-                })),
-                stock: pack.stock || '',
-                sous_categorie_id: pack.sous_categorie_id || ''
+                produits: (pack.produits || []).map(p => ({ produit_id: p.id, quantite: p.quantite })),
+                // ?? et non || : un stock de 0 est une valeur valide
+                stock: pack.stock ?? '',
+                sous_categorie_id: pack.sous_categorie_id ?? '',
+                // auparavant oublié : la vidéo était effacée à chaque modification
+                video_url: pack.video_url || '',
             });
-            setImageFile(null);
-        } else if (mode === 'add') {
-            setForm({
-                nom: '',
-                description: '',
-                prix: '',
-                image_url: '',
-                produits: [],
-                stock: '',
-                sous_categorie_id: ''
-            });
-            setImageFile(null);
+        } else {
+            setForm(EMPTY);
         }
+        setImageFile(null);
         setError('');
-    }, [mode, pack]);
+    }, [isEdit, pack]);
+
+    const findProduct = id => products.find(p => p.id === id);
+    const stockOf = id => findProduct(id)?.stock ?? 1;
+
+    // La description reprend la liste des produits (format lu par l'overlay du site)
+    const describe = produits => produits
+        .map(item => {
+            const p = findProduct(item.produit_id);
+            return p ? `- ${p.nom} — ${p.modele} × ${item.quantite}` : '';
+        })
+        .filter(Boolean)
+        .join('\n');
+
+    const setProduits = updater => setForm(prev => {
+        const produits = updater(prev.produits);
+        return { ...prev, produits, description: describe(produits) };
+    });
 
     const handleChange = e => {
         const { name, value } = e.target;
         setForm(prev => ({ ...prev, [name]: value }));
     };
 
-    const handleFileChange = e => {
-        if (e.target.files && e.target.files[0]) {
-            setImageFile(e.target.files[0]);
-        }
-    };
-
-    const addProductToForm = () => {
-        if (!selectedProdId) return;
-
-        const prod = products.find(p => p.id === selectedProdId);
+    const addProduct = () => {
+        const prod = findProduct(selectedProdId);
         if (!prod) return;
-
-        const stock = prod.stock ?? 1;
-        let qty = selectedProdQty;
-        if (qty < 1) qty = 1;
-        if (qty > stock) {
-            setError(`Stock insuffisant pour ${prod.nom} — ${prod.modele} (max: ${stock})`);
+        const qty = Math.max(1, selectedProdQty);
+        if (qty > stockOf(selectedProdId)) {
+            setError(`Stock insuffisant pour ${prod.nom} — ${prod.modele} (max : ${stockOf(selectedProdId)}).`);
             return;
         }
-
-        setForm(prev => {
-            const existing = prev.produits.find(p => p.produit_id === selectedProdId);
-            let newProduits;
-            if (existing) {
-                newProduits = prev.produits.map(p =>
-                    p.produit_id === selectedProdId
-                        ? { ...p, quantite: qty }
-                        : p
-                );
-            } else {
-                newProduits = [...prev.produits, { produit_id: selectedProdId, quantite: qty }];
-            }
-
-            const descList = newProduits
-                .map(item => {
-                    const p2 = products.find(p => p.id === item.produit_id);
-                    return p2 ? `- ${p2.nom} — ${p2.modele} × ${item.quantite}` : '';
-                })
-                .join('\n');
-
-            return { ...prev, produits: newProduits, description: descList };
-        });
-
+        setProduits(list => (list.some(p => p.produit_id === selectedProdId)
+            ? list.map(p => (p.produit_id === selectedProdId ? { ...p, quantite: qty } : p))
+            : [...list, { produit_id: selectedProdId, quantite: qty }]));
         setSelectedProdId('');
         setSelectedProdQty(1);
         setError('');
     };
 
-    const removeProductFromForm = produit_id => {
-        setForm(prev => {
-            const filtered = prev.produits.filter(p => p.produit_id !== produit_id);
-            const descList = filtered
-                .map(item => {
-                    const prod = products.find(p => p.id === item.produit_id);
-                    return prod ? `- ${prod.nom} — ${prod.modele} × ${item.quantite}` : '';
-                })
-                .join('\n');
-            return { ...prev, produits: filtered, description: descList };
-        });
+    const updateQty = (produit_id, value) => {
+        const qty = Math.min(Math.max(1, Number(value) || 1), stockOf(produit_id));
+        setProduits(list => list.map(p => (p.produit_id === produit_id ? { ...p, quantite: qty } : p)));
+    };
+
+    const removeProduct = produit_id => setProduits(list => list.filter(p => p.produit_id !== produit_id));
+
+    const validate = () => {
+        if (!form.nom.trim()) return 'Le nom du pack est obligatoire.';
+        if (!form.prix || Number(form.prix) <= 0) return 'Le prix doit être supérieur à 0.';
+        if (form.stock === '' || Number(form.stock) < 0) return 'Le stock doit être renseigné (0 ou plus).';
+        if (!form.sous_categorie_id) return 'La sous-catégorie est obligatoire.';
+        if (form.produits.length === 0) return 'Ajoutez au moins un produit au pack.';
+        if (!isEdit && !imageFile) return 'Veuillez sélectionner une image pour le pack.';
+        return '';
     };
 
     const handleSubmit = async e => {
         e.preventDefault();
+        const message = validate();
+        if (message) { setError(message); return; }
+
         setError('');
         setLoading(true);
-
-        if (!form.nom.trim()) {
-            setError('Le nom du pack est obligatoire.');
-            setLoading(false);
-            return;
-        }
-        if (!form.prix || Number(form.prix) <= 0) {
-            setError('Le prix doit être supérieur à 0.');
-            setLoading(false);
-            return;
-        }
-        if (!form.stock || Number(form.stock) < 0) {
-            setError('Le stock doit être renseigné et supérieur ou égal à 0.');
-            setLoading(false);
-            return;
-        }
-        if (form.produits.length === 0) {
-            setError('Veuillez ajouter au moins un produit au pack.');
-            setLoading(false);
-            return;
-        }
-        if (mode === 'add' && !imageFile) {
-            setError('Veuillez sélectionner une image pour le pack.');
-            setLoading(false);
-            return;
-        }
-
         try {
             let imageUrl = form.image_url || '';
-            if (imageFile) {
-                imageUrl = await uploadImage(imageFile);
-            }
+            if (imageFile) imageUrl = await uploadImage(imageFile);
 
             const payload = {
                 ...form,
                 prix: Number(form.prix),
                 stock: Number(form.stock),
                 image_url: imageUrl,
-                video_url: form.video_url,
-                produits: form.produits
             };
 
-            if (mode === 'edit') {
+            if (isEdit) {
                 await axiosInstance.put(`/packs/${pack.id}`, payload);
             } else {
                 await axiosInstance.post('/packs', payload);
@@ -191,242 +143,165 @@ export default function PackModal({ isOpen, mode, pack, onClose, onSuccess }) {
             onSuccess();
             onClose();
         } catch (err) {
-            setError(
-                err.response?.data?.message ||
-                "Une erreur est survenue lors de la soumission du pack."
-            );
+            setError(err.response?.data?.message || 'Une erreur est survenue lors de l’enregistrement du pack.');
         } finally {
             setLoading(false);
         }
     };
 
+    const maxQty = selectedProdId ? stockOf(selectedProdId) : 1;
+
     return (
         <Modal
             isOpen={isOpen}
-            title={mode === 'edit' ? 'Modifier le Pack' : 'Ajouter un Pack'}
+            size="lg"
+            title={isEdit ? 'Modifier le pack' : 'Nouveau pack'}
+            subtitle={isEdit ? pack?.nom : 'Composez un pack à partir de vos produits.'}
             onClose={onClose}
         >
-            <form onSubmit={handleSubmit} encType="multipart/form-data">
-                {error && <div style={{ color: 'red', marginBottom: '1em' }}>{error}</div>}
+            <form onSubmit={handleSubmit} className={ui.form} noValidate>
+                <Alert>{error}</Alert>
 
-                <label className={formStyles.modalLabel}>
-                    Nom
-                    <input
-                        className={formStyles.modalInput}
-                        name="nom"
-                        type="text"
-                        value={form.nom}
-                        onChange={handleChange}
-                        required
-                    />
-                </label>
-
-                <label className={formStyles.modalLabel}>
-                    Description
-                    <textarea
-                        className={formStyles.modalTextarea}
-                        name="description"
-                        value={form.description}
-                        onChange={handleChange}
-                    />
-                </label>
-
-                <label className={formStyles.modalLabel}>
-                       Lien vidéo (URL)
-                       <input
-                className={formStyles.modalInput}
-                                    name="video_url"
-                                    type="url"
-                                    placeholder="Lien vidéo (URL)"
-                                    value={form.video_url}
-                                    onChange={handleChange}
-                />
-                </label>
-
-                <label className={formStyles.modalLabel}>
-                    Prix (€)
-                    <input
-                        className={formStyles.modalInput}
-                        name="prix"
-                        type="number"
-                        value={form.prix}
-                        onChange={handleChange}
-                        required
-                        min={0.01}
-                        step={0.01}
-                    />
-                </label>
-
-                <label className={formStyles.modalLabel}>
-                    Stock
-                    <input
-                        className={formStyles.modalInput}
-                        name="stock"
-                        type="number"
-                        value={form.stock}
-                        onChange={handleChange}
-                        required
-                        min={0}
-                    />
-                </label>
-
-                <label className={formStyles.modalLabel}>
-                    Sous-catégorie
-                    <select
-                        className={formStyles.modalSelect}
-                        name="sous_categorie_id"
-                        value={form.sous_categorie_id || ''}
-                        onChange={handleChange}
-                        required
-                    >
-                        <option value="">— Choisir une sous-catégorie —</option>
-                        {sousCategories.map(sc => (
-                            <option key={sc.id} value={sc.id}>
-                                {sc.nom}
-                            </option>
-                        ))}
-                    </select>
-                </label>
-
-                <label className={formStyles.modalLabel}>
-                    Image
-                    <input
-                        id="pack-file-upload"
-                        type="file"
-                        accept="image/*"
-                        onChange={handleFileChange}
-                        style={{ display: 'none' }}
-                        required={mode === 'add'}
-                    />
-                </label>
-                <div className={formStyles.modalInput}>
-                    <button
-                        type="button"
-                        className={`${btnStyles.button} ${btnStyles.btnFileUpload}`}
-                        onClick={() => document.getElementById('pack-file-upload').click()}
-                    >
-                        {imageFile ? imageFile.name : form.image_url ? 'Image actuelle' : 'Choisir un fichier'}
-                    </button>
+                <div className={ui.field}>
+                    <span className={ui.label}>Image</span>
+                    <ImagePicker file={imageFile} currentUrl={form.image_url} onChange={setImageFile} />
                 </div>
 
-                {/* Sélection des produits */}
-                <section className={formStyles.modalLabel}>
-                    <h4>Sélectionner les produits</h4>
-                    <div className={formStyles.productSelector}>
+                <div className={ui.field}>
+                    <label className={ui.label} htmlFor="pack-nom">Nom du pack</label>
+                    <input id="pack-nom" className={ui.input} name="nom" type="text"
+                        placeholder="Ex. Pack Soirée 100 personnes" value={form.nom} onChange={handleChange} required />
+                </div>
+
+                <div className={ui.row}>
+                    <div className={ui.field}>
+                        <label className={ui.label} htmlFor="pack-prix">Prix (€)</label>
+                        <input id="pack-prix" className={ui.input} name="prix" type="number" inputMode="decimal"
+                            placeholder="0,00" value={form.prix} onChange={handleChange} required min={0.01} step={0.01} />
+                    </div>
+                    <div className={ui.field}>
+                        <label className={ui.label} htmlFor="pack-stock">Stock</label>
+                        <input id="pack-stock" className={ui.input} name="stock" type="number" inputMode="numeric"
+                            placeholder="0" value={form.stock} onChange={handleChange} required min={0} step={1} />
+                    </div>
+                </div>
+
+                <div className={ui.row}>
+                    <div className={ui.field}>
+                        <label className={ui.label} htmlFor="pack-souscat">Sous-catégorie</label>
+                        <select id="pack-souscat" className={ui.select} name="sous_categorie_id"
+                            value={form.sous_categorie_id} onChange={handleChange} required>
+                            <option value="">Choisir une sous-catégorie…</option>
+                            {sousCategories.map(sc => (
+                                <option key={sc.id} value={sc.id}>{sc.nom}</option>
+                            ))}
+                        </select>
+                    </div>
+                    <div className={ui.field}>
+                        <label className={ui.label} htmlFor="pack-video">
+                            Vidéo YouTube <span className={ui.optional}>(facultatif)</span>
+                        </label>
+                        <input id="pack-video" className={ui.input} name="video_url" type="url"
+                            placeholder="https://youtube.com/…" value={form.video_url} onChange={handleChange} />
+                    </div>
+                </div>
+
+                {/* ---------- Composition du pack ---------- */}
+                <fieldset className={styles.compose}>
+                    <legend className={styles.composeTitle}>
+                        <PackagePlus size={18} aria-hidden="true" /> Contenu du pack
+                        <span className={ui.count}>{form.produits.length}</span>
+                    </legend>
+
+                    <div className={styles.picker}>
                         <select
+                            className={ui.select}
+                            aria-label="Produit à ajouter"
                             value={selectedProdId}
                             onChange={e => {
-                                setSelectedProdId(Number(e.target.value));
+                                setSelectedProdId(e.target.value ? Number(e.target.value) : '');
                                 setSelectedProdQty(1);
                             }}
-                            className={formStyles.modalSelect}
                         >
-                            <option value="">— Choisir un produit —</option>
+                            <option value="">Choisir un produit…</option>
                             {products.map(p => (
                                 <option key={p.id} value={p.id}>
-                                    {p.nom} — {p.modele} (stock: {p.stock ?? 'N/A'})
+                                    {p.nom} — {p.modele} (stock : {p.stock ?? '—'})
                                 </option>
                             ))}
                         </select>
-
                         <input
                             type="number"
-                            min="1"
-                            max={selectedProdId
-                                ? products.find(p => p.id === selectedProdId)?.stock ?? 1
-                                : 1}
+                            className={`${ui.input} ${styles.qty}`}
+                            aria-label="Quantité"
+                            min={1}
+                            max={maxQty}
                             value={selectedProdQty}
-                            onChange={e => {
-                                const prod = products.find(p => p.id === selectedProdId);
-                                const stock = prod?.stock ?? 1;
-                                let qty = Number(e.target.value);
-                                if (qty > stock) qty = stock;
-                                if (qty < 1) qty = 1;
-                                setSelectedProdQty(qty);
-                            }}
-                            className={formStyles.modalInput}
+                            onChange={e => setSelectedProdQty(Math.min(Math.max(1, Number(e.target.value) || 1), maxQty))}
                             disabled={!selectedProdId}
                         />
-
                         <button
                             type="button"
-                            className={`${btnStyles.button} ${btnStyles.btnMoreArticles}`}
-                            onClick={addProductToForm}
-                            disabled={
-                                !selectedProdId ||
-                                selectedProdQty < 1 ||
-                                (selectedProdId && selectedProdQty > (products.find(p => p.id === selectedProdId)?.stock ?? 1))
-                            }
+                            className={`${ui.btn} ${ui.btnSecondary}`}
+                            onClick={addProduct}
+                            disabled={!selectedProdId}
                         >
-                            Ajouter
+                            <Plus size={17} aria-hidden="true" /> Ajouter
                         </button>
-
-                        {selectedProdId && (
-                            <span style={{ fontSize: '0.85em', color: '#888', marginLeft: 6 }}>
-                                (max: {products.find(p => p.id === selectedProdId)?.stock ?? 1})
-                            </span>
-                        )}
                     </div>
+                    {selectedProdId !== '' && <p className={ui.hint}>Quantité maximum : {maxQty}</p>}
 
-                    <ul className={listProductsStyles.productList}>
-                        {form.produits.map(({ produit_id, quantite }) => {
-                            const prod = products.find(p => p.id === produit_id);
-                            const stock = prod?.stock ?? 1;
+                    {form.produits.length === 0 ? (
+                        <p className={ui.empty}>Aucun produit pour l’instant.</p>
+                    ) : (
+                        <ul className={ui.list}>
+                            {form.produits.map(({ produit_id, quantite }) => {
+                                const prod = findProduct(produit_id);
+                                return (
+                                    <li key={produit_id} className={ui.listItem}>
+                                        <span className={ui.listMain}>
+                                            {prod ? prod.nom : 'Produit inconnu'}
+                                            {prod && <span className={ui.listMeta}> — {prod.modele}</span>}
+                                        </span>
+                                        <input
+                                            type="number"
+                                            className={`${ui.input} ${styles.qtySmall}`}
+                                            aria-label={`Quantité de ${prod?.nom || 'ce produit'}`}
+                                            min={1}
+                                            max={stockOf(produit_id)}
+                                            value={quantite}
+                                            onChange={e => updateQty(produit_id, e.target.value)}
+                                        />
+                                        <button
+                                            type="button"
+                                            className={`${ui.iconBtn} ${ui.iconBtnDanger}`}
+                                            onClick={() => removeProduct(produit_id)}
+                                            aria-label={`Retirer ${prod?.nom || 'ce produit'}`}
+                                            title="Retirer"
+                                        >
+                                            <Trash2 size={16} />
+                                        </button>
+                                    </li>
+                                );
+                            })}
+                        </ul>
+                    )}
+                </fieldset>
 
-                            return (
-                                <li key={produit_id} className={listProductsStyles.productListItem}>
-                                    <span>{prod ? `${prod.nom} — ${prod.modele}` : 'Produit inconnu'}</span>
+                <div className={ui.field}>
+                    <label className={ui.label} htmlFor="pack-description">Description</label>
+                    <textarea id="pack-description" className={ui.textarea} name="description"
+                        value={form.description} onChange={handleChange} />
+                    <p className={ui.hint}>Générée à partir du contenu du pack, modifiable si besoin.</p>
+                </div>
 
-                                    {/* Modification directe de la quantité */}
-                                    <input
-                                        type="number"
-                                        min="1"
-                                        max={stock}
-                                        value={quantite}
-                                        onChange={e => {
-                                            let newQty = Number(e.target.value);
-                                            if (newQty < 1) newQty = 1;
-                                            if (newQty > stock) newQty = stock;
-
-                                            setForm(prev => {
-                                                const updated = prev.produits.map(p =>
-                                                    p.produit_id === produit_id ? { ...p, quantite: newQty } : p
-                                                );
-
-                                                const descList = updated
-                                                    .map(item => {
-                                                        const p2 = products.find(p => p.id === item.produit_id);
-                                                        return p2 ? `- ${p2.nom} — ${p2.modele} × ${item.quantite}` : '';
-                                                    })
-                                                    .join('\n');
-
-                                                return { ...prev, produits: updated, description: descList };
-                                            });
-                                        }}
-                                        className={formStyles.productQty}
-                                    />
-
-                                    <button
-                                        type="button"
-                                        className={`${btnStyles.button} ${btnStyles.supprimer}`}
-                                        onClick={() => removeProductFromForm(produit_id)}
-                                        aria-label={`Supprimer ${prod ? prod.nom : 'produit inconnu'}`}
-                                    >
-                                        ✕
-                                    </button>
-                                </li>
-                            );
-                        })}
-                    </ul>
-                </section>
-
-                <div className={formStyles.modalButtons}>
-                    <button type="button" className={formStyles.btnCancel} onClick={onClose}>
+                <div className={ui.formActions}>
+                    <button type="button" className={`${ui.btn} ${ui.btnSecondary}`} onClick={onClose}>
                         Annuler
                     </button>
-                    <button type="submit" disabled={loading} className={`${btnStyles.button} ${btnStyles.btnNew}`}>
-                        {loading ? 'Enregistrement...' : mode === 'edit' ? 'Mettre à jour' : 'Ajouter'}
-                    </button>
+                    <SubmitButton loading={loading} icon={isEdit ? Save : Plus}>
+                        {isEdit ? 'Enregistrer' : 'Créer le pack'}
+                    </SubmitButton>
                 </div>
             </form>
         </Modal>
@@ -438,5 +313,5 @@ PackModal.propTypes = {
     mode: PropTypes.oneOf(['add', 'edit']).isRequired,
     pack: PropTypes.object,
     onClose: PropTypes.func.isRequired,
-    onSuccess: PropTypes.func.isRequired
+    onSuccess: PropTypes.func.isRequired,
 };

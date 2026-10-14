@@ -167,7 +167,9 @@ export default function CardBase({
                                 type="button"
                                 onClick={e => {
                                     e.stopPropagation();
-                                    setShowModal(true);
+                                    // La page fournit sa propre fenêtre d'édition (et rafraîchit la liste après)
+                                    if (onEdit) onEdit(item);
+                                    else setShowModal(true);
                                 }}
                                 className={`${cardStyles.adminBtn} ${cardStyles.adminEdit}`}
                             >
@@ -178,11 +180,9 @@ export default function CardBase({
                             <button
                                 type="button"
                                 onClick={e => {
+                                    // La confirmation est demandée par la page (AdminPanel)
                                     e.stopPropagation();
-                                    if (window.confirm('Confirmer la suppression ?')) {
-                                        onDelete(item.id);
-                                        alert(isPack ? 'Pack supprimé !' : 'Produit supprimé !');
-                                    }
+                                    onDelete(item.id);
                                 }}
                                 className={`${cardStyles.adminBtn} ${cardStyles.adminDelete}`}
                                 aria-label={`Supprimer ${item.nom}`}

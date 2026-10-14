@@ -6,8 +6,9 @@ import PackCard from '../../components/PackCard';
 import PackModal from '../../components/Modal/PackModal';
 import CategoryNav from '../../components/CategoryNav';
 import SousCategoryNav from '../../components/SousCategoryNav';
-import NavAdmin from './NavAdmin';
-import btnStyles from '../../styles/components/Button.module.css';
+import { Package, Plus, Search } from 'lucide-react';
+import AdminHeader from '../../components/admin/AdminHeader';
+import ui from '../../styles/components/AdminUI.module.css';
 import styles from '../../styles/components/CategoryList.module.css';
 
 import { fetchGroupedCatalog, fetchCategories } from '../../data/api';
@@ -172,65 +173,59 @@ export default function AdminPanel() {
     return (
         <div className={styles.adminPanel}>
 
-            <div className='banner' >
-            <h1>Gestion des produits & packs</h1>
-                <NavAdmin />
-                <hr />
-
-            <CategoryNav
-                categories={categories}
-                selectedCategory={selectedCategory}
-                onSelectCategory={setSelectedCategory}
+            <AdminHeader
+                icon={Package}
+                title="Produits & packs"
+                subtitle={`${allProducts.length} produit${allProducts.length > 1 ? 's' : ''} · ${packs.length} pack${packs.length > 1 ? 's' : ''}`}
+                actions={
+                    <button
+                        type="button"
+                        className={`${ui.btn} ${ui.btnPrimary}`}
+                        onClick={isPackView ? openAddPackModal : openAddProductModal}
+                    >
+                        <Plus size={18} aria-hidden="true" />
+                        {isPackView ? 'Nouveau pack' : 'Nouveau produit'}
+                    </button>
+                }
+            >
+                <CategoryNav
+                    categories={categories}
+                    selectedCategory={selectedCategory}
+                    onSelectCategory={setSelectedCategory}
                 />
-                
-            {isPackView && sousCategories.length > 0 && (
-                <SousCategoryNav
-                    sousCategories={sousCategories}
-                    selectedSousCategory={selectedSousCategory}
-                    onSelectSousCategory={setSelectedSousCategory}
-                />
-            )}
 
+                {isPackView && sousCategories.length > 0 && (
+                    <SousCategoryNav
+                        sousCategories={sousCategories}
+                        selectedSousCategory={selectedSousCategory}
+                        onSelectSousCategory={setSelectedSousCategory}
+                    />
+                )}
 
-            <div className={styles.search}>
-                <select
-                    className={styles.sortSelect}
-                    value={sortByPrice || ''}
-                    onChange={e => setSortByPrice(e.target.value || null)}
-                >
-                    <option value="">Trier par prix</option>
-                    <option value="asc">Prix croissant</option>
-                    <option value="desc">Prix décroissant</option>
-                </select>
-                <input
-                    className={styles.searchInput}
-                    type="text"
-                    placeholder="Rechercher un produit ou un pack..."
-                    value={search}
-                    onChange={e => setSearch(e.target.value)}
-                />
+                <div className={styles.search}>
+                    <div className={styles.searchField}>
+                        <Search className={styles.searchIcon} aria-hidden="true" />
+                        <input
+                            className={styles.searchInput}
+                            type="search"
+                            aria-label="Rechercher un produit ou un pack"
+                            placeholder="Rechercher un produit ou un pack…"
+                            value={search}
+                            onChange={e => setSearch(e.target.value)}
+                        />
+                    </div>
+                    <select
+                        className={styles.sortSelect}
+                        aria-label="Trier par prix"
+                        value={sortByPrice || ''}
+                        onChange={e => setSortByPrice(e.target.value || null)}
+                    >
+                        <option value="">Trier par prix</option>
+                        <option value="asc">Prix croissant</option>
+                        <option value="desc">Prix décroissant</option>
+                    </select>
                 </div>
-                <div className={`${btnStyles.divNouveauProduit}`}>
-                    {!isPackView && (
-                        <button
-                            className={`${btnStyles.button} ${btnStyles.btnNew}`}
-                            onClick={openAddProductModal}
-                        >
-                            Ajouter un produit
-                        </button>
-                    )}
-                    {isPackView && (
-                        <button
-                            className={`${btnStyles.button} ${btnStyles.btnNew}`}
-                            onClick={openAddPackModal}
-                        >
-                            Ajouter un pack
-                        </button>
-
-                    )}
-                </div>
-
-            </div>
+            </AdminHeader>
 
             {isAllActive ? (
                 <div className={styles.grid4}>
@@ -262,6 +257,7 @@ export default function AdminPanel() {
                 </div>
             ) : isPackView ? (
                 <div className={styles.grid4}>
+                    {displayedPacks.length === 0 && <p>Aucun pack trouvé.</p>}
                     {displayedPacks.map(pack => (
                         <PackCard
                             key={pack.id}

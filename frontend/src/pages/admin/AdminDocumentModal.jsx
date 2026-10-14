@@ -1,12 +1,22 @@
+// src/pages/admin/AdminDocumentModal.jsx
 import React, { useEffect, useState } from 'react';
+import { Download, Loader2 } from 'lucide-react';
 import axiosInstance from '../../services/axiosInstance';
-import btnStyles from '../../styles/components/Button.module.css';
-import modalStyles from '../../styles/components/Modal.module.css';
-import stylesBack from '../../styles/components/BackButton.module.css';
+import Modal from '../../components/Modal/Modal';
+import { Alert, SubmitButton } from '../../components/admin/FormControls';
+import ui from '../../styles/components/AdminUI.module.css';
+
+const TYPES = [
+    { value: 'devis', label: 'Devis' },
+    { value: 'facture', label: 'Facture' },
+    { value: 'bonCommande', label: 'Bon de commande' },
+];
 
 export default function AdminDocumentModal({ id, closeModal }) {
     const [demande, setDemande] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [generating, setGenerating] = useState(false);
+    const [error, setError] = useState('');
     const [adresse, setAdresse] = useState('');
     const [montage, setMontage] = useState(0);
     const [livraison, setLivraison] = useState(0);
@@ -21,7 +31,7 @@ export default function AdminDocumentModal({ id, closeModal }) {
                 setDemande(res.data);
                 setAdresse(res.data.adresse || '');
             } catch (err) {
-                console.error("Erreur récupération de la demande :", err);
+                console.error('Erreur récupération de la demande :', err);
             } finally {
                 setLoading(false);
             }
@@ -29,20 +39,26 @@ export default function AdminDocumentModal({ id, closeModal }) {
         fetchDemande();
     }, [id]);
 
-    const handleSubmit = async (e) => {
+    const typeLabel = TYPES.find(t => t.value === typeDoc)?.label || typeDoc;
+
+    const handleSubmit = async e => {
         e.preventDefault();
+        if (!adresse.trim()) { setError('L’adresse du client est obligatoire.'); return; }
+        if (typeDoc === 'bonCommande' && !paymentLink.trim()) { setError('Le lien de paiement est obligatoire pour un bon de commande.'); return; }
+
+        setError('');
+        setGenerating(true);
         try {
-            const endpoint = `/demande/${id}/${typeDoc}`;
             const body = {
                 adresse,
-                montage: parseFloat(montage),
-                livraison: parseFloat(livraison),
-                caution: parseFloat(caution),
-                eventDate: demande.event_date || demande.eventDate || null, 
+                montage: parseFloat(montage) || 0,
+                livraison: parseFloat(livraison) || 0,
+                caution: parseFloat(caution) || 0,
+                eventDate: demande.event_date || demande.eventDate || null,
             };
-            if (typeDoc === 'bonCommande') body.paymentLink = paymentLink;
+            if (typeDoc === 'bonCommande') body.paymentLink = paymentLink.trim();
 
-            const res = await axiosInstance.post(endpoint, body, { responseType: 'blob' });
+            const res = await axiosInstance.post(`/demande/${id}/${typeDoc}`, body, { responseType: 'blob' });
             const url = window.URL.createObjectURL(new Blob([res.data], { type: 'application/pdf' }));
             const link = document.createElement('a');
             link.href = url;
@@ -50,109 +66,96 @@ export default function AdminDocumentModal({ id, closeModal }) {
             document.body.appendChild(link);
             link.click();
             link.remove();
+            setTimeout(() => window.URL.revokeObjectURL(url), 1000);
 
             closeModal();
         } catch (err) {
-            console.error("Erreur génération PDF :", err);
-            alert(`Erreur lors de la génération du ${typeDoc}.`);
+            console.error('Erreur génération PDF :', err);
+            setError(`Erreur lors de la génération du document (${typeLabel.toLowerCase()}).`);
+        } finally {
+            setGenerating(false);
         }
     };
 
-
-    if (loading) return <p>Chargement...</p>;
-    if (!demande) return <p>Demande introuvable.</p>;
+    const client = demande ? `${demande.prenom || ''} ${demande.nom || ''}`.trim() : '';
 
     return (
-        <div className={modalStyles.modalCenter}>
-            <form onSubmit={handleSubmit} className={modalStyles.modalContent}>
-                <nav className={stylesBack.breadcrumb}>
-                    <span className={stylesBack.breadcrumbItem} onClick={closeModal}>
-                        Demandes n°{id}
-                    </span>
-                    <span className={stylesBack.breadcrumbSep}>/</span>
-                    <span className={stylesBack.breadcrumbItemActive}>
-                        Générer {typeDoc}
-                    </span>
-                </nav>
+        <Modal
+            isOpen
+            size="md"
+            title="Générer un document"
+            subtitle={client ? `Demande n° ${id} — ${client}` : `Demande n° ${id}`}
+            onClose={closeModal}
+        >
+            {loading ? (
+                <p className={ui.hint}><Loader2 size={16} className={ui.spin} aria-hidden="true" /> Chargement de la demande…</p>
+            ) : !demande ? (
+                <Alert>Demande introuvable.</Alert>
+            ) : (
+                <form onSubmit={handleSubmit} className={ui.form} noValidate>
+                    <Alert>{error}</Alert>
 
-                <div className={modalStyles.formGroup}>
-                    <label className={modalStyles.modalLabel} htmlFor="adresse">Adresse du client</label>
-                    <input
-                        type="text"
-                        id="adresse"
-                        value={adresse}
-                        onChange={(e) => setAdresse(e.target.value)}
-                        className={modalStyles.modalInput}
-                        required
-                    />
-                </div>
-
-                <div className={modalStyles.formGroup}>
-                    <label className={modalStyles.modalLabel} htmlFor="montage">Frais montage/démontage (€)</label>
-                    <input
-                        type="number"
-                        id="montage"
-                        value={montage}
-                        onChange={(e) => setMontage(e.target.value)}
-                        className={modalStyles.modalInput}
-                    />
-                </div>
-
-                <div className={modalStyles.formGroup}>
-                    <label className={modalStyles.modalLabel} htmlFor="livraison">Tarif livraison (€)</label>
-                    <input
-                        type="number"
-                        id="livraison"
-                        value={livraison}
-                        onChange={(e) => setLivraison(e.target.value)}
-                        className={modalStyles.modalInput}
-                    />
-                </div>
-
-                <div className={modalStyles.formGroup}>
-                    <label className={modalStyles.modalLabel} htmlFor="caution">Montant caution (€)</label>
-                    <input
-                        type="number"
-                        id="caution"
-                        value={caution}
-                        onChange={(e) => setCaution(e.target.value)}
-                        className={modalStyles.modalInput}
-                    />
-                </div>
-
-                {typeDoc === 'bonCommande' && (
-                    <div className={modalStyles.formGroup}>
-                        <label className={modalStyles.modalLabel} htmlFor="paymentLink">Lien de paiement</label>
-                        <input
-                            type="text"
-                            id="paymentLink"
-                            value={paymentLink}
-                            onChange={(e) => setPaymentLink(e.target.value)}
-                            className={modalStyles.modalInput}
-                            placeholder="Ex: https://paiement.com/..."
-                            required
-                        />
+                    <div className={ui.field}>
+                        <span className={ui.label} id="doc-type-label">Type de document</span>
+                        <div className={ui.segmented} role="radiogroup" aria-labelledby="doc-type-label">
+                            {TYPES.map(t => (
+                                <button
+                                    key={t.value}
+                                    type="button"
+                                    role="radio"
+                                    aria-checked={typeDoc === t.value}
+                                    className={`${ui.segment} ${typeDoc === t.value ? ui.segmentActive : ''}`}
+                                    onClick={() => setTypeDoc(t.value)}
+                                >
+                                    {t.label}
+                                </button>
+                            ))}
+                        </div>
                     </div>
-                )}
 
-                <div className={modalStyles.formGroup}>
-                    <label className={modalStyles.modalLabel} htmlFor="typeDoc">Type de document</label>
-                    <select
-                        id="typeDoc"
-                        value={typeDoc}
-                        onChange={(e) => setTypeDoc(e.target.value)}
-                        className={modalStyles.modalSelect}
-                    >
-                        <option value="devis">Devis</option>
-                        <option value="facture">Facture</option>
-                        <option value="bonCommande">Bon de commande</option>
-                    </select>
-                </div>
+                    <div className={ui.field}>
+                        <label className={ui.label} htmlFor="doc-adresse">Adresse du client</label>
+                        <input id="doc-adresse" className={ui.input} type="text" value={adresse}
+                            onChange={e => setAdresse(e.target.value)} placeholder="N°, rue, code postal, ville" />
+                    </div>
 
-                <button type="submit" className={`${btnStyles.button} ${btnStyles.btnConnexion}`}>
-                    Générer le {typeDoc}
-                </button>
-            </form>
-        </div>
+                    <div className={ui.row}>
+                        <div className={ui.field}>
+                            <label className={ui.label} htmlFor="doc-montage">Montage / démontage (€)</label>
+                            <input id="doc-montage" className={ui.input} type="number" min={0} step={0.01}
+                                inputMode="decimal" value={montage} onChange={e => setMontage(e.target.value)} />
+                        </div>
+                        <div className={ui.field}>
+                            <label className={ui.label} htmlFor="doc-livraison">Livraison (€)</label>
+                            <input id="doc-livraison" className={ui.input} type="number" min={0} step={0.01}
+                                inputMode="decimal" value={livraison} onChange={e => setLivraison(e.target.value)} />
+                        </div>
+                    </div>
+
+                    <div className={ui.field}>
+                        <label className={ui.label} htmlFor="doc-caution">Caution (€)</label>
+                        <input id="doc-caution" className={ui.input} type="number" min={0} step={0.01}
+                            inputMode="decimal" value={caution} onChange={e => setCaution(e.target.value)} />
+                    </div>
+
+                    {typeDoc === 'bonCommande' && (
+                        <div className={ui.field}>
+                            <label className={ui.label} htmlFor="doc-payment">Lien de paiement</label>
+                            <input id="doc-payment" className={ui.input} type="url" value={paymentLink}
+                                onChange={e => setPaymentLink(e.target.value)} placeholder="https://…" />
+                        </div>
+                    )}
+
+                    <div className={ui.formActions}>
+                        <button type="button" className={`${ui.btn} ${ui.btnSecondary}`} onClick={closeModal}>
+                            Annuler
+                        </button>
+                        <SubmitButton loading={generating} loadingLabel="Génération…" icon={Download}>
+                            Télécharger : {typeLabel.toLowerCase()}
+                        </SubmitButton>
+                    </div>
+                </form>
+            )}
+        </Modal>
     );
 }

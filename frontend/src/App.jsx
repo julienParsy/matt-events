@@ -34,7 +34,8 @@ import AdminDocumentModal from './pages/admin/AdminDocumentModal';
 
 function App() {
   const { user, logout } = useContext(AuthContext);
-  const isAdmin = user && user.role === 'admin';
+  // 'superadmin' a aussi accès à l'administration (même règle que le backend)
+  const isAdmin = !!user && ['admin', 'superadmin'].includes(user.role);
 
 
   // Panier global partagé

@@ -2,9 +2,13 @@
 const pool = require('../config/db');
 const bcrypt = require('bcrypt');
 
+// Même règle que la réinitialisation (routes/authRoutes.js) : ≥ 10 car., 1 majuscule, 1 chiffre, 1 spécial
+exports.isStrongPassword = (pwd) =>
+    typeof pwd === 'string' && pwd.length >= 10 && /[A-Z]/.test(pwd) && /\d/.test(pwd) && /[^A-Za-z0-9]/.test(pwd);
+
 exports.fetchAllAdmins = async () => {
     const result = await pool.query(
-        'SELECT id, email, role, created_at FROM admins ORDER BY id DESC'
+        'SELECT id, email, role FROM admins ORDER BY id DESC'
     );
     return result.rows;
 };
@@ -66,7 +70,8 @@ exports.changeAdminEmail = async (adminId, email, password) => {
     const isValid = await bcrypt.compare(password, admin.mot_de_passe_hash);
     if (!isValid) {
         const err = new Error("Mot de passe incorrect.");
-        err.status = 401;
+        // 400 et non 401 : un 401 est compris par le site comme une session expirée (déconnexion)
+        err.status = 400;
         throw err;
     }
     await pool.query('UPDATE admins SET email = $1, updated_at = NOW() WHERE id = $2', [email, adminId]);
@@ -82,7 +87,12 @@ exports.changeAdminPassword = async (adminId, currentPassword, newPassword) => {
     const isValid = await bcrypt.compare(currentPassword, admin.mot_de_passe_hash);
     if (!isValid) {
         const err = new Error("Mot de passe actuel incorrect.");
-        err.status = 401;
+        err.status = 400;
+        throw err;
+    }
+    if (!exports.isStrongPassword(newPassword)) {
+        const err = new Error("Le nouveau mot de passe doit faire au moins 10 caractères, avec une majuscule, un chiffre et un caractère spécial.");
+        err.status = 400;
         throw err;
     }
     const hash = await bcrypt.hash(newPassword, 10);

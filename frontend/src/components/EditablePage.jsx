@@ -1,11 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { Editor } from "@tinymce/tinymce-react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { FilePen, Save, Eye } from "lucide-react";
 import axiosInstance from "../services/axiosInstance";
+import useTheme from "../hooks/useTheme";
+import AdminHeader from "./admin/AdminHeader";
+import { Alert, SubmitButton } from "./admin/FormControls";
 import styles from '../styles/pages/AboutSection.module.css';
 import stylesBtn from '../styles/components/Button.module.css';
-import stylesModal from '../styles/components/Modal.module.css';
-import { useLocation } from "react-router-dom";
-import NavAdmin from '../pages/admin/NavAdmin';
+import ui from '../styles/components/AdminUI.module.css';
 
 
 export default function EditablePage({ slug, isAdmin }) {
@@ -15,8 +18,11 @@ export default function EditablePage({ slug, isAdmin }) {
     const [draft, setDraft] = useState("");
     const [draftTitle, setDraftTitle] = useState("");
     const [loading, setLoading] = useState(true);
-    const [message, setMessage] = useState("");
+    const [saving, setSaving] = useState(false);
+    const [message, setMessage] = useState(null); // { type, text }
     const location = useLocation();
+    const navigate = useNavigate();
+    const { theme } = useTheme();
     const editFromNav = location.state?.edit === true;
 
     useEffect(() => {
@@ -42,61 +48,81 @@ export default function EditablePage({ slug, isAdmin }) {
         }
     }, [editMode, editFromNav, loading, content, title]);
 
-    const save = async () => {
+    // Quitte l'édition : l'état { edit: true } de la navigation admin doit aussi être effacé,
+    // sinon la page reste bloquée en mode édition
+    const exitEdit = () => {
+        setEditMode(false);
+        if (editFromNav) navigate(location.pathname, { replace: true, state: null });
+    };
+
+    const save = async e => {
+        e.preventDefault();
+        setSaving(true);
         try {
-            await axiosInstance.put(
-                `/pages/${slug}`,
-                { content: draft, title: draftTitle }
-            );
+            await axiosInstance.put(`/pages/${slug}`, { content: draft, title: draftTitle });
             setContent(draft);
             setTitle(draftTitle);
-            setEditMode(false);
-            setMessage("✅ Enregistré !");
+            setMessage({ type: 'success', text: 'Page enregistrée.' });
+            exitEdit();
         } catch {
-            setMessage("❌ Erreur lors de la sauvegarde.");
+            setMessage({ type: 'error', text: 'Erreur lors de la sauvegarde.' });
+        } finally {
+            setSaving(false);
         }
     };
 
-    if (loading) return <div>Chargement...</div>;
+    if (loading) return <div className={ui.page}>Chargement…</div>;
+
     if (isAdmin && (editMode || editFromNav)) {
         return (
             <div>
-                <div className="banner">
-                    <h1>{title}</h1>
-                <NavAdmin />
-                </div>
-                    
+                <AdminHeader icon={FilePen} title={title || 'Édition de page'} subtitle="Modifiez le titre et le contenu, puis enregistrez." />
 
-            <div className={styles.aboutSection}>
-                <label className={stylesModal.modalLabel} htmlFor="title">Titre</label>
-                <input
-                    type="text"
-                    value={draftTitle}
-                    onChange={e => setDraftTitle(e.target.value)}
-                    placeholder="Titre de la page"
-                    className={stylesModal.modalInput}
-                />
-                <label className={stylesModal.modalLabel} htmlFor="Contenu">Edition du contenu :</label>
-                    <Editor
-                        apiKey={import.meta.env.VITE_TINYMCE_API_KEY}
-                        value={draft}
-                        init={{
-                            height: 400,
-                            menubar: false,
-                            plugins: "advlist autolink lists link image charmap preview anchor searchreplace visualblocks code fullscreen insertdatetime media table help wordcount",
-                            toolbar:
-                                "undo redo | formatselect | bold italic backcolor | " +
-                                "alignleft aligncenter alignright alignjustify | " +
-                                "bullist numlist outdent indent | removeformat | help"
-                        }}
-                        onEditorChange={setDraft}
-                    />
+                <div className={ui.page}>
+                    <form className={`${ui.panel} ${ui.form}`} onSubmit={save}>
+                        {message?.type === 'error' && <Alert>{message.text}</Alert>}
 
-                <div className={stylesModal.modalButtons}>
-                    <button className={`${stylesBtn.button} ${stylesModal.btnCancel}`}  onClick={() => setEditMode(false)}>Annuler</button>
-                <button className={`${stylesBtn.button} ${stylesBtn.btnAjouter}`} onClick={save}>Enregistrer</button>
-                </div>
-                {message && <div style={{ marginTop: 12 }}>{message}</div>}
+                        <div className={ui.field}>
+                            <label className={ui.label} htmlFor="page-title">Titre</label>
+                            <input
+                                id="page-title"
+                                type="text"
+                                value={draftTitle}
+                                onChange={e => setDraftTitle(e.target.value)}
+                                placeholder="Titre de la page"
+                                className={ui.input}
+                            />
+                        </div>
+
+                        <div className={ui.field}>
+                            <span className={ui.label}>Contenu</span>
+                            {/* key : TinyMCE ne change pas de thème à chaud, on le recrée */}
+                            <Editor
+                                key={theme}
+                                apiKey={import.meta.env.VITE_TINYMCE_API_KEY}
+                                value={draft}
+                                init={{
+                                    height: 480,
+                                    menubar: false,
+                                    skin: theme === 'dark' ? 'oxide-dark' : 'oxide',
+                                    content_css: theme === 'dark' ? 'dark' : 'default',
+                                    plugins: "advlist autolink lists link image charmap preview anchor searchreplace visualblocks code fullscreen insertdatetime media table help wordcount",
+                                    toolbar:
+                                        "undo redo | formatselect | bold italic backcolor | " +
+                                        "alignleft aligncenter alignright alignjustify | " +
+                                        "bullist numlist outdent indent | removeformat | help"
+                                }}
+                                onEditorChange={setDraft}
+                            />
+                        </div>
+
+                        <div className={ui.formActions}>
+                            <button type="button" className={`${ui.btn} ${ui.btnSecondary}`} onClick={exitEdit} disabled={saving}>
+                                <Eye size={17} aria-hidden="true" /> Annuler et voir la page
+                            </button>
+                            <SubmitButton loading={saving} icon={Save}>Enregistrer</SubmitButton>
+                        </div>
+                    </form>
                 </div>
             </div>
         );
@@ -106,7 +132,11 @@ export default function EditablePage({ slug, isAdmin }) {
         <div className={styles.aboutSection}>
             {title && <h1 className="title">{title}</h1>}
             <div dangerouslySetInnerHTML={{ __html: content }} />
-            {message && <div className={stylesBtn.divNouveauProduit}>{message}</div>}
+            {message && (
+                <div className={stylesBtn.divNouveauProduit}>
+                    <Alert type={message.type}>{message.text}</Alert>
+                </div>
+            )}
         </div>
     );
 }
