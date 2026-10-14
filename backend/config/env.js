@@ -25,9 +25,9 @@ alias('RECAPTCHA_SECRET_KEY', 'RECAPTCHA_SECRET');
 alias('EMAIL_TO', 'EMAIL_RECEIVER');
 alias('EMAIL_RECEIVER', 'EMAIL_TO');
 
-// ---------- Réparation : "CORS_ORIGINS = http://..." (nom répété dans la valeur) ----------
-if (process.env.CORS_ORIGINS) {
-    process.env.CORS_ORIGINS = process.env.CORS_ORIGINS.replace(/^\s*CORS_ORIGINS\s*=\s*/i, '').trim();
+
+if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+    missing.push('EMAIL_USER + EMAIL_PASS');
 }
 
 // ---------- Contrôle de configuration (noms uniquement, jamais les valeurs) ----------
