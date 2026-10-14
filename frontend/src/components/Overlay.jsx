@@ -2,8 +2,7 @@
 import React, { useEffect } from 'react';
 import overlayStyles from '../styles/components/Overlay.module.css';
 import modalStyles from '../styles/components/Modal.module.css';
-import videoStyles from '../styles/components/Video.module.css';
-import Video from './Video';
+import VideoOverlay from './VideoOverlay';
 
 const BULLET = /^\s*[-•]\s+/;
 
@@ -27,14 +26,19 @@ function parseItem(line) {
 
 // mode : 'video' | 'description'
 export default function ProductOverlay({ produit, mode = 'description', onClose }) {
-    // Fermeture avec la touche Échap
+    // Fermeture avec la touche Échap (le lecteur vidéo gère son propre clavier)
     useEffect(() => {
+        if (mode === 'video') return undefined;
         const onKeyDown = e => { if (e.key === 'Escape') onClose(); };
         document.addEventListener('keydown', onKeyDown);
         return () => document.removeEventListener('keydown', onKeyDown);
-    }, [onClose]);
+    }, [onClose, mode]);
 
-    const isVideo = mode === 'video';
+    // Vidéo(s) : lecteur plein écran dédié
+    if (mode === 'video') {
+        return <VideoOverlay title={produit.nom} videoUrl={produit.video_url} onClose={onClose} />;
+    }
+
     const lines = produit.description
         ? produit.description.split('\n').filter(line => line.trim() !== '')
         : [];
@@ -44,7 +48,7 @@ export default function ProductOverlay({ produit, mode = 'description', onClose 
     return (
         <div className={overlayStyles.productOverlay} onClick={onClose}>
             <div
-                className={`${overlayStyles.overlayContent} ${isVideo ? '' : overlayStyles.overlayContentText}`}
+                className={`${overlayStyles.overlayContent} ${overlayStyles.overlayContentText}`}
                 onClick={e => e.stopPropagation()}
                 role="dialog"
                 aria-modal="true"
@@ -60,14 +64,7 @@ export default function ProductOverlay({ produit, mode = 'description', onClose 
 
                 <h2 className={overlayStyles.overlayTitle}>{produit.nom}</h2>
 
-                {isVideo && produit.video_url && (
-                    <div className={videoStyles.videoContainer}>
-                        <Video produit={produit} videoUrl={produit.video_url} />
-                    </div>
-                )}
-
-                {!isVideo && (
-                    lines.length > 0
+                {lines.length > 0
                         ? isList
                             ? (
                                 <ul className={overlayStyles.overlayList}>
@@ -96,8 +93,7 @@ export default function ProductOverlay({ produit, mode = 'description', onClose 
                                     ))}
                                 </div>
                             )
-                        : <p className={overlayStyles.overlayEmpty}>Aucune description disponible.</p>
-                )}
+                        : <p className={overlayStyles.overlayEmpty}>Aucune description disponible.</p>}
             </div>
         </div>
     );

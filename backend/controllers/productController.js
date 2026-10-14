@@ -12,7 +12,8 @@ exports.getProducts = async (req, res, next) => {
 
 exports.addProduct = async (req, res, next) => {
     const errors = validationResult(req);
-    if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
+    // message : affiché tel quel par l'admin
+    if (!errors.isEmpty()) return res.status(400).json({ message: errors.array()[0].msg, errors: errors.array() });
 
     try {
         const product = await productService.addProduct(req.body);
@@ -24,7 +25,8 @@ exports.addProduct = async (req, res, next) => {
 
 exports.updateProduct = async (req, res, next) => {
     const errors = validationResult(req);
-    if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
+    // message : affiché tel quel par l'admin
+    if (!errors.isEmpty()) return res.status(400).json({ message: errors.array()[0].msg, errors: errors.array() });
 
     try {
         const product = await productService.updateProduct(req.params.id, req.body);

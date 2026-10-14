@@ -1,7 +1,8 @@
 // src/components/admin/FormControls.jsx
 // Petits composants de formulaire partagés par les pages admin.
 import { useEffect, useId, useState } from 'react';
-import { AlertCircle, CheckCircle2, Info, Eye, EyeOff, ImagePlus, Loader2 } from 'lucide-react';
+import { AlertCircle, CheckCircle2, Info, Eye, EyeOff, ImagePlus, Loader2, Plus, Trash2, PlayCircle } from 'lucide-react';
+import { MAX_VIDEOS, getThumbnail, isValidUrl } from '../../utils/video';
 import ui from '../../styles/components/AdminUI.module.css';
 
 /** Message coloré : type = 'error' | 'success' | 'info' */
@@ -102,5 +103,58 @@ export function ImagePicker({ file, currentUrl, onChange, round = false, label =
                 onChange={e => pick(e.target.files?.[0])}
             />
         </label>
+    );
+}
+
+/**
+ * Liste de liens vidéo (YouTube…), une ligne par vidéo avec miniature.
+ * - videos : tableau de liens (des lignes vides sont permises pendant la saisie)
+ */
+export function VideoListInput({ videos, onChange, idPrefix = 'video' }) {
+    const list = videos.length ? videos : [''];
+
+    const update = (i, value) => onChange(list.map((v, j) => (j === i ? value : v)));
+    const remove = i => onChange(list.filter((_, j) => j !== i));
+    const add = () => onChange([...list, '']);
+
+    return (
+        <div className={ui.videoList}>
+            {list.map((url, i) => {
+                const thumb = getThumbnail(url);
+                const invalid = url.trim() !== '' && !isValidUrl(url.trim());
+                return (
+                    <div key={i} className={ui.videoRow}>
+                        <span className={ui.videoThumb} aria-hidden="true">
+                            {thumb ? <img src={thumb} alt="" /> : <PlayCircle size={20} />}
+                        </span>
+                        <input
+                            id={i === 0 ? idPrefix : `${idPrefix}-${i}`}
+                            className={ui.input}
+                            type="url"
+                            value={url}
+                            onChange={e => update(i, e.target.value)}
+                            placeholder="https://youtube.com/watch?v=…"
+                            aria-label={`Lien de la vidéo ${i + 1}`}
+                            aria-invalid={invalid}
+                        />
+                        <button
+                            type="button"
+                            className={`${ui.iconBtn} ${ui.iconBtnDanger}`}
+                            onClick={() => remove(i)}
+                            disabled={list.length === 1 && !url}
+                            aria-label={`Retirer la vidéo ${i + 1}`}
+                            title="Retirer"
+                        >
+                            <Trash2 size={16} />
+                        </button>
+                    </div>
+                );
+            })}
+            {list.length < MAX_VIDEOS && (
+                <button type="button" className={`${ui.btn} ${ui.btnSecondary} ${ui.btnSmall} ${ui.videoAdd}`} onClick={add}>
+                    <Plus size={15} aria-hidden="true" /> Ajouter une vidéo
+                </button>
+            )}
+        </div>
     );
 }

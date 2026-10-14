@@ -4,6 +4,7 @@ import { createPortal } from 'react-dom';
 import { ShoppingCart, Package, ImageOff, FileText, ListChecks, Pencil, Trash2, Ban } from 'lucide-react';
 import btnStyles from '../styles/components/Button.module.css';
 import cardStyles from '../styles/components/Card.module.css';
+import { parseVideoUrls } from '../utils/video';
 import { formatPrice } from '../utils/cart';
 
 // Logo YouTube en SVG inline (pas de fichier externe à charger)
@@ -64,7 +65,8 @@ export default function CardBase({
     const showImage = imageSrc && !imgError;
     const price = Number(item.prix);
 
-    const hasVideo = !!item.video_url;
+    const videoCount = parseVideoUrls(item.video_url).length;
+    const hasVideo = videoCount > 0;
     const hasDescription = !!item.description;
     // Packs : nombre d'éléments inclus (la liste complète est dans l'overlay)
     const packItemCount = isPack && item.description
@@ -106,14 +108,17 @@ export default function CardBase({
                         type="button"
                         onClick={() => setOverlayMode('video')}
                         className={`${btnStyles.btnVideo} ${cardStyles.videoBtn}`}
-                        aria-label={`Voir la vidéo de ${item.nom}`}
-                        title="Voir la vidéo"
+                        aria-label={videoCount > 1
+                            ? `Voir les ${videoCount} vidéos de ${item.nom}`
+                            : `Voir la vidéo de ${item.nom}`}
+                        title={videoCount > 1 ? `Voir les ${videoCount} vidéos` : 'Voir la vidéo'}
                     >
                         <YoutubeIcon
                             className={btnStyles.iconYoutube}
                             bgClass={btnStyles.ytBg}
                             playClass={btnStyles.ytPlay}
                         />
+                        {videoCount > 1 && <span className={cardStyles.videoCount}>{videoCount}</span>}
                     </button>
                 )}
             </div>

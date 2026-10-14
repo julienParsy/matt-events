@@ -5,6 +5,7 @@ const router = express.Router();
 const { verifyToken, isAdmin } = require('../middleware/authMiddleware');
 const { body } = require('express-validator');
 const productController = require('../controllers/productController');
+const { checkVideoField } = require('../utils/videoUrls');
 
 // ✅ Validation des champs pour ajout/modification de produit
 const productValidations = [
@@ -15,9 +16,14 @@ const productValidations = [
     body('category_id').isInt().withMessage('L’ID de catégorie doit être un entier'),
     body('image').optional().isURL().withMessage('Image doit être une URL valide'),
     body('description').optional().isString(),
+    // Un ou plusieurs liens, un par ligne
     body('video_url')
         .optional({ checkFalsy: true })
-        .isURL().withMessage('Le lien vidéo doit être une URL valide')
+        .custom(value => {
+            const message = checkVideoField(value);
+            if (message) throw new Error(message);
+            return true;
+        })
 ];
 
 // ✅ Routes publiques

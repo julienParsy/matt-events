@@ -874,3 +874,41 @@
         transition: none;
     }
 }
+
+/* =========================================================
+   Liste de vidéos (formulaires produit / pack)
+   ========================================================= */
+.videoList {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.videoRow {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.videoThumb {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 64px;
+    height: 36px;
+    overflow: hidden;
+    border-radius: 7px;
+    background: var(--color-bg-img);
+    color: var(--color-text-secondary);
+}
+
+.videoThumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.videoAdd {
+    align-self: flex-start;
+}

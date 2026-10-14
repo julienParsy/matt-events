@@ -5,15 +5,17 @@ import { Save, Plus } from 'lucide-react';
 import Modal from './Modal';
 import axiosInstance from '../../services/axiosInstance';
 import { uploadImage } from '../../utils/upload';
-import { Alert, ImagePicker, SubmitButton } from '../admin/FormControls';
+import { Alert, ImagePicker, SubmitButton, VideoListInput } from '../admin/FormControls';
+import { MAX_VIDEOS, parseVideoUrls, serializeVideoUrls, validateVideos } from '../../utils/video';
 import ui from '../../styles/components/AdminUI.module.css';
 
-const EMPTY = { nom: '', modele: '', prix: '', stock: '', category_id: '', description: '', video_url: '' };
+const EMPTY = { nom: '', modele: '', prix: '', stock: '', category_id: '', description: '' };
 
 export default function ProductModal({ isOpen, mode, product, onClose, onSuccess }) {
     const [form, setForm] = useState(EMPTY);
     const [categories, setCategories] = useState([]);
     const [imageFile, setImageFile] = useState(null);
+    const [videos, setVideos] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const isEdit = mode === 'edit';
@@ -33,10 +35,11 @@ export default function ProductModal({ isOpen, mode, product, onClose, onSuccess
                 stock: product.stock ?? '',
                 category_id: product.category_id?.toString() || '',
                 description: product.description || '',
-                video_url: product.video_url || '',
             });
+            setVideos(parseVideoUrls(product.video_url));
         } else {
             setForm(EMPTY);
+            setVideos([]);
         }
         setImageFile(null);
         setError('');
@@ -55,7 +58,7 @@ export default function ProductModal({ isOpen, mode, product, onClose, onSuccess
         if (form.stock === '' || Number(form.stock) < 0) return 'Le stock doit être renseigné (0 ou plus).';
         if (!form.category_id) return 'La catégorie est obligatoire.';
         if (!isEdit && !imageFile) return 'Veuillez sélectionner une image.';
-        return '';
+        return validateVideos(videos);
     };
 
     const handleSubmit = async e => {
@@ -75,6 +78,7 @@ export default function ProductModal({ isOpen, mode, product, onClose, onSuccess
                 stock: Number(form.stock),
                 category_id: Number(form.category_id),
                 image: imageUrl,
+                video_url: serializeVideoUrls(videos),
             };
 
             if (isEdit) {
@@ -134,24 +138,22 @@ export default function ProductModal({ isOpen, mode, product, onClose, onSuccess
                     </div>
                 </div>
 
-                <div className={ui.row}>
-                    <div className={ui.field}>
-                        <label className={ui.label} htmlFor="product-categorie">Catégorie</label>
-                        <select id="product-categorie" className={ui.select} name="category_id"
-                            value={form.category_id} onChange={handleChange} required>
-                            <option value="">Choisir une catégorie…</option>
-                            {categories.map(cat => (
-                                <option key={cat.id} value={cat.id}>{cat.nom}</option>
-                            ))}
-                        </select>
-                    </div>
-                    <div className={ui.field}>
-                        <label className={ui.label} htmlFor="product-video">
-                            Vidéo YouTube <span className={ui.optional}>(facultatif)</span>
-                        </label>
-                        <input id="product-video" className={ui.input} name="video_url" type="url"
-                            placeholder="https://youtube.com/…" value={form.video_url} onChange={handleChange} />
-                    </div>
+                <div className={ui.field}>
+                    <label className={ui.label} htmlFor="product-categorie">Catégorie</label>
+                    <select id="product-categorie" className={ui.select} name="category_id"
+                        value={form.category_id} onChange={handleChange} required>
+                        <option value="">Choisir une catégorie…</option>
+                        {categories.map(cat => (
+                            <option key={cat.id} value={cat.id}>{cat.nom}</option>
+                        ))}
+                    </select>
+                </div>
+
+                <div className={ui.field}>
+                    <label className={ui.label} htmlFor="product-video">
+                        Vidéos YouTube <span className={ui.optional}>(facultatif, {MAX_VIDEOS} maximum)</span>
+                    </label>
+                    <VideoListInput videos={videos} onChange={setVideos} idPrefix="product-video" />
                 </div>
 
                 <div className={ui.field}>

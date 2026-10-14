@@ -5,7 +5,8 @@ import { Save, Plus, Trash2, PackagePlus } from 'lucide-react';
 import { uploadImage } from '../../utils/upload';
 import Modal from './Modal';
 import axiosInstance from '../../services/axiosInstance';
-import { Alert, ImagePicker, SubmitButton } from '../admin/FormControls';
+import { Alert, ImagePicker, SubmitButton, VideoListInput } from '../admin/FormControls';
+import { parseVideoUrls, serializeVideoUrls, validateVideos } from '../../utils/video';
 import ui from '../../styles/components/AdminUI.module.css';
 import styles from '../../styles/components/PackModal.module.css';
 
@@ -17,8 +18,10 @@ const EMPTY = {
     produits: [],
     stock: '',
     sous_categorie_id: '',
-    video_url: '',
 };
+
+// Colonne packs.video_url en base : VARCHAR(255)
+const PACK_VIDEO_MAX_LENGTH = 255;
 
 export default function PackModal({ isOpen, mode, pack, onClose, onSuccess }) {
     const [form, setForm] = useState(EMPTY);
@@ -26,6 +29,7 @@ export default function PackModal({ isOpen, mode, pack, onClose, onSuccess }) {
     const [sousCategories, setSousCategories] = useState([]);
     const [loading, setLoading] = useState(false);
     const [imageFile, setImageFile] = useState(null);
+    const [videos, setVideos] = useState([]);
     const [selectedProdId, setSelectedProdId] = useState('');
     const [selectedProdQty, setSelectedProdQty] = useState(1);
     const [error, setError] = useState('');
@@ -51,11 +55,12 @@ export default function PackModal({ isOpen, mode, pack, onClose, onSuccess }) {
                 // ?? et non || : un stock de 0 est une valeur valide
                 stock: pack.stock ?? '',
                 sous_categorie_id: pack.sous_categorie_id ?? '',
-                // auparavant oublié : la vidéo était effacée à chaque modification
-                video_url: pack.video_url || '',
             });
+            // auparavant oublié : la vidéo était effacée à chaque modification
+            setVideos(parseVideoUrls(pack.video_url));
         } else {
             setForm(EMPTY);
+            setVideos([]);
         }
         setImageFile(null);
         setError('');
@@ -113,7 +118,7 @@ export default function PackModal({ isOpen, mode, pack, onClose, onSuccess }) {
         if (!form.sous_categorie_id) return 'La sous-catégorie est obligatoire.';
         if (form.produits.length === 0) return 'Ajoutez au moins un produit au pack.';
         if (!isEdit && !imageFile) return 'Veuillez sélectionner une image pour le pack.';
-        return '';
+        return validateVideos(videos, { maxLength: PACK_VIDEO_MAX_LENGTH });
     };
 
     const handleSubmit = async e => {
@@ -132,6 +137,7 @@ export default function PackModal({ isOpen, mode, pack, onClose, onSuccess }) {
                 prix: Number(form.prix),
                 stock: Number(form.stock),
                 image_url: imageUrl,
+                video_url: serializeVideoUrls(videos),
             };
 
             if (isEdit) {
@@ -186,24 +192,22 @@ export default function PackModal({ isOpen, mode, pack, onClose, onSuccess }) {
                     </div>
                 </div>
 
-                <div className={ui.row}>
-                    <div className={ui.field}>
-                        <label className={ui.label} htmlFor="pack-souscat">Sous-catégorie</label>
-                        <select id="pack-souscat" className={ui.select} name="sous_categorie_id"
-                            value={form.sous_categorie_id} onChange={handleChange} required>
-                            <option value="">Choisir une sous-catégorie…</option>
-                            {sousCategories.map(sc => (
-                                <option key={sc.id} value={sc.id}>{sc.nom}</option>
-                            ))}
-                        </select>
-                    </div>
-                    <div className={ui.field}>
-                        <label className={ui.label} htmlFor="pack-video">
-                            Vidéo YouTube <span className={ui.optional}>(facultatif)</span>
-                        </label>
-                        <input id="pack-video" className={ui.input} name="video_url" type="url"
-                            placeholder="https://youtube.com/…" value={form.video_url} onChange={handleChange} />
-                    </div>
+                <div className={ui.field}>
+                    <label className={ui.label} htmlFor="pack-souscat">Sous-catégorie</label>
+                    <select id="pack-souscat" className={ui.select} name="sous_categorie_id"
+                        value={form.sous_categorie_id} onChange={handleChange} required>
+                        <option value="">Choisir une sous-catégorie…</option>
+                        {sousCategories.map(sc => (
+                            <option key={sc.id} value={sc.id}>{sc.nom}</option>
+                        ))}
+                    </select>
+                </div>
+
+                <div className={ui.field}>
+                    <label className={ui.label} htmlFor="pack-video">
+                        Vidéos YouTube <span className={ui.optional}>(facultatif)</span>
+                    </label>
+                    <VideoListInput videos={videos} onChange={setVideos} idPrefix="pack-video" />
                 </div>
 
                 {/* ---------- Composition du pack ---------- */}
