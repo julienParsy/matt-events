@@ -1,6 +1,8 @@
 /* src/styles/_variables.css */
 
 :root {
+    color-scheme: dark;
+
     /* Branding et couleurs principales */
     --color-primary: #308546;
     --color-primary-light: #22c55e;
@@ -68,12 +70,90 @@
     --color-link: #646cff;
     --color-link-hover: #5050ff;
 
+    /* États (survol / actif), pastilles, ombres portées */
+    --color-hover-bg: rgba(100, 108, 255, 0.15);
+    --color-active-bg: rgba(100, 108, 255, 0.18);
+    --color-text-strong: #fff;
+    --color-pill-bg: rgba(0, 0, 0, 0.25);
+    --color-pill-bg-hover: rgba(0, 0, 0, 0.4);
+    --color-pill-border: rgba(255, 255, 255, 0.18);
+    --color-error-text: #fecaca;
+    --color-elevated-shadow: rgba(0, 0, 0, 0.5);
+    --icon-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23d1d5db' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+
     /* Radius, transition */
     --btn-radius: 8px;
     --btn-transition: 0.25s;
 
     /* Hauteur de la navbar (réduite sur mobile, voir plus bas) */
     --navbar-height: 104px;
+}
+
+/* =========================================================
+   Thème clair : activé par data-theme="light" sur <html>
+   (posé par le script de index.html, puis par le bouton de la navbar)
+   ========================================================= */
+:root[data-theme="light"] {
+    color-scheme: light;
+
+    --color-primary: #308546;
+    --color-primary-light: #15803d;
+    --color-secondary: #4f56e8;
+
+    --color-bg: #ffffff;
+    --color-bg-secondary: #f4f5fa;
+    --color-bg-overlay: rgba(15, 23, 42, 0.45);
+    --color-bg-th: #eceefb;
+    --color-bg-img: #e5e7eb;
+
+    --color-banner-bg: linear-gradient(120deg, #e8eaff 55%, #d3f2dc 100%);
+    --linear-gradient-navbar: linear-gradient(112deg, #ffffff 40%, #f1f2fb 100%);
+
+    --color-text: #1f2330;
+    --color-text-secondary: #4b5563;
+    --color-label: #4338ca;
+    --color-subtitle: #4f46e5;
+
+    --color-button-bg: rgba(79, 70, 229, 0);
+    --color-button-hover-bg: rgba(79, 70, 229, 0.08);
+    --color-button-active-bg: rgba(79, 70, 229, 0.14);
+    --color-button-border-hover: #4f56e8;
+    --color-button-border-active: #4338ca;
+    --color-button-text: #374151;
+
+    --color-input-border: #c7cad6;
+    --color-input-border-focus: #4f56e8;
+    --color-input-shadow: rgba(79, 70, 229, 0.25);
+    --color-input-shadow-focus: rgba(79, 70, 229, 0.15);
+    --color-modal-bg: #ffffff;
+    --color-modal-text: #111827;
+    --color-modal-border: #e2e4ec;
+    --color-modal-shadow: rgba(15, 23, 42, 0.15);
+    --color-modal-close: #6b7280;
+
+    --color-card-h3: #4338ca;
+    --color-border: #e2e4ec;
+    --color-border-td: #e5e7f0;
+    --color-shadow: rgba(79, 70, 229, 0.10);
+    --color-global-shadow: rgba(15, 23, 42, 0.12);
+    --color-card-shadow: rgba(15, 23, 42, 0.15);
+
+    --color-success-bg: #30854622;
+    --color-danger-bg: #ef444420;
+    --color-warning-bg: #eef0ff;
+
+    --color-link: #4f56e8;
+    --color-link-hover: #4338ca;
+
+    --color-hover-bg: rgba(79, 70, 229, 0.08);
+    --color-active-bg: rgba(79, 70, 229, 0.12);
+    --color-text-strong: #111827;
+    --color-pill-bg: rgba(255, 255, 255, 0.75);
+    --color-pill-bg-hover: #ffffff;
+    --color-pill-border: rgba(15, 23, 42, 0.14);
+    --color-error-text: #b91c1c;
+    --color-elevated-shadow: rgba(15, 23, 42, 0.15);
+    --icon-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%234b5563' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
 }
 
 @media (max-width: 900px) {

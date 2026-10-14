@@ -221,7 +221,7 @@
     height: 48px;
     margin-bottom: 0.5rem;
     border-radius: 12px;
-    background: rgba(100, 108, 255, 0.15);
+    background: var(--color-hover-bg);
     color: var(--color-label);
 }
 

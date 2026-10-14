@@ -125,7 +125,7 @@
 
     .table tr {
         margin-bottom: 1.1em;
-        background: #222233;
+        background: var(--color-bg-th);
         border-radius: 8px;
         box-shadow: 0 1px 6px #0002;
         padding: 0.7em 0.4em;

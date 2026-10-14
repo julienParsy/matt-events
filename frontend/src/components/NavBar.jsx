@@ -3,7 +3,9 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import styles from '../styles/components/NavBar.module.css';
 import btnStyles from '../styles/components/Button.module.css';
+import { Sun, Moon } from 'lucide-react';
 import useLogo from '../hooks/useLogo';
+import useTheme from '../hooks/useTheme';
 
 const FOCUSABLE = 'a[href], button:not([disabled])';
 
@@ -11,6 +13,10 @@ export default function NavBar({ isAdmin, handleLogout, cart }) {
     const [showLoginButton, setShowLoginButton] = useState(false);
     const [menuOpen, setMenuOpen] = useState(false);
     const logoUrl = useLogo();
+    const { theme, toggleTheme } = useTheme();
+    const isDark = theme === 'dark';
+    // Thème clair : logo dédié (public/logo-light.svg) ; thème sombre : logo choisi dans l'admin
+    const navLogo = isDark ? logoUrl : '/logo-light.svg';
     const menuRef = useRef(null);
     const burgerRef = useRef(null);
     const navigate = useNavigate();
@@ -92,7 +98,7 @@ export default function NavBar({ isAdmin, handleLogout, cart }) {
             <div className={styles.navbarContainer}>
                 <div className={styles.navbarLogo}>
                     <NavLink to="/" aria-label="Accueil">
-                        <img src={logoUrl} loading="lazy" alt="Logo" />
+                        <img src={navLogo} loading="lazy" alt="Logo Matt'events" />
                     </NavLink>
                 </div>
 
@@ -179,6 +185,18 @@ export default function NavBar({ isAdmin, handleLogout, cart }) {
 
                 {/* Panier toujours visible (ordinateur et mobile) + burger sur mobile */}
                 <div className={styles.actions}>
+                    <button
+                        type="button"
+                        className={styles.themeToggle}
+                        onClick={toggleTheme}
+                        aria-label={isDark ? 'Activer le mode clair' : 'Activer le mode sombre'}
+                        title={isDark ? 'Mode clair' : 'Mode sombre'}
+                    >
+                        {isDark
+                            ? <Sun size={22} strokeWidth={1.8} aria-hidden="true" />
+                            : <Moon size={22} strokeWidth={1.8} aria-hidden="true" />}
+                    </button>
+
                     <NavLink
                         to="/panier"
                         className={({ isActive }) =>

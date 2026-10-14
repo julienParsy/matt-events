@@ -1,11 +1,12 @@
 // src/pages/Contact.jsx
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import ReCAPTCHA from "react-google-recaptcha";
 import { User, Mail, Phone, MessageSquare, Tag, Send, CheckCircle2, AlertCircle, Loader2 } from "lucide-react";
 import styles from "../styles/pages/Contact.module.css";
 import stylesBtn from "../styles/components/Button.module.css";
 import stylesCaptcha from "../styles/components/Recaptcha.module.css";
 import http from "../services/axiosInstance";
+import useTheme from "../hooks/useTheme";
 
 const MAX_MESSAGE = 1500;
 const EMPTY_FORM = { nom: "", email: "", telephone: "", sujet: "", message: "" };
@@ -18,6 +19,10 @@ export default function Contact() {
     const [error, setError] = useState("");
     const [captchaToken, setCaptchaToken] = useState("");
     const recaptchaRef = useRef(null);
+    const { theme } = useTheme();
+
+    // Le captcha est recréé au changement de thème : l'ancien jeton n'est plus valable
+    useEffect(() => setCaptchaToken(""), [theme]);
 
     function handleChange(e) {
         setForm({ ...form, [e.target.name]: e.target.value });
@@ -191,12 +196,14 @@ export default function Contact() {
                     </div>
 
                     <div className={stylesCaptcha.container}>
+                        {/* key : le widget Google ne change pas de thème à chaud, on le recrée */}
                         <ReCAPTCHA
+                            key={theme}
                             ref={recaptchaRef}
                             sitekey={import.meta.env.VITE_RECAPTCHA_SITE_KEY}
                             onChange={(t) => setCaptchaToken(t || "")}
                             onExpired={() => setCaptchaToken("")}
-                            theme="dark"
+                            theme={theme}
                         />
                     </div>
 

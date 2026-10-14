@@ -23,7 +23,7 @@
 
 .btnVoir {
     background-color: var(--color-button-bg);
-    color: white;
+    color: var(--color-text);
     border: 1px solid var(--color-link);
     cursor: pointer;
     border-radius: var(--btn-radius);
@@ -90,11 +90,12 @@
     /* background-color: var(--color-modal-close); */
     border-color: var(--color-modal-close);
     cursor: auto;
-    color: #ccc;
+    color: var(--color-modal-close);
 }
 
 .btnVoir:hover:not(:disabled) {
     background-color: var(--color-link-hover);
+    color: #fff;
     border-color: var(--color-button-border-hover);
 }
 
@@ -184,7 +185,7 @@
 
 .btnConnexion:hover:not(:disabled) {
     background: var(--color-primary);
-    color: #d1d5db;
+    color: #fff;
 }
 
 .btnNew,
