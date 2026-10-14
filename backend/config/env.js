@@ -25,11 +25,6 @@ alias('RECAPTCHA_SECRET_KEY', 'RECAPTCHA_SECRET');
 alias('EMAIL_TO', 'EMAIL_RECEIVER');
 alias('EMAIL_RECEIVER', 'EMAIL_TO');
 
-
-if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
-    missing.push('EMAIL_USER + EMAIL_PASS');
-}
-
 // ---------- Contrôle de configuration (noms uniquement, jamais les valeurs) ----------
 const missing = [];
 if (!process.env.DATABASE_URL) missing.push('DATABASE_URL');

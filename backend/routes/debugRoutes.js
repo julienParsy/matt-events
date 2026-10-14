@@ -1,7 +1,7 @@
 // /app/routes/debugRoutes.js
 const router = require("express").Router();
 const net = require("net");
-const { verifySMTP, sendMail } = require("../services/emailService");
+const { verifyEmailProvider, sendMail } = require("../services/emailService");
 
 function testPort(host, port, timeout = 5000) {
     return new Promise((resolve) => {
@@ -25,8 +25,8 @@ router.get("/smtp", async (_req, res) => {
 
 router.get("/mail", async (_req, res) => {
     try {
-        const via = await verifySMTP();
-        await sendMail({ subject: "Test SMTP Matt'events", text: "OK depuis le backend." });
+        const via = await verifyEmailProvider();
+        await sendMail({ subject: "Test mail Matt'events", text: "OK depuis le backend." });
         res.json({ ok: true, via });
     } catch (e) {
         res.status(500).json({ ok: false, error: String(e?.message || e) });

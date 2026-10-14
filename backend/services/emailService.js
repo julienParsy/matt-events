@@ -1,8 +1,12 @@
 // /app/services/emailService.js
 //
-// Envoi via SMTP OVH/Zimbra uniquement.
+// Deux fournisseurs :
+//   - Brevo (API HTTPS 443) : requis en prod sur Railway, qui bloque les ports SMTP sortants.
+//   - SMTP OVH/Zimbra       : pratique en local.
 //
 // Variables d'environnement :
+//   BREVO_API_KEY             si présente, Brevo est utilisé par défaut
+//   MAIL_PROVIDER             optionnel : force "brevo" ou "smtp"
 //   EMAIL_USER / EMAIL_PASS   adresse complète + mot de passe du compte mail
 //   SMTP_HOST / SMTP_PORT     défaut : smtp.mail.ovh.net / 587 (465 = SSL)
 //   FROM_EMAIL                expéditeur (défaut : EMAIL_USER)
@@ -24,6 +28,57 @@ function getConfig() {
     };
 }
 
+function getProvider() {
+    const forced = (process.env.MAIL_PROVIDER || "").trim().toLowerCase();
+    if (forced === "brevo" || forced === "smtp") return forced;
+    return process.env.BREVO_API_KEY ? "brevo" : "smtp";
+}
+
+// ----------- Brevo (API HTTPS) -----------
+async function sendMailBrevo({ to, subject, text, html, replyTo, attachments }) {
+    const apiKey = process.env.BREVO_API_KEY;
+    if (!apiKey) throw new Error("Configuration e-mail incomplète : BREVO_API_KEY est requis.");
+    const { fromEmail } = getConfig();
+
+    const payload = {
+        sender: { email: fromEmail, name: FROM_NAME },
+        to: [{ email: to }],
+        subject,
+        ...(text ? { textContent: text } : {}),
+        ...(html ? { htmlContent: html } : {}),
+        replyTo: { email: replyTo || fromEmail },
+    };
+    if (attachments?.length) {
+        payload.attachment = attachments.map((a) => ({
+            name: a.filename || "file",
+            content: Buffer.isBuffer(a.content)
+                ? a.content.toString("base64")
+                : Buffer.from(String(a.content)).toString("base64"),
+        }));
+    }
+
+    const r = await fetch("https://api.brevo.com/v3/smtp/email", {
+        method: "POST",
+        headers: { "api-key": apiKey, "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify(payload),
+    });
+    if (!r.ok) {
+        const body = await r.text();
+        throw new Error(`BREVO_ERROR ${r.status}: ${body.slice(0, 500)}`);
+    }
+    return r.json();
+}
+
+async function verifyBrevo() {
+    const apiKey = process.env.BREVO_API_KEY;
+    if (!apiKey) throw new Error("BREVO_API_KEY manquant");
+    const r = await fetch("https://api.brevo.com/v3/account", {
+        headers: { "api-key": apiKey, Accept: "application/json" },
+    });
+    if (!r.ok) throw new Error(`BREVO_ERROR ${r.status}: ${(await r.text()).slice(0, 300)}`);
+}
+
+// ----------- SMTP -----------
 let transporter = null; // créé une seule fois pour que le pool serve
 
 function getTransporter() {
@@ -66,6 +121,14 @@ function logMailError(err) {
 
 async function sendMail({ to, subject, text, html, replyTo, attachments } = {}) {
     const { fromEmail, defaultTo } = getConfig();
+    if (getProvider() === "brevo") {
+        try {
+            return await sendMailBrevo({ to: to || defaultTo, subject, text, html, replyTo, attachments });
+        } catch (err) {
+            console.error("[mail:brevo]", err?.message || err);
+            throw err;
+        }
+    }
     try {
         return await getTransporter().sendMail({
             from: `"${FROM_NAME}" <${fromEmail}>`,
@@ -83,6 +146,14 @@ async function sendMail({ to, subject, text, html, replyTo, attachments } = {}) 
 }
 
 async function verifyEmailProvider() {
+    if (getProvider() === "brevo") {
+        try {
+            await verifyBrevo();
+            return { ok: true, provider: "brevo" };
+        } catch (err) {
+            return { ok: false, provider: "brevo", error: String(err?.message || err) };
+        }
+    }
     try {
         await getTransporter().verify();
         return { ok: true, provider: "smtp" };
