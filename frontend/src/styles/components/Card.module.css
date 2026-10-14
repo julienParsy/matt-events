@@ -1,110 +1,316 @@
 /* src/styles/components/Card.module.css */
 @import '../_variables.css';
 
-.nom,
-.modele,
-.prix,
-.stock {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-/* Affiche chaque paragraphe <p class="description"> comme un item de liste */
-.description,
-.modele {
-  list-style-type: disc;
-  margin-left: 1.5em;
-  white-space: pre-line;
-  min-height: 40px;
-  max-height: 200px;
-  overflow-y: auto;
-
-  /* Pour Firefox */
-  scrollbar-width: thin;
-  scrollbar-color: var(--color-secondary) transparent;
-}
-
-/* Pour Chrome, Edge et Safari */
-.description::-webkit-scrollbar,
-.model::-webkit-scrollbar {
-  width: 8px;
-}
-
-.description::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.description::-webkit-scrollbar-thumb {
-  background-color: var(--color-secondary);
-  border-radius: 4px;
-  border: 2px solid transparent;
-  /* ajoute un peu de padding visuel */
-}
-
-/* Au survol, on peut éclaircir la thumb */
-.description::-webkit-scrollbar-thumb:hover {
-  background-color: var(--color-secondary);
-}
-
-.prix {
-  display: flex;
-  justify-content: center;
-  color: var(--color-primary);
-  font-weight: 600;
-  margin-bottom: 1rem;
-}
-
+/* =========================================================
+   Card produit / pack
+   ========================================================= */
 .card {
-  background-color: var(--color-bg);
-  border-radius: 12px;
-  padding: 1rem;
-  width: 280px;
-  height: 420px;
+  position: relative;
   display: flex;
   flex-direction: column;
-  transition: box-shadow 0.3s ease;
-  box-shadow: 0 0 8px var(--color-bg-overlay);
+  width: 100%;
+  min-width: 0;
+  max-width: 320px;
+  height: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 18px;
+  box-shadow: 0 2px 10px var(--color-shadow);
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
 }
 
 .card:hover {
-  box-shadow: 0 4px 24px var(--color-bg-overlay);
+  transform: translateY(-4px);
+  border-color: color-mix(in oklab, var(--color-secondary) 45%, var(--color-border));
+  box-shadow: 0 14px 34px var(--color-shadow), 0 4px 10px var(--color-global-shadow);
 }
 
-.card img {
-  max-width: 100%;
-  max-height: 180px;
+/* Indisponible : visuel atténué */
+.cardOut .productImage,
+.cardOut .placeholder {
+  filter: grayscale(0.85);
+  opacity: 0.6;
+}
+
+/* ---------- Visuel ---------- */
+.media {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  background:
+    radial-gradient(80% 70% at 50% 40%, var(--color-bg-secondary), var(--color-bg-img));
+}
+
+.productImage {
+  display: block;
+  width: 100%;
+  height: 100%;
+  padding: 0.75rem;
+  box-sizing: border-box;
   object-fit: contain;
-  border-radius: 6px;
-  margin-bottom: 1rem;
-  background-color: var(--color-bg-img);
+  transition: transform 0.4s ease;
 }
 
-.card h3 {
-  font-weight: 700;
-  font-size: 1.25rem;
-  margin: 0 0 0.5rem 0;
-  color: var(--color-card-h3);
+.card:hover .productImage {
+  transform: scale(1.05);
 }
 
-.card p {
-  margin: 0 0 0.5rem 0;
-  flex-grow: 0.5;
-}
-
-.quantityCart {
+.placeholder {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 1rem;
-  font-size: 1em;
-  margin-bottom: 1em;
+  width: 100%;
+  height: 100%;
+  color: var(--color-text-secondary);
+  opacity: 0.45;
 }
 
-.quantityInput {
-  width: 50px;
-  height: 30px;
-  border-radius: 8px;
+/* Pastilles en haut de l'image */
+.badges {
+  position: absolute;
+  top: 0.65rem;
+  left: 0.65rem;
+  right: 0.65rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.4rem;
+  pointer-events: none;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.22rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1.3;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+/* Le badge de stock reste à droite, même sans badge « Pack » */
+.badge:last-child {
+  margin-left: auto;
+}
+
+.badgePack {
+  background: linear-gradient(90deg, var(--color-secondary), var(--color-primary));
+  color: #fff;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.badgeOk {
+  background: color-mix(in oklab, var(--color-success) 18%, var(--color-bg));
+  color: var(--color-primary-light);
+  border: 1px solid color-mix(in oklab, var(--color-success) 40%, transparent);
+}
+
+.badgeOut {
+  background: color-mix(in oklab, var(--color-danger) 16%, var(--color-bg));
+  color: var(--color-danger);
+  border: 1px solid color-mix(in oklab, var(--color-danger) 45%, transparent);
+}
+
+/* Bouton vidéo posé sur l'image */
+.videoBtn {
+  position: absolute;
+  right: 0.65rem;
+  bottom: 0.65rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.45rem 0.55rem;
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  background: color-mix(in oklab, var(--color-bg) 80%, transparent);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  cursor: pointer;
+  transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+.videoBtn:hover {
+  transform: scale(1.08);
+  background: var(--color-bg);
+}
+
+/* ---------- Contenu ---------- */
+.body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: 0.35rem;
+  padding: 1rem 1.1rem 1.1rem;
+}
+
+.nom {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  margin: 0;
+  font-size: 1.08rem;
+  font-weight: 700;
+  line-height: 1.3;
+  text-align: left;
+  color: var(--color-text);
+}
+
+.modele {
+  margin: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: 0.88rem;
+  color: var(--color-text-secondary);
+}
+
+.priceRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-top: auto;
+  padding-top: 0.6rem;
+}
+
+.prix {
+  margin: 0;
+  font-size: 1.45rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-primary-light);
+}
+
+.detailsLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.35rem 0.7rem;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--color-subtitle);
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s, border-color 0.2s;
+}
+
+.detailsLink:hover {
+  background: var(--color-hover-bg);
+  border-color: var(--color-secondary);
+}
+
+/* Bouton principal */
+.addBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  min-height: 44px;
+  margin-top: 0.6rem;
+  padding: 0.6rem 1rem;
   border: none;
-  text-align: center;
+  border-radius: 12px;
+  background: var(--color-primary);
+  color: #fff;
+  font: inherit;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.15s, box-shadow 0.2s;
+}
+
+.addBtn:hover:not(:disabled) {
+  background: color-mix(in oklab, var(--color-primary) 85%, #fff);
+  box-shadow: 0 6px 16px color-mix(in oklab, var(--color-primary) 35%, transparent);
+}
+
+.addBtn:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.addBtn:disabled {
+  background: var(--color-bg-secondary);
+  color: var(--color-text-secondary);
+  border: 1px dashed var(--color-border);
+  cursor: not-allowed;
+}
+
+/* Actions admin */
+.adminActions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.6rem;
+}
+
+.adminBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  min-height: 40px;
+  padding: 0.5rem 0.9rem;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--color-text);
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+}
+
+.adminEdit {
+  flex: 1;
+  border: 1px solid var(--color-primary);
+}
+
+.adminEdit:hover {
+  background: var(--color-primary);
+  color: #fff;
+}
+
+.adminDelete {
+  border: 1px solid color-mix(in oklab, var(--color-danger) 60%, transparent);
+  color: var(--color-danger);
+}
+
+.adminDelete:hover {
+  background: var(--color-danger);
+  color: #fff;
+}
+
+/* Focus clavier */
+.addBtn:focus-visible,
+.detailsLink:focus-visible,
+.videoBtn:focus-visible,
+.adminBtn:focus-visible {
+  outline: 2px solid var(--color-label);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+  .card,
+  .productImage,
+  .videoBtn,
+  .addBtn {
+    transition: none;
+  }
+
+  .card:hover,
+  .card:hover .productImage {
+    transform: none;
+  }
 }
