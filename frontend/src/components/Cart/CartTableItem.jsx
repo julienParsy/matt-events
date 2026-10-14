@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import styles from '../../styles/components/CartTable.module.css';
-import { formatPrice } from '../../utils/Cart';
+import { formatPrice } from '../../utils/cart';
 import { MinusIcon, PlusIcon, TrashIcon } from './icons';
 
 export default function CartTableItem({ item, onUpdate, onRemove }) {
