@@ -121,7 +121,7 @@ function App() {
             <Route
               path="/contact"
               element={
-                <Contact
+                <ContactPage
                   cart={cart}
                   setCart={setCart}
                   onRemove={handleRemoveFromCart}
