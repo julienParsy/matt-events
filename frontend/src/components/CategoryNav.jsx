@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import styles from '../styles/components/CategoryNav.module.css';
+import ScrollRow from './ScrollRow';
 
 const PACKS_KEY = 'packs';
 
@@ -12,7 +13,7 @@ export default function CategoryNav({ categories = [], selectedCategory, onSelec
     const isPacksActive = selectedCategory === PACKS_KEY;
 
     return (
-        <div className={styles.navCategory} role="toolbar" aria-label="Filtrer par catégorie">
+        <ScrollRow className={styles.navCategory} role="toolbar" aria-label="Filtrer par catégorie">
             <button
                 type="button"
                 className={`${styles.pill} ${isAllActive ? styles.active : ''}`}
@@ -48,7 +49,7 @@ export default function CategoryNav({ categories = [], selectedCategory, onSelec
                     </button>
                 );
             })}
-        </div>
+        </ScrollRow>
     );
 }
 

@@ -3,10 +3,11 @@
 import PropTypes from 'prop-types';
 import { PRICE_RANGES, isInRange } from '../utils/priceRanges';
 import styles from '../styles/components/CategoryNav.module.css';
+import ScrollRow from './ScrollRow';
 
 export default function PriceFilter({ items, selectedKey, onChange }) {
     return (
-        <div className={`${styles.navCategory} ${styles.price}`} role="toolbar" aria-label="Filtrer par budget">
+        <ScrollRow className={`${styles.navCategory} ${styles.price}`} role="toolbar" aria-label="Filtrer par budget">
             <span className={styles.priceLabel}>Budget</span>
 
             <button
@@ -36,7 +37,7 @@ export default function PriceFilter({ items, selectedKey, onChange }) {
                     </button>
                 );
             })}
-        </div>
+        </ScrollRow>
     );
 }
 

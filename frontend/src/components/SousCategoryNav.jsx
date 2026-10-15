@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import styles from '../styles/components/CategoryNav.module.css';
+import ScrollRow from './ScrollRow';
 
 const SOUS_PACKS_KEY = 'sous_packs';
 
@@ -8,7 +9,7 @@ export default function SousCategoryNav({ sousCategories = [], selectedSousCateg
     const isAllActive = selectedSousCategory === null;
 
     return (
-        <div
+        <ScrollRow
             className={`${styles.navCategory} ${styles.sub}`}
             role="toolbar"
             aria-label="Filtrer par sous-catégorie"
@@ -37,7 +38,7 @@ export default function SousCategoryNav({ sousCategories = [], selectedSousCateg
                     </button>
                 );
             })}
-        </div>
+        </ScrollRow>
     );
 }
 
