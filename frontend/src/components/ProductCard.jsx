@@ -1,7 +1,8 @@
 // src/components/ProductCard.jsx
+// (Édition côté admin : la page AdminPanel ouvre ProductModal via onEdit, la carte ne l'importe pas
+// pour ne pas alourdir la boutique avec le code de l'admin.)
 import CardBase from './CardBase';
 import ProductOverlay from './Overlay';
-import ProductModal from './Modal/ProductModal';
 
 export default function ProductCard({ produit, ...props }) {
     return (
@@ -9,7 +10,6 @@ export default function ProductCard({ produit, ...props }) {
             item={produit}
             isPack={false}
             OverlayComponent={ProductOverlay}
-            ModalComponent={ProductModal}
             {...props}
         />
     );

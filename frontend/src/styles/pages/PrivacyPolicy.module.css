@@ -1,5 +1,4 @@
 /* src/styles/pages/PrivacyPolicy.module.css */
-@import '../_variables.css';
 
 .policyContainer {
     background: var(--color-bg);

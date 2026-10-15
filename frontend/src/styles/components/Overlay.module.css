@@ -1,5 +1,4 @@
 /* src/styles/components/Overlay.module.css */
-@import '../_variables.css';
 
 .productOverlay {
     position: fixed;

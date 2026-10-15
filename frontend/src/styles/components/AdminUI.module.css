@@ -1,7 +1,6 @@
 /* src/styles/components/AdminUI.module.css
    Briques communes de l'administration : en-tête, navigation, panneaux,
    formulaires, boutons, alertes, listes et tableaux. */
-@import '../_variables.css';
 
 /* =========================================================
    En-tête (remplace l'ancienne .banner sur les pages admin)

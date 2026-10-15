@@ -1,5 +1,5 @@
 // src/App.jsx
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, lazy, Suspense } from 'react';
 import {
   Routes,
   Route,
@@ -8,21 +8,12 @@ import {
 
 import { AuthContext } from './contexts/AuthContext';
 import ShopPage from './pages/ShopPage';        
-import Login from './components/Modal/Login';
 import ScrollToTopButton from "./components/ScrollToTopButton";
-import AdminPanel from './pages/admin/AdminPanel';
-import AdminDemandes from './pages/admin/Demandes';
-import AdminFactures from './pages/admin/Factures';
-import AdminUsers from './pages/admin/AdminUsers';
 import CartPage from './pages/CartPage';
 import AboutSection from './pages/AboutSection';
 import Contact from './pages/Contact';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import MentionsLegales from "./pages/MentionsLegales";
-import ResetPassword from './pages/ResetPassword';
-import AdminCategories from './pages/admin/Categories';
-import AdminSettings from './pages/admin/AdminSettings';
-import AdminLogoSettings from './pages/admin/AdminLogoSettings';
 import Footer from './components/Footer';
 import NavBar from './components/NavBar';
 import Canonical from './components/Canonical';
@@ -31,7 +22,17 @@ import { ToastContainer } from 'react-toastify';
 import './styles/Global.css';
 import 'react-toastify/dist/ReactToastify.css';
 import HomePage from './pages/HomePage';
-import AdminDocumentModal from './pages/admin/AdminDocumentModal';
+
+// Code de l'admin (éditeurs, Firebase, factures…) chargé à part : les visiteurs ne le téléchargent pas
+const Login = lazy(() => import('./components/Modal/Login'));
+const AdminPanel = lazy(() => import('./pages/admin/AdminPanel'));
+const AdminDemandes = lazy(() => import('./pages/admin/Demandes'));
+const AdminFactures = lazy(() => import('./pages/admin/Factures'));
+const AdminUsers = lazy(() => import('./pages/admin/AdminUsers'));
+const ResetPassword = lazy(() => import('./pages/ResetPassword'));
+const AdminCategories = lazy(() => import('./pages/admin/Categories'));
+const AdminSettings = lazy(() => import('./pages/admin/AdminSettings'));
+const AdminLogoSettings = lazy(() => import('./pages/admin/AdminLogoSettings'));
 
 
 function App() {
@@ -71,6 +72,7 @@ function App() {
         <main className="main-content">
           <Canonical />
           <ScrollToTopOnNavigate />
+          <Suspense fallback={<p className="page-loading" role="status">Chargement…</p>}>
           <Routes>
             <Route
               path="/"
@@ -126,14 +128,12 @@ function App() {
                 />
               }
             />
-            <Route path="/admin/demande/:id/devis" element={<AdminDocumentModal />} />
 
           </Routes>
+          </Suspense>
             <ScrollToTopButton />
         </main>
-        <footer>
-          <Footer />
-        </footer>
+        <Footer />
       </div>
     </>
   );

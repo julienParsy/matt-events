@@ -1,6 +1,5 @@
 /* src/styles/components/VideoOverlay.module.css
    Mode « cinéma » : toujours sombre, quel que soit le thème du site. */
-@import '../_variables.css';
 
 .backdrop {
     /* Hauteur réservée à l'en-tête (+ miniatures) : le lecteur prend le reste */

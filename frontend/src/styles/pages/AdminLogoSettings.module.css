@@ -1,5 +1,4 @@
 /* src/styles/pages/AdminLogoSettings.module.css */
-@import '../_variables.css';
 
 /* Fausse barre de navigation (toujours sombre, comme le thème par défaut) */
 .mockNav {

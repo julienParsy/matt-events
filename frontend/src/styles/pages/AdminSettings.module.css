@@ -1,5 +1,4 @@
 /* src/styles/pages/AdminSettings.module.css */
-@import '../_variables.css';
 
 /* Règles du mot de passe : cochées au fil de la saisie */
 .rules {

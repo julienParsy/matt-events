@@ -1,5 +1,4 @@
 /* src/styles/components/Button.module.css */
-@import '../_variables.css';
 
 .button {
     display: inline-flex;

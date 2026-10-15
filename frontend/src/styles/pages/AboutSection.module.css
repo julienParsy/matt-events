@@ -1,5 +1,4 @@
 /* src/styles/components/AboutSection.module.css */
-@import '../_variables.css';
 
 .aboutSection {
     background: var(--color-bg);

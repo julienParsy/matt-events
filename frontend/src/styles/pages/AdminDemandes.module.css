@@ -1,6 +1,5 @@
 /* src/styles/pages/AdminDemandes.module.css
    Compléments au tableau commun (AdminUI.module.css) */
-@import '../_variables.css';
 
 .cellCheck {
     width: 1%;

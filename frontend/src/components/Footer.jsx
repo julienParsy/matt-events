@@ -22,7 +22,7 @@ export default function Footer() {
     };
 
     return (
-        <footer className={`${styles.footer} ${styles.sticky}`}>
+        <footer className={styles.footer}>
             <div className={styles.footerContainer}>
                 <div className={styles.footerLinks}>
                     {footerRoutes.map(route => (

@@ -1,5 +1,4 @@
 /* src/styles/components/Footer.module.css */
-@import '../_variables.css';
 
 /* ---------- FOOTER ---------- */
 .footer {
@@ -8,12 +7,6 @@
     border-top: 1px solid var(--color-border, rgba(255,255,255,0.08));
     box-shadow: 0 0 20px var(--color-global-shadow);
     padding: 0.75rem 1rem;
-}
-
-.sticky {
-    position: sticky;
-    bottom: 0;
-    z-index: 10;
 }
 
 /* Constrain + responsive spacing */

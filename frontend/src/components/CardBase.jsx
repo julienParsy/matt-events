@@ -42,12 +42,8 @@ export default function CardBase({
     onAdd,
     onDelete,
     onEdit,
-    onUpdate,
     OverlayComponent,
-    ModalComponent,
-    modalMode = 'edit',
 }) {
-    const [showModal, setShowModal] = useState(false);
     // null | 'video' | 'description'
     const [overlayMode, setOverlayMode] = useState(null);
     const [imgError, setImgError] = useState(false);
@@ -172,9 +168,8 @@ export default function CardBase({
                                 type="button"
                                 onClick={e => {
                                     e.stopPropagation();
-                                    // La page fournit sa propre fenêtre d'édition (et rafraîchit la liste après)
-                                    if (onEdit) onEdit(item);
-                                    else setShowModal(true);
+                                    // La page admin ouvre sa fenêtre d'édition (et rafraîchit la liste après)
+                                    onEdit(item);
                                 }}
                                 className={`${cardStyles.adminBtn} ${cardStyles.adminEdit}`}
                             >
@@ -208,20 +203,6 @@ export default function CardBase({
                     onClose={() => setOverlayMode(null)}
                 />,
                 document.body
-            )}
-
-            {/* Modal d’édition (Admin) */}
-            {showModal && ModalComponent && (
-                <ModalComponent
-                    isOpen={showModal}
-                    mode={modalMode}
-                    {...(isPack ? { pack: item } : { product: item })}
-                    onClose={() => setShowModal(false)}
-                    onSuccess={() => {
-                        onUpdate?.();
-                        setShowModal(false);
-                    }}
-                />
             )}
         </article>
     );

@@ -1,7 +1,7 @@
 // src/components/PackCard.jsx
+// (Édition côté admin : la page AdminPanel ouvre PackModal via onEdit.)
 import CardBase from './CardBase';
-import ProductOverlay from './Overlay'; 
-import PackModal from './Modal/PackModal';
+import ProductOverlay from './Overlay';
 
 export default function PackCard({ pack, onAddPack, ...props }) {
     return (
@@ -9,7 +9,6 @@ export default function PackCard({ pack, onAddPack, ...props }) {
             item={pack}
             isPack={true}
             OverlayComponent={ProductOverlay}
-            ModalComponent={PackModal}
             onAdd={onAddPack}
             {...props}
         />

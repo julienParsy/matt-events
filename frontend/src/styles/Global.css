@@ -145,3 +145,20 @@ h2 {
   margin-top: 1.5rem;
 }
 
+
+/* Chargement d'une page (pages admin et éditeur chargés à la demande) */
+.page-loading {
+  margin: 4rem auto;
+  text-align: center;
+  color: var(--color-text-secondary);
+}
+
+/* Confirmation affichée sous une page éditable après enregistrement */
+.page-message {
+  margin: 1.5rem 0 0;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--color-primary);
+  border-radius: 10px;
+  background: var(--color-success-bg);
+  text-align: center;
+}

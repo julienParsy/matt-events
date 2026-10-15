@@ -1,7 +1,6 @@
 /* src/styles/components/CategoryNav.module.css
    Filtres en pastilles qui passent à la ligne : tout reste visible,
    sur ordinateur comme sur mobile (aucun défilement caché). */
-@import '../_variables.css';
 
 .navCategory {
     display: flex;

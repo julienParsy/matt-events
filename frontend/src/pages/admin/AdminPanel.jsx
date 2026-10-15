@@ -153,11 +153,9 @@ export default function AdminPanel() {
                         <ProductCard
                             key={'prod-' + item.id}
                             produit={item}
-                            isAdmin
-                            categories={categories}
+                            isAdmin
                             onDelete={() => handleDeleteProduct(item.id)}
-                            onEdit={() => openEditProductModal(item)}
-                            onUpdate={refreshCatalog}
+                            onEdit={() => openEditProductModal(item)}
                         />
                     )
                 }
