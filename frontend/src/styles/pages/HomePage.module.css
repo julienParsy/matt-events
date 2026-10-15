@@ -300,6 +300,25 @@
     color: var(--color-text-secondary);
 }
 
+/* ---------- Livraison et installation ---------- */
+.feeCard {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    padding: 1.5rem;
+    border: 1px solid var(--color-modal-border);
+    border-radius: 16px;
+    background: var(--color-bg);
+    color: var(--color-text);
+}
+
+.feeList {
+    margin: 0;
+    padding-left: 1.2rem;
+    line-height: 1.6;
+    color: var(--color-text-secondary);
+}
+
 /* ---------- Appel à l'action final ---------- */
 .cta {
     width: calc(100% - 3rem);

@@ -131,6 +131,7 @@ const contactRoutes = require('./routes/contactRoutes');
 const pageRoutes = require('./routes/pageRoutes');
 const sousCategorieRoutes = require('./routes/sousCategorieRoutes');
 const factureRoutes = require('./routes/factureRoutes');
+const tarifRoutes = require('./routes/tarifRoutes');
 
 if (process.env.NODE_ENV !== 'production' || process.env.ENABLE_DEBUG_ROUTES === 'true') {
     app.use('/api/debug', require('./routes/debugRoutes'));
@@ -147,6 +148,7 @@ app.use('/api/contact', contactRoutes);
 app.use('/api/pages', pageRoutes);
 app.use('/api/sous-categories', sousCategorieRoutes);
 app.use('/api/factures', factureRoutes);
+app.use('/api/tarifs', tarifRoutes);
 
 
 

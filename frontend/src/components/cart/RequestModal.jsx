@@ -6,6 +6,7 @@ import styles from '../../styles/components/Cart.module.css';
 import modalStyles from '../../styles/components/Modal.module.css';
 import stylesCaptcha from '../../styles/components/Recaptcha.module.css';
 import useRequestForm from '../../hooks/useRequestForm';
+import TarifsInfo from './TarifsInfo';
 import { toLocalISODate } from '../../utils/cart';
 
 const FIELDS = [
@@ -161,6 +162,8 @@ export default function RequestModal({ cart, totalCount, onClose, onSuccess }) {
                         </div>
                         {renderError('deliveryType')}
                     </fieldset>
+
+                    <TarifsInfo />
 
                     {needsAddress && (
                         <div>

@@ -2,6 +2,7 @@
 import { Link } from "react-router-dom";
 import styles from "../styles/pages/HomePage.module.css";
 import { shopLink } from "../utils/categories";
+import useTarifs from "../hooks/useTarifs";
 
 // Petites icônes SVG inline (aucune dépendance)
 const Icon = ({ children }) => (
@@ -91,6 +92,8 @@ const ETAPES = [
 const EVENEMENTS = ["Mariages", "Soirées", "Concerts", "Fêtes d'entreprise", "et plus encore"];
 
 export default function HomePage() {
+    const tarifs = useTarifs();
+
     return (
         <div className={styles.page}>
             {/* ---------- Hero ---------- */}
@@ -162,6 +165,28 @@ export default function HomePage() {
                     ))}
                 </ol>
             </section>
+
+            {/* ---------- Livraison, installation et caution (grille de /api/tarifs) ---------- */}
+            {tarifs.length > 0 && (
+                <section className={styles.section}>
+                    <h2 className={styles.sectionTitle}>Livraison et installation</h2>
+                    <p className={styles.sectionIntro}>
+                        Ces frais s'ajoutent au prix du matériel. Le montant exact vous est confirmé sur le devis.
+                    </p>
+                    <div className={styles.grid}>
+                        {tarifs.map(t => (
+                            <div key={t.title} className={styles.feeCard}>
+                                <h3 className={styles.cardTitle}>{t.title}</h3>
+                                <ul className={styles.feeList}>
+                                    {t.items.map(item => (
+                                        <li key={item}>{item}</li>
+                                    ))}
+                                </ul>
+                            </div>
+                        ))}
+                    </div>
+                </section>
+            )}
 
             {/* ---------- Appel à l'action final ---------- */}
             <section className={styles.cta}>

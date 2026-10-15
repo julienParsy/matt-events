@@ -3,6 +3,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import PropTypes from 'prop-types';
 import Cart from '../components/cart/Cart';
 import RequestModal from '../components/cart/RequestModal';
+import TarifsInfo from '../components/cart/TarifsInfo';
 import styles from '../styles/components/Cart.module.css';
 import { clampQuantity, getCartTotals, getItemKey } from '../utils/cart';
 
@@ -77,6 +78,9 @@ export default function CartPage({ cart, setCart }) {
                     </p>
                 )}
             </div>
+
+            {/* Frais visibles avant d'envoyer la demande */}
+            <TarifsInfo defaultOpen={cart.length > 0} />
 
             {cart.length > 0 && (
                 <div className={styles.divDemande}>
