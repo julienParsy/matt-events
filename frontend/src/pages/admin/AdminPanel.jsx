@@ -4,9 +4,10 @@ import ProductCard from '../../components/ProductCard';
 import ProductModal from '../../components/Modal/ProductModal';
 import PackCard from '../../components/PackCard';
 import PackModal from '../../components/Modal/PackModal';
-import CategoryNav from '../../components/CategoryNav';
-import SousCategoryNav from '../../components/SousCategoryNav';
-import { Package, Plus, Search } from 'lucide-react';
+import CatalogToolbar from '../../components/CatalogToolbar';
+import CatalogSections from '../../components/CatalogSections';
+import useCatalogView from '../../hooks/useCatalogView';
+import { Package, Plus } from 'lucide-react';
 import AdminHeader from '../../components/admin/AdminHeader';
 import ui from '../../styles/components/AdminUI.module.css';
 import styles from '../../styles/components/CategoryList.module.css';
@@ -14,15 +15,12 @@ import styles from '../../styles/components/CategoryList.module.css';
 import { fetchGroupedCatalog, fetchCategories } from '../../data/api';
 import axiosInstance from '../../services/axiosInstance';
 
-const PACKS_KEY = 'packs';
 
 export default function AdminPanel() {
     const [groupedCatalog, setGroupedCatalog] = useState([]);
     const [packs, setPacks] = useState([]);
     const [categories, setCategories] = useState([]);
     const [sousCategories, setSousCategories] = useState([]);
-    const [selectedSousCategory, setSelectedSousCategory] = useState(null);
-    const [selectedCategory, setSelectedCategory] = useState(null);
 
     // Modal états (produit et pack)
     const [modalOpen, setModalOpen] = useState(false);
@@ -30,9 +28,9 @@ export default function AdminPanel() {
     const [currentProduct, setCurrentProduct] = useState(null);
     const [currentPack, setCurrentPack] = useState(null);
 
-    // Recherche & tri
-    const [search, setSearch] = useState('');
-    const [sortByPrice, setSortByPrice] = useState(null); // 'asc' | 'desc' | null
+    // Onglet, budget (dans l'adresse), recherche, tri et sections : même logique que la boutique
+    const view = useCatalogView({ categories, catalog: groupedCatalog, packs, sousCategories });
+    const { isPackView } = view;
 
     // Chargement initial
     useEffect(() => {
@@ -117,58 +115,7 @@ export default function AdminPanel() {
         setModalOpen('pack');
     };
 
-    // --- LOGIQUE PRODUITS & PACKS ---
-    const isAllActive = selectedCategory === null;
-    const isPackView = selectedCategory === PACKS_KEY;
-    // Groupes filtrés (vue catégorie)
-    const filteredGroupedCatalog = !isPackView && selectedCategory
-        ? groupedCatalog.filter(group => group.id === selectedCategory.id)
-        : groupedCatalog;
-
-    // Tous les produits à plat
-    const allProducts = groupedCatalog.reduce(
-        (acc, group) => acc.concat(group.produits),
-        []
-    );
-
-    // Liste combinée produits + packs
-    const allItems = [
-        ...allProducts.map(prod => ({ ...prod, _type: 'produit' })),
-        ...packs.map(pack => ({ ...pack, _type: 'pack' }))
-    ];
-
-    function filterAndSortItems(items) {
-        let filtered = items.filter(item =>
-            item.nom.toLowerCase().includes(search.toLowerCase()) ||
-            (item.modele?.toLowerCase().includes(search.toLowerCase()) ?? false) ||
-            (item.description?.toLowerCase().includes(search.toLowerCase()) ?? false)
-        );
-        if (sortByPrice) {
-            filtered = [...filtered].sort((a, b) =>
-                sortByPrice === 'asc'
-                    ? Number(a.prix) - Number(b.prix)
-                    : Number(b.prix) - Number(a.prix)
-            );
-        }
-        return filtered;
-    }
-
-    // Pour la vue "toutes catégories" (mélangé packs et produits)
-    const displayedAllItems = filterAndSortItems(allItems);
-    // Pour la vue packs uniquement
-    const filteredPacks = selectedSousCategory
-        ? packs.filter(p => Number(p.sous_categorie_id) === Number(selectedSousCategory.id))
-        : packs;
-
-    const displayedPacks = filterAndSortItems(
-        filteredPacks.map(pack => ({ ...pack, _type: 'pack' }))
-    );
-    // Pour la vue produits par catégorie
-    function getDisplayedProductsFlat(produits) {
-        return filterAndSortItems(
-            produits.map(prod => ({ ...prod, _type: 'produit' }))
-        );
-    }
+    const productCount = groupedCatalog.reduce((n, group) => n + group.produits.length, 0);
 
     return (
         <div className={styles.adminPanel}>
@@ -176,7 +123,7 @@ export default function AdminPanel() {
             <AdminHeader
                 icon={Package}
                 title="Produits & packs"
-                subtitle={`${allProducts.length} produit${allProducts.length > 1 ? 's' : ''} · ${packs.length} pack${packs.length > 1 ? 's' : ''}`}
+                subtitle={`${productCount} produit${productCount > 1 ? 's' : ''} · ${packs.length} pack${packs.length > 1 ? 's' : ''}`}
                 actions={
                     <button
                         type="button"
@@ -188,109 +135,33 @@ export default function AdminPanel() {
                     </button>
                 }
             >
-                <CategoryNav
-                    categories={categories}
-                    selectedCategory={selectedCategory}
-                    onSelectCategory={setSelectedCategory}
-                />
-
-                {isPackView && sousCategories.length > 0 && (
-                    <SousCategoryNav
-                        sousCategories={sousCategories}
-                        selectedSousCategory={selectedSousCategory}
-                        onSelectSousCategory={setSelectedSousCategory}
-                    />
-                )}
-
-                <div className={styles.search}>
-                    <div className={styles.searchField}>
-                        <Search className={styles.searchIcon} aria-hidden="true" />
-                        <input
-                            className={styles.searchInput}
-                            type="search"
-                            aria-label="Rechercher un produit ou un pack"
-                            placeholder="Rechercher un produit ou un pack…"
-                            value={search}
-                            onChange={e => setSearch(e.target.value)}
-                        />
-                    </div>
-                    <select
-                        className={styles.sortSelect}
-                        aria-label="Trier par prix"
-                        value={sortByPrice || ''}
-                        onChange={e => setSortByPrice(e.target.value || null)}
-                    >
-                        <option value="">Trier par prix</option>
-                        <option value="asc">Prix croissant</option>
-                        <option value="desc">Prix décroissant</option>
-                    </select>
-                </div>
+                <CatalogToolbar categories={categories} view={view} />
             </AdminHeader>
 
-            {isAllActive ? (
-                <div className={styles.grid4}>
-                    {displayedAllItems.length === 0 ? (
-                        <p>Aucun article trouvé.</p>
-                    ) : (
-                        displayedAllItems.map(item =>
-                            item._type === 'pack' ? (
-                                <PackCard
-                                    key={'pack-' + item.id}
-                                    pack={item}
-                                    isAdmin
-                                    onEdit={() => openEditPackModal(item)}
-                                    onDelete={() => handleDeletePack(item.id)}
-                                />
-                            ) : (
-                                <ProductCard
-                                    key={'prod-' + item.id}
-                                    produit={item}
-                                    isAdmin
-                                    categories={categories}
-                                    onDelete={() => handleDeleteProduct(item.id)}
-                                    onEdit={() => openEditProductModal(item)}
-                                    onUpdate={refreshCatalog}
-                                />
-                            )
-                        )
-                    )}
-                </div>
-            ) : isPackView ? (
-                <div className={styles.grid4}>
-                    {displayedPacks.length === 0 && <p>Aucun pack trouvé.</p>}
-                    {displayedPacks.map(pack => (
+            <CatalogSections
+                view={view}
+                renderItem={item =>
+                    item._type === 'pack' ? (
                         <PackCard
-                            key={pack.id}
-                            pack={pack}
+                            key={'pack-' + item.id}
+                            pack={item}
                             isAdmin
-                            onEdit={() => openEditPackModal(pack)}
-                            onDelete={() => handleDeletePack(pack.id)}
+                            onEdit={() => openEditPackModal(item)}
+                            onDelete={() => handleDeletePack(item.id)}
                         />
-                    ))}
-                </div>
-            ) : (
-                filteredGroupedCatalog.map(group => {
-                    const displayedProducts = getDisplayedProductsFlat(group.produits);
-                    if (displayedProducts.length === 0) return null;
-                    return (
-                        <div key={group.id}>
-                            <div className={styles.grid4}>
-                                {displayedProducts.map(prod => (
-                                    <ProductCard
-                                        key={prod.id}
-                                        produit={prod}
-                                        isAdmin
-                                        categories={categories}
-                                        onDelete={() => handleDeleteProduct(prod.id)}
-                                        onEdit={() => openEditProductModal(prod)}
-                                        onUpdate={refreshCatalog}
-                                    />
-                                ))}
-                            </div>
-                        </div>
-                    );
-                })
-            )}
+                    ) : (
+                        <ProductCard
+                            key={'prod-' + item.id}
+                            produit={item}
+                            isAdmin
+                            categories={categories}
+                            onDelete={() => handleDeleteProduct(item.id)}
+                            onEdit={() => openEditProductModal(item)}
+                            onUpdate={refreshCatalog}
+                        />
+                    )
+                }
+            />
 
             {/* MODALE PRODUIT */}
             {modalOpen === 'product' && (
