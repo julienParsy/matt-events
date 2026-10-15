@@ -32,8 +32,11 @@ export const toLocalISODate = (date = new Date()) => {
 };
 
 /**
- * Produits envoyés au serveur. Pour l'instant le panier complet est transmis, car le
- * backend l'enregistre tel quel et s'en sert pour les PDF (nom, prix, description…).
- * TODO : n'envoyer que { id, type, quantite } et recharger prix/stock côté serveur.
+ * Produits envoyés au serveur : seulement l'identifiant, le type et la quantité.
+ * Le serveur relit nom, prix, stock et contenu des packs dans le catalogue.
  */
-export const toPayloadItem = (item) => item;
+export const toPayloadItem = (item) => ({
+    id: item.id,
+    type: item.type === 'pack' ? 'pack' : 'produit',
+    quantite: item.quantite,
+});

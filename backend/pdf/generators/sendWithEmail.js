@@ -1,6 +1,9 @@
 // backend/utils/sendWithEmail.js
 const { sendMail } = require('../../services/emailService');
 
+// Données saisies par le client : échappées avant d'être insérées dans le HTML de l'e-mail
+const escapeHtml = s => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+
 function toNumber(v) { const n = Number(v); return Number.isFinite(n) ? n : 0; }
 function getQty(p) { return toNumber(p?.quantite ?? p?.quantity ?? 1) || 1; }
 function getUnitPrice(p) { return toNumber(p?.prix ?? p?.price ?? 0); }
@@ -30,9 +33,9 @@ Total : ${total.toFixed(2)} €
 Merci de vérifier le PDF joint.`,
         html: `
       <p>Une nouvelle demande de matériel a été effectuée le ${dateStr}.</p>
-      <p><strong>Nom:</strong> ${prenom} ${nom}<br/>
-         <strong>Téléphone:</strong> ${telephone}<br/>
-         <strong>Email utilisateur:</strong> ${email}</p>
+      <p><strong>Nom:</strong> ${escapeHtml(prenom)} ${escapeHtml(nom)}<br/>
+         <strong>Téléphone:</strong> ${escapeHtml(telephone)}<br/>
+         <strong>Email utilisateur:</strong> ${escapeHtml(email)}</p>
       <p><strong>Sous-total produits :</strong> ${totalProduits.toFixed(2)} €<br/>
          ${totalFrais ? `<strong>Frais :</strong> ${totalFrais.toFixed(2)} €<br/>` : ''}
          <strong>Total :</strong> ${total.toFixed(2)} €</p>

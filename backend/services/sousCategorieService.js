@@ -19,4 +19,14 @@ async function createSousCategorie(nom) {
     return rows[0];
 }
 
-module.exports = { getAllSousCategories, createSousCategorie };
+async function updateSousCategorie(id, nom) {
+    const { rows } = await pool.query('UPDATE sous_categories SET nom = $1 WHERE id = $2 RETURNING *', [nom, id]);
+    return rows[0];
+}
+
+async function deleteSousCategorie(id) {
+    const { rows } = await pool.query('DELETE FROM sous_categories WHERE id = $1 RETURNING id', [id]);
+    return rows[0];
+}
+
+module.exports = { getAllSousCategories, createSousCategorie, updateSousCategorie, deleteSousCategorie };

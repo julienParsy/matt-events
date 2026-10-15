@@ -1,6 +1,7 @@
 // backend/controllers/pdfController.js
 const { generateBonCommandePDF } = require('../pdf/pdfService');
 const demandeService = require('../services/demandeService');
+const { validateClient, buildProduitsFromCatalog } = require('../services/demandeValidation');
 const { generateDevis, generateFacture, updateAdresse } = demandeService;
 
 // Fonction utilitaire pour convertir en nombre
@@ -24,14 +25,14 @@ async function getAllDemandes(req, res, next) {
 // Crée une demande et envoie le PDF par email si nécessaire
 async function createDemande(req, res, next) {
     try {
-        const { client, produits, captchaToken, download = true } = req.body;
+        const { client: rawClient, produits: rawProduits, download = true } = req.body;
 
-        if (!client || typeof client !== 'object')
-            return res.status(400).json({ message: "Informations client manquantes !" });
-        if (!produits || !Array.isArray(produits) || produits.length === 0)
-            return res.status(400).json({ message: "Aucun produit sélectionné !" });
+        // Contrôles serveur (mêmes règles que le formulaire) et prix relus dans le catalogue :
+        // le navigateur ne fournit que l'identifiant, le type et la quantité de chaque article.
+        const client = validateClient(rawClient);
+        const produits = await buildProduitsFromCatalog(rawProduits);
 
-        const data = { ...client, adresse: client.adresse, produits, captchaToken, download };
+        const data = { ...client, produits, download };
         const { pdfBuffer, id } = await demandeService.createDemandeAndSendEmail(data);
 
         if (!pdfBuffer) return res.status(500).json({ message: "Erreur génération PDF" });

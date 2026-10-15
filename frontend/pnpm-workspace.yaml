@@ -1,5 +1,12 @@
+# Scripts d'installation autorisés (pnpm les bloque par défaut, par sécurité)
 allowBuilds:
-  '@firebase/util': set this to true or false
-  '@tailwindcss/oxide': set this to true or false
-  esbuild: set this to true or false
-  protobufjs: set this to true or false
+  # Nécessaires à la compilation du site (Vite et Tailwind)
+  esbuild: true
+  '@tailwindcss/oxide': true
+  # Inutiles pour le site : non exécutés
+  '@firebase/util': false
+  protobufjs: false
+
+# Versions corrigées de dépendances indirectes (failles connues)
+overrides:
+  '@grpc/grpc-js': '>=1.13.6 <2'

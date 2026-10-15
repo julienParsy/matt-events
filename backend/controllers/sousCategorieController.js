@@ -1,30 +1,49 @@
 // src/controllers/sousCategorieController.js
 const sousCategorieService = require('../services/sousCategorieService');
 
-async function getAllSousCategories(req, res) {
+const cleanNom = nom => (nom == null ? '' : String(nom).trim().slice(0, 100));
+
+async function getAllSousCategories(req, res, next) {
     try {
-        const sousCategories = await sousCategorieService.getAllSousCategories();
-        res.json(sousCategories);
-    } catch (err) {
-        console.error('Erreur get sous-catégories :', err);
-        res.status(500).json({ message: err.message });
-    }
+        res.json(await sousCategorieService.getAllSousCategories());
+    } catch (err) { next(err); }
 }
 
-async function createSousCategorie(req, res) {
+async function createSousCategorie(req, res, next) {
     try {
-        const { nom } = req.body;
+        const nom = cleanNom(req.body?.nom);
         if (!nom) return res.status(400).json({ message: 'Nom requis' });
+        res.status(201).json(await sousCategorieService.createSousCategorie(nom));
+    } catch (err) { next(err); }
+}
 
-        const newSousCat = await sousCategorieService.createSousCategorie(nom);
-        res.status(201).json(newSousCat);
+async function updateSousCategorie(req, res, next) {
+    try {
+        const nom = cleanNom(req.body?.nom);
+        if (!nom) return res.status(400).json({ message: 'Nom requis' });
+        const updated = await sousCategorieService.updateSousCategorie(req.params.id, nom);
+        if (!updated) return res.status(404).json({ message: 'Sous-catégorie introuvable' });
+        res.json(updated);
+    } catch (err) { next(err); }
+}
+
+async function deleteSousCategorie(req, res, next) {
+    try {
+        const deleted = await sousCategorieService.deleteSousCategorie(req.params.id);
+        if (!deleted) return res.status(404).json({ message: 'Sous-catégorie introuvable' });
+        res.json({ message: 'Sous-catégorie supprimée' });
     } catch (err) {
-        console.error('Erreur création sous-catégorie :', err);
-        res.status(500).json({ message: err.message });
+        // Encore utilisée par des packs (clé étrangère)
+        if (err.code === '23503') {
+            return res.status(409).json({ message: 'Cette sous-catégorie est encore utilisée par des packs : changez-les de sous-catégorie avant de la supprimer.' });
+        }
+        next(err);
     }
 }
 
 module.exports = {
     getAllSousCategories,
-    createSousCategorie
+    createSousCategorie,
+    updateSousCategorie,
+    deleteSousCategorie,
 };
