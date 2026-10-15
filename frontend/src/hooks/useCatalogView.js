@@ -66,26 +66,29 @@ export default function useCatalogView({ categories, catalog, packs, sousCategor
     // Sous-catégories proposées : seulement celles qui contiennent des packs
     const sousCategoriesWithContent = sousCategories.filter(sc => packs.some(packIn(sc)));
 
+    // Packs regroupés par sous-catégorie (+ « Autres packs » pour ceux sans sous-catégorie)
+    const packSections = (prefix = '') => [
+        ...sousCategories.map(sc => ({ key: 'souscat-' + sc.id, title: prefix + sc.nom, items: asPacks(packs.filter(packIn(sc))) })),
+        {
+            key: 'souscat-autres',
+            title: prefix ? prefix + 'Autres' : 'Autres packs',
+            items: asPacks(packs.filter(p => !sousCategories.some(sc => packIn(sc)(p)))),
+        },
+    ];
+
     // --- Sections ---
     let sections;
     if (isPackView) {
         sections = selectedSousCategory
             ? [{ key: 'packs', title: selectedSousCategory.nom, items: asPacks(packs.filter(packIn(selectedSousCategory))) }]
-            : [
-                ...sousCategories.map(sc => ({ key: 'souscat-' + sc.id, title: sc.nom, items: asPacks(packs.filter(packIn(sc))) })),
-                {
-                    key: 'souscat-autres',
-                    title: 'Autres packs',
-                    items: asPacks(packs.filter(p => !sousCategories.some(sc => packIn(sc)(p)))),
-                },
-            ];
+            : packSections();
     } else {
         const selectedIds = Array.isArray(selectedCategory)
             ? selectedCategory.map(c => c.id)
             : selectedCategory ? [selectedCategory.id] : [];
         const groups = selectedIds.length ? catalog.filter(g => selectedIds.includes(g.id)) : catalog;
         sections = groups.map(group => ({ key: 'cat-' + group.id, title: group.nom, items: asProducts(group.produits) }));
-        if (isAllActive) sections.push({ key: 'packs', title: 'Packs', items: asPacks(packs) });
+        if (isAllActive) sections.push(...packSections('Packs – '));
     }
 
     // Budget appliqué en dernier : les compteurs du filtre portent sur la vue avant ce filtre
