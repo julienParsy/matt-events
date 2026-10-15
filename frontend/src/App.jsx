@@ -25,6 +25,7 @@ import AdminLogoSettings from './pages/admin/AdminLogoSettings';
 import Footer from './components/Footer';
 import NavBar from './components/NavBar';
 import Canonical from './components/Canonical';
+import ScrollToTopOnNavigate from './components/ScrollToTopOnNavigate';
 import { ToastContainer } from 'react-toastify';
 import './styles/Global.css';
 import 'react-toastify/dist/ReactToastify.css';
@@ -68,6 +69,7 @@ function App() {
         <NavBar isAdmin={isAdmin} handleLogout={logout} cart={cart} />
         <main className="main-content">
           <Canonical />
+          <ScrollToTopOnNavigate />
           <Routes>
             <Route
               path="/"

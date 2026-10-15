@@ -1,5 +1,6 @@
 // src/pages/ShopPage.jsx
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import ProductCard from '../components/ProductCard';
 import PackCard from '../components/PackCard';
 import CategoryNav from '../components/CategoryNav';
@@ -7,16 +8,36 @@ import SousCategoryNav from '../components/SousCategoryNav';
 import styles from '../styles/components/CategoryList.module.css';
 import { fetchGroupedCatalog, fetchCategories } from '../data/api';
 import axiosInstance from '../services/axiosInstance';
-
-const PACKS_KEY = 'packs';
+import { PACKS_KEY, slugify } from '../utils/categories';
 
 export default function ShopPage({ cart, setCart }) {
     const [catalog, setCatalog] = useState([]);
     const [packs, setPacks] = useState([]);
     const [categories, setCategories] = useState([]);
     const [sousCategories, setSousCategories] = useState([]);
-    const [selectedCategory, setSelectedCategory] = useState(null);
     const [selectedSousCategory, setSelectedSousCategory] = useState(null);
+    const [searchParams, setSearchParams] = useSearchParams();
+
+    // --- Onglet actif : lu dans l'adresse (/shop?cat=son, ?cat=projecteurs,lyres-scanners, ?cat=packs) ---
+    const catParam = searchParams.get('cat') || '';
+    const selectedCategory = useMemo(() => {
+        if (!catParam) return null;
+        if (catParam === PACKS_KEY) return PACKS_KEY;
+        const slugs = catParam.split(',');
+        const matched = categories.filter(c => slugs.includes(slugify(c.nom)));
+        if (matched.length === 0) return null; // catégorie inconnue (ou pas encore chargée) : tout afficher
+        return matched.length === 1 ? matched[0] : matched;
+    }, [catParam, categories]);
+
+    // Clic sur un onglet : l'adresse change (lien partageable, bouton « Retour » du navigateur)
+    const setSelectedCategory = value => {
+        const params = new URLSearchParams(searchParams);
+        if (value === null) params.delete('cat');
+        else if (value === PACKS_KEY) params.set('cat', PACKS_KEY);
+        else params.set('cat', slugify(value.nom));
+        setSearchParams(params);
+        setSelectedSousCategory(null);
+    };
     const [search, setSearch] = useState('');
     const [sortByPrice, setSortByPrice] = useState(null);
 
@@ -92,14 +113,6 @@ export default function ShopPage({ cart, setCart }) {
     const isAllActive = selectedCategory === null;
     const isPackView = selectedCategory === PACKS_KEY;
 
-    // --- Tous les produits à plat ---
-    const allProducts = catalog.reduce((acc, group) => acc.concat(group.produits), []);
-    const allItems = [
-        ...allProducts.map(prod => ({ ...prod, _type: 'produit' })),
-        ...packs.map(pack => ({ ...pack, _type: 'pack' }))
-    ];
-    const displayedAllItems = filterAndSortItems(allItems);
-
     // --- Packs filtrés par sous-catégorie ---
     const filteredPacks = selectedSousCategory
         ? packs.filter(p => Number(p.sous_categorie_id) === Number(selectedSousCategory.id))
@@ -112,12 +125,45 @@ export default function ShopPage({ cart, setCart }) {
     );
 
     // --- Produits filtrés par catégorie ---
-    const groups = !isPackView && selectedCategory
-        ? catalog.filter(g => g.id === selectedCategory.id)
+    const selectedIds = Array.isArray(selectedCategory)
+        ? selectedCategory.map(c => c.id)
+        : selectedCategory && !isPackView ? [selectedCategory.id] : [];
+    const groups = selectedIds.length
+        ? catalog.filter(g => selectedIds.includes(g.id))
         : catalog;
 
     const getDisplayedProductsFlat = produits =>
         filterAndSortItems(produits.map(prod => ({ ...prod, _type: 'produit' })));
+
+    // --- Sections affichées ---
+    const asProducts = produits => getDisplayedProductsFlat(produits);
+    const asPacks = list => filterAndSortItems(list.map(pack => ({ ...pack, _type: 'pack' })));
+
+    // Packs regroupés par sous-catégorie (ceux sans sous-catégorie à la fin)
+    const packSections = list => [
+        ...sousCategories.map(sc => ({
+            key: 'souscat-' + sc.id,
+            title: sc.nom,
+            items: asPacks(list.filter(p => Number(p.sous_categorie_id) === Number(sc.id))),
+        })),
+        {
+            key: 'souscat-autres',
+            title: 'Autres packs',
+            items: asPacks(list.filter(p => !sousCategories.some(sc => Number(sc.id) === Number(p.sous_categorie_id)))),
+        },
+    ];
+
+    let sections;
+    if (isPackView) {
+        sections = selectedSousCategory
+            ? [{ key: 'packs', title: selectedSousCategory.nom, items: displayedPacks }]
+            : packSections(packs);
+    } else {
+        sections = groups.map(group => ({ key: 'cat-' + group.id, title: group.nom, items: asProducts(group.produits) }));
+        if (isAllActive) sections.push({ key: 'packs', title: 'Packs', items: asPacks(packs) });
+    }
+    const visibleSections = sections.filter(section => section.items.length > 0);
+    const showSectionTitles = visibleSections.length > 1;
 
     // --- Rendu ---
     return (
@@ -188,70 +234,48 @@ export default function ShopPage({ cart, setCart }) {
                 </div>
             </div>
 
-            {/* === Toutes les catégories (produits + packs) === */}
-            {isAllActive && (
-                <div className={styles.grid4}>
-                    {displayedAllItems.length === 0 ? (
-                        <p>Aucun article trouvé.</p>
-                    ) : (
-                        displayedAllItems.map(item =>
-                            item._type === 'pack' ? (
-                                <PackCard
-                                    key={'pack-' + item.id}
-                                    pack={item}
-                                    onAddPack={handleAddPack}
-                                    cart={cart}
-                                />
-                            ) : (
-                                <ProductCard
-                                    key={'prod-' + item.id}
-                                    produit={item}
-                                    cart={cart}
-                                    onAdd={handleAddProduct}
-                                />
-                            )
-                        )
-                    )}
-                </div>
-            )}
-
-            {/* === Vue Packs === */}
-            {isPackView && (
-                <div className={styles.grid4}>
-                    {displayedPacks.length === 0 ? (
-                        <p>Aucun pack trouvé.</p>
-                    ) : (
-                        displayedPacks.map(pack => (
-                            <PackCard
-                                key={pack.id}
-                                pack={pack}
-                                onAddPack={handleAddPack}
-                                cart={cart}
-                            />
-                        ))
-                    )}
-                </div>
-            )}
-
-            {/* === Vue produits par catégorie === */}
-            {!isAllActive && !isPackView && groups.map(group => {
-                const displayedProducts = getDisplayedProductsFlat(group.produits);
-                if (displayedProducts.length === 0) return null;
-                return (
-                    <div key={group.id}>
+            {/* === Articles, regroupés par section (titres affichés s'il y a plusieurs sections) === */}
+            {visibleSections.length === 0 ? (
+                <p className={styles.emptyShop}>
+                    {isPackView ? 'Aucun pack trouvé.' : 'Aucun article trouvé.'}
+                </p>
+            ) : (
+                visibleSections.map(section => (
+                    <section
+                        key={section.key}
+                        className={styles.shopSection}
+                        aria-labelledby={showSectionTitles ? `section-${section.key}` : undefined}
+                    >
+                        {showSectionTitles && (
+                            <header className={styles.sectionHeader}>
+                                <h2 id={`section-${section.key}`} className={styles.sectionTitle}>{section.title}</h2>
+                                <span className={styles.sectionCount}>
+                                    {section.items.length} article{section.items.length > 1 ? 's' : ''}
+                                </span>
+                            </header>
+                        )}
                         <div className={styles.grid4}>
-                            {displayedProducts.map(prod => (
-                                <ProductCard
-                                    key={prod.id}
-                                    produit={prod}
-                                    cart={cart}
-                                    onAdd={handleAddProduct}
-                                />
-                            ))}
+                            {section.items.map(item =>
+                                item._type === 'pack' ? (
+                                    <PackCard
+                                        key={'pack-' + item.id}
+                                        pack={item}
+                                        onAddPack={handleAddPack}
+                                        cart={cart}
+                                    />
+                                ) : (
+                                    <ProductCard
+                                        key={'prod-' + item.id}
+                                        produit={item}
+                                        cart={cart}
+                                        onAdd={handleAddProduct}
+                                    />
+                                )
+                            )}
                         </div>
-                    </div>
-                );
-            })}
+                    </section>
+                ))
+            )}
         </div>
     );
 }

@@ -4,8 +4,11 @@ import styles from '../styles/components/CategoryNav.module.css';
 
 const PACKS_KEY = 'packs';
 
+// selectedCategory : null (tout), 'packs', une catégorie, ou un tableau de catégories
+// (plusieurs onglets actifs, ex. « Éclairage » depuis l'accueil)
 export default function CategoryNav({ categories = [], selectedCategory, onSelectCategory }) {
-    const isAllActive = selectedCategory === null;
+    const selectedList = Array.isArray(selectedCategory) ? selectedCategory : [];
+    const isAllActive = selectedCategory === null || (Array.isArray(selectedCategory) && selectedList.length === 0);
     const isPacksActive = selectedCategory === PACKS_KEY;
 
     return (
@@ -29,7 +32,9 @@ export default function CategoryNav({ categories = [], selectedCategory, onSelec
             </button>
 
             {categories.map(cat => {
-                const isActive = selectedCategory?.id === cat.id;
+                const isActive = Array.isArray(selectedCategory)
+                    ? selectedList.some(c => c.id === cat.id)
+                    : selectedCategory?.id === cat.id;
 
                 return (
                     <button
@@ -54,6 +59,7 @@ CategoryNav.propTypes = {
     })),
     selectedCategory: PropTypes.oneOfType([
         PropTypes.shape({ id: PropTypes.number, nom: PropTypes.string }),
+        PropTypes.arrayOf(PropTypes.shape({ id: PropTypes.number, nom: PropTypes.string })),
         PropTypes.oneOf([PACKS_KEY])
     ]),
     onSelectCategory: PropTypes.func.isRequired

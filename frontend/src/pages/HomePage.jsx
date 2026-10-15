@@ -1,6 +1,7 @@
 // src/pages/HomePage.jsx
 import { Link } from "react-router-dom";
 import styles from "../styles/pages/HomePage.module.css";
+import { shopLink } from "../utils/categories";
 
 // Petites icônes SVG inline (aucune dépendance)
 const Icon = ({ children }) => (
@@ -18,9 +19,12 @@ const Icon = ({ children }) => (
     </svg>
 );
 
+// cats : onglet(s) de la boutique ouverts par la carte (nom de la catégorie en minuscules, sans accents)
 const UNIVERS = [
     {
         title: "Sonorisation",
+        cats: ["son"],
+        cta: "Voir la sonorisation",
         text: "Enceintes, tables de mixage, micros sans fil.",
         icon: (
             <Icon>
@@ -32,6 +36,8 @@ const UNIVERS = [
     },
     {
         title: "Éclairage",
+        cats: ["projecteurs", "lyres-scanners"],
+        cta: "Voir l'éclairage",
         text: "Lyres, projecteurs LED, ponts et pieds.",
         icon: (
             <Icon>
@@ -43,6 +49,8 @@ const UNIVERS = [
     },
     {
         title: "Effets",
+        cats: ["lasers", "machines-a-fumee"],
+        cta: "Voir les effets",
         text: "Lasers, machines à fumée et à brouillard.",
         icon: (
             <Icon>
@@ -52,6 +60,8 @@ const UNIVERS = [
     },
     {
         title: "Packs clé en main",
+        cats: ["packs"],
+        cta: "Voir les packs",
         text: "Karaoké, buzzers, lumières : des packs prêts à l'emploi.",
         icon: (
             <Icon>
@@ -130,11 +140,11 @@ export default function HomePage() {
                 </p>
                 <div className={styles.grid}>
                     {UNIVERS.map(u => (
-                        <Link key={u.title} to="/shop" className={styles.card}>
+                        <Link key={u.title} to={shopLink(u.cats)} className={styles.card}>
                             <span className={styles.cardIcon}>{u.icon}</span>
                             <h3 className={styles.cardTitle}>{u.title}</h3>
                             <p className={styles.cardText}>{u.text}</p>
-                            <span className={styles.cardLink}>Voir la boutique →</span>
+                            <span className={styles.cardLink}>{u.cta} →</span>
                         </Link>
                     ))}
                 </div>
