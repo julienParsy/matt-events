@@ -98,7 +98,7 @@ export default function NavBar({ isAdmin, handleLogout, cart }) {
             <div className={styles.navbarContainer}>
                 <div className={styles.navbarLogo}>
                     <NavLink to="/" aria-label="Accueil">
-                        <img src={navLogo} loading="lazy" alt="Logo Matt'events" />
+                        <img src={navLogo} width="88" height="88" fetchpriority="high" alt="Logo Matt'events" />
                     </NavLink>
                 </div>
 

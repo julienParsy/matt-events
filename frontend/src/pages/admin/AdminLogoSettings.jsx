@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { Image, Upload, Sun, Moon } from 'lucide-react';
 import { toast } from 'react-toastify';
 import { uploadImage } from '../../utils/upload';
+import { resizeImage } from '../../utils/image';
 import axiosInstance from '../../services/axiosInstance';
 import useLogo from '../../hooks/useLogo';
 import AdminHeader from '../../components/admin/AdminHeader';
@@ -31,8 +32,8 @@ export default function AdminLogoSettings() {
         setError('');
         setLoading(true);
         try {
-            // 1) Envoi vers Firebase => URL
-            const downloadURL = await uploadImage(selectedFile);
+            // 1) Réduction à 512 px puis envoi vers Firebase => URL
+            const downloadURL = await uploadImage(await resizeImage(selectedFile));
             if (!downloadURL) throw new Error('URL manquante après l’envoi.');
             // 2) Enregistrement de l'URL côté backend
             const { data } = await axiosInstance.post('/admins/logo', { url: downloadURL });

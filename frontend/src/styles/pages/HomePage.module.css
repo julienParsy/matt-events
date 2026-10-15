@@ -142,7 +142,7 @@
     font-weight: 600;
     letter-spacing: 0.08em;
     text-transform: uppercase;
-    color: var(--color-modal-close);
+    color: var(--color-text-secondary);
 }
 
 .chips {
