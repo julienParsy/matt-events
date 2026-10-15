@@ -53,7 +53,14 @@ export default function AdminFactures() {
             setDocs(data);
             setLoadError('');
         } catch (err) {
-            setLoadError(err.response?.data?.message || 'Impossible de charger les factures.');
+            const status = err.response?.status;
+            setLoadError(
+                status === 404
+                    ? "Le serveur ne connaît pas encore la gestion des factures : il doit être redémarré ou redéployé avec la dernière version."
+                    : !err.response
+                        ? 'Serveur injoignable. Vérifiez que le backend est démarré.'
+                        : err.response.data?.message || `Impossible de charger les factures (erreur ${status}).`
+            );
         } finally {
             setLoading(false);
         }
