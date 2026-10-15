@@ -5,7 +5,7 @@ function toNumber(v) { const n = Number(v); return Number.isFinite(n) ? n : 0; }
 function getQty(p) { return toNumber(p?.quantite ?? p?.quantity ?? 1) || 1; }
 function getUnitPrice(p) { return toNumber(p?.prix ?? p?.price ?? 0); }
 
-async function sendWithEmail({ buffer, email, prenom, nom, telephone, produits, frais }) {
+async function sendWithEmail({ buffer, email, prenom, nom, telephone, produits, frais, demandeNumero }) {
     const totalProduits = Array.isArray(produits)
         ? produits.reduce((acc, p) => acc + getUnitPrice(p) * getQty(p), 0)
         : 0;
@@ -16,7 +16,7 @@ async function sendWithEmail({ buffer, email, prenom, nom, telephone, produits, 
 
     return await sendMail({
         replyTo: email, 
-        subject: "Nouvelle demande de matériel",
+        subject: demandeNumero ? `Nouvelle demande de matériel n° ${demandeNumero}` : "Nouvelle demande de matériel",
         text: `Une nouvelle demande de matériel a été effectuée le ${dateStr}.
 
 Nom: ${prenom} ${nom}
@@ -39,7 +39,7 @@ Merci de vérifier le PDF joint.`,
       <p>Le PDF est en pièce jointe.</p>
     `,
         attachments: [
-            { filename: `demande_${Date.now()}.pdf`, content: buffer }
+            { filename: demandeNumero ? `demande_${demandeNumero}.pdf` : `demande_${Date.now()}.pdf`, content: buffer }
         ],
     });
 }

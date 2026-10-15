@@ -32,14 +32,14 @@ async function createDemande(req, res, next) {
             return res.status(400).json({ message: "Aucun produit sélectionné !" });
 
         const data = { ...client, adresse: client.adresse, produits, captchaToken, download };
-        const { pdfBuffer } = await demandeService.createDemandeAndSendEmail(data);
+        const { pdfBuffer, id } = await demandeService.createDemandeAndSendEmail(data);
 
         if (!pdfBuffer) return res.status(500).json({ message: "Erreur génération PDF" });
 
         res.set({
             'Content-Type': 'application/pdf',
             'Content-Disposition': download
-                ? `attachment; filename=demande_${data.id || 'new'}.pdf`
+                ? `attachment; filename=demande_${id}.pdf`
                 : 'inline',
             'Content-Length': pdfBuffer.length
         });
@@ -79,12 +79,12 @@ async function generateFactureController(req, res, next) {
 
         if (data.adresse) await updateAdresse(id, data.adresse);
 
-        const pdfBuffer = await generateFacture(id, data);
+        const { pdfBuffer, numero } = await generateFacture(id, data);
         if (!pdfBuffer) return res.status(500).json({ message: "Erreur génération PDF" });
 
         res.set({
             'Content-Type': 'application/pdf',
-            'Content-Disposition': `attachment; filename=facture_${id}.pdf`,
+            'Content-Disposition': `attachment; filename=facture_${numero}.pdf`,
             'Content-Length': pdfBuffer.length
         });
         res.send(pdfBuffer);
@@ -113,17 +113,6 @@ async function generateDemande(req, res, next) {
 }
 
 // Génère un bon de commande PDF
-function formatFrenchDate(date) {
-    if (!date) return 'Non précisée';
-    const d = new Date(date);
-    return d.toLocaleDateString('fr-FR', {
-        weekday: 'long',
-        day: 'numeric',
-        month: 'long',
-        year: 'numeric'
-    });
-}
-
 async function generateBonCommande(req, res) {
     try {
         const { id } = req.params;
@@ -141,7 +130,7 @@ async function generateBonCommande(req, res) {
         // Préparer l'objet à passer au PDF
         const pdfData = {
             ...demande,
-            eventDate: formatFrenchDate(demande.event_date), 
+            eventDate: demande.event_date,
             lienPaiement: paymentLink,
             montage: toNumber(montage),
             livraison: toNumber(livraison),

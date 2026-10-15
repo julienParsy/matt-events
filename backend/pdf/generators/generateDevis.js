@@ -1,25 +1,38 @@
-const PDFDocument = require('pdfkit');
-const { generateBasePDF } = require('./generateBasePDF');
+// backend/pdf/generators/generateDevis.js
+const { DEVIS_VALIDITY_DAYS_BEFORE_EVENT } = require('../pdfConstants');
+const { formatShortDate, addDays } = require('../pdfHelpers');
+const {
+    createPdf, computeTotals, drawHeader, drawParties, drawItemsTable, drawTotalsAndPayment, drawSignature, drawConditions,
+} = require('./generateBasePDF');
 
 function generateDevisPDF(args) {
-    return new Promise((resolve, reject) => {
-        const doc = new PDFDocument({ margin: 50 });
-        const buffers = [];
-        doc.on('data', buffers.push.bind(buffers));
-        doc.on('end', () => resolve(Buffer.concat(buffers)));
+    const numero = args.devisNumero ? String(args.devisNumero) : '';
+    const reference = numero ? `Devis n° ${numero}` : 'Devis';
+    const totals = computeTotals(args.produits, args.frais);
+    const today = new Date();
 
-        generateBasePDF(doc, {
-            ...args,
-            titre: `DEVIS #${args.devisNumero || ''}`,
-            couleurTitre: '#00A0E3',
-            couleurTotal: '#00A0E3',
-            showConditions: true,
-            includeCaution: true,
-            caution: args.frais?.caution || 0,
-            dateLabel: `Émis le ${new Date().toLocaleDateString('fr-FR')}`
+    // Pas de délai fixe : valable jusqu'à quelques jours avant l'événement (s'il est connu et assez loin)
+    const limit = addDays(args.eventDate, -DEVIS_VALIDITY_DAYS_BEFORE_EVENT);
+    const validUntil = limit && limit > today ? formatShortDate(limit) : null;
+
+    return createPdf({ title: reference, reference }, (doc, layout) => {
+        drawHeader(doc, layout, {
+            label: 'DEVIS',
+            numero,
+            meta: [
+                { label: 'Date', value: formatShortDate(today) },
+                validUntil && { label: "Valable jusqu'au", value: validUntil },
+            ],
         });
-
-        doc.end();
+        drawParties(doc, layout, { client: args, eventDate: args.eventDate, deliveryType: args.deliveryType });
+        drawItemsTable(doc, layout, args.produits);
+        drawTotalsAndPayment(doc, layout, { totals, eventDate: args.eventDate, paymentTitle: 'Modalités de paiement' });
+        drawSignature(doc, layout,
+            (validUntil
+                ? `Devis valable jusqu'au ${validUntil}, soit ${DEVIS_VALIDITY_DAYS_BEFORE_EVENT} jours avant l'événement. `
+                : '') +
+            "Le matériel n'est réservé qu'après réception du devis signé et du versement des arrhes, dans la limite des disponibilités.");
+        drawConditions(doc, layout);
     });
 }
 

@@ -1,4 +1,5 @@
 const demandeModel = require('../models/demandeModel');
+const { getOrCreateFacture } = require('./factureService');
 const {
     generatePDFAndSendEmail,
     generateDevisPDF,
@@ -9,7 +10,11 @@ const {
 async function createDemandeAndSendEmail(data) {
     const demande = await demandeModel.createDemande(data);
     try {
-        const { info, pdfBuffer } = await generatePDFAndSendEmail(data);
+        const { info, pdfBuffer } = await generatePDFAndSendEmail({
+            ...data,
+            demandeNumero: demande.id,
+            dateDemande: demande.created_at,
+        });
         return { info, pdfBuffer, id: demande.id };
     } catch (err) {
         // Évite les doublons : le client réessaiera depuis son panier.
@@ -75,8 +80,9 @@ async function generateFacture(id, data) {
     if (!d) throw Object.assign(new Error('Demande non trouvée'), { status: 404 });
 
     const adresse = data.adresse || d.adresse || '-';
+    const facture = await getOrCreateFacture(id);
 
-    return generateFacturePDF({
+    const pdfBuffer = await generateFacturePDF({
         produits: d.produits,
         email: d.email,
         nom: d.nom,
@@ -84,8 +90,9 @@ async function generateFacture(id, data) {
         telephone: d.telephone,
         eventDate: d.event_date,
         deliveryType: d.deliverytype,
-        factureNumero: `${id}`,
-        dateFacture: new Date().toLocaleDateString('fr-FR'),
+        factureNumero: facture.numero,
+        dateFacture: facture.date,
+        demandeNumero: `${id}`,
         adresse,
         frais: {
             montage: data.montage,
@@ -93,6 +100,7 @@ async function generateFacture(id, data) {
             caution: data.caution
         }
     });
+    return { pdfBuffer, numero: facture.numero };
 }
 
 async function generateDemande(id) {
@@ -110,13 +118,13 @@ async function generateDemande(id) {
         eventDate: d.event_date,
         deliveryType: d.deliverytype,
         demandeNumero: `${id}`,
+        dateDemande: d.created_at,
         adresse,
         frais: {
             montage: d.montage,
             livraison: d.livraison,
             caution: d.caution
         },
-        dateLabel: `Date de l'événement : ${d.event_date || 'Non précisée'}`
     });
 }
 

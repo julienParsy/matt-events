@@ -62,7 +62,10 @@ export default function AdminDocumentModal({ id, closeModal }) {
             const url = window.URL.createObjectURL(new Blob([res.data], { type: 'application/pdf' }));
             const link = document.createElement('a');
             link.href = url;
-            link.setAttribute('download', `${typeDoc}_${id}.pdf`);
+            // Nom fourni par le serveur (ex. facture_F-2026-0001.pdf), sinon nom par défaut
+            const disposition = res.headers?.['content-disposition'] || '';
+            const serverName = disposition.match(/filename="?([^";]+)"?/)?.[1];
+            link.setAttribute('download', serverName || `${typeDoc}_${id}.pdf`);
             document.body.appendChild(link);
             link.click();
             link.remove();

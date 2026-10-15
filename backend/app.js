@@ -101,6 +101,8 @@ app.use(cors({
         return cb(null, false); // pas d'en-têtes CORS : le navigateur bloque, sans erreur 500
     },
     credentials: true,
+    // Le site lit le nom des PDF téléchargés (ex. facture_F-2026-0001.pdf)
+    exposedHeaders: ['Content-Disposition'],
     optionsSuccessStatus: 204,
 }));
 
