@@ -1,4 +1,4 @@
-// src/components/admin/FormControls.jsx
+// @feature admin
 // Petits composants de formulaire partagés par les pages admin.
 import { useEffect, useId, useState } from 'react';
 import { AlertCircle, CheckCircle2, Info, Eye, EyeOff, ImagePlus, Loader2, Plus, Trash2, PlayCircle } from 'lucide-react';

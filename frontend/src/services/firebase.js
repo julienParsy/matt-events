@@ -1,10 +1,9 @@
-// File: src/services/firebase.js
+// @feature core — Firebase Storage (images du catalogue et logo)
 import { initializeApp, getApps } from "firebase/app";
 import { getStorage, connectStorageEmulator } from "firebase/storage";
-// (Optionnel) App Check si tu l'utilises
 import { initializeAppCheck, ReCaptchaV3Provider } from "firebase/app-check";
 
-// ⚠️ Assure-toi que ces variables existent en build (Vercel/Vite)
+// Variables VITE_FIREBASE_* : lues au build (à définir dans Vercel)
 const firebaseConfig = {
     apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
     authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,        
@@ -16,7 +15,7 @@ const firebaseConfig = {
 // Évite la double init en cas de HMR
 const app = getApps().length ? getApps()[0] : initializeApp(firebaseConfig);
 
-// Optionnel : App Check si clé fournie
+// App Check, seulement si la clé est fournie
 if (import.meta.env.VITE_RECAPTCHA_V3_SITE_KEY) {
     initializeAppCheck(app, {
         provider: new ReCaptchaV3Provider(import.meta.env.VITE_RECAPTCHA_V3_SITE_KEY),
@@ -26,7 +25,7 @@ if (import.meta.env.VITE_RECAPTCHA_V3_SITE_KEY) {
 
 const storage = getStorage(app);
 
-// Dev local : émulateur (si tu veux)
+// Dev local : émulateur Storage (VITE_USE_EMULATORS=true)
 if (import.meta.env.DEV && import.meta.env.VITE_USE_EMULATORS === "true") {
     connectStorageEmulator(storage, "127.0.0.1", 9199);
 }

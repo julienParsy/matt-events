@@ -1,4 +1,4 @@
-// src/utils/priceRanges.js
+// @feature catalogue
 // Tranches de budget de la boutique (adresse /shop?prix=25-50).
 // Bornes : min incluse, max exclue (un article à 50 € est dans « 50 à 100 € »).
 // Réparties d'après les prix du catalogue (produits 6–150 €, packs 60–300 €) : à ajuster si les tarifs évoluent.

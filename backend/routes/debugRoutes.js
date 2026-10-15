@@ -1,4 +1,4 @@
-// /app/routes/debugRoutes.js
+// @feature email — Diagnostic de la messagerie (/api/debug, désactivé en production)
 const router = require("express").Router();
 const net = require("net");
 const { verifyEmailProvider, sendMail } = require("../services/emailService");

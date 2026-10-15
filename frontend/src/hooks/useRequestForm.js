@@ -1,4 +1,4 @@
-// src/hooks/useRequestForm.js
+// @feature panier — Formulaire de demande : validation, envoi et PDF
 import { useRef, useState } from 'react';
 import http from '../services/axiosInstance';
 import { toLocalISODate, toPayloadItem } from '../utils/cart';

@@ -1,4 +1,4 @@
-// src/hooks/useCatalogView.js
+// @feature catalogue
 // Logique commune à la boutique et à l'admin « Produits & packs » :
 // onglet et budget lus dans l'adresse (?cat=…&prix=…), recherche, tri, et regroupement en sections.
 import { useMemo, useState } from 'react';

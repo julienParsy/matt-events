@@ -1,4 +1,4 @@
-// src/pages/ShopPage.jsx
+// @feature catalogue — Boutique
 import React, { useEffect, useState } from 'react';
 import ProductCard from '../components/catalog/ProductCard';
 import PackCard from '../components/catalog/PackCard';

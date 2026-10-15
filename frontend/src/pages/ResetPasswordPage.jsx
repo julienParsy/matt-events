@@ -1,3 +1,4 @@
+// @feature auth — Choix d'un nouveau mot de passe (lien reçu par e-mail)
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axiosInstance from '../services/axiosInstance';

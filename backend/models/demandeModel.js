@@ -1,3 +1,4 @@
+// @feature demandes — Accès BDD des demandes
 const db = require('../config/db');
 
 // Création d'une demande
@@ -18,14 +19,13 @@ async function createDemande(data) {
         data.montage,
         data.livraison,
         data.caution,
-        data.adresse // ajout de l'adresse
+        data.adresse
     ];
     const { rows } = await db.query(insertQuery, values);
     return rows[0];
 }
 
 
-// Récupération
 async function getDemandeById(id) {
     const result = await db.query('SELECT * FROM demandes WHERE id = $1', [id]);
     return result.rows[0];

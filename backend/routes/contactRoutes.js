@@ -1,4 +1,4 @@
-// /app/routes/contactRoutes.js
+// @feature contact — Formulaire de contact (/api/contact)
 const router = require("express").Router();
 const rateLimit = require("express-rate-limit");
 const verifyCaptcha = require("../middleware/verifyCaptcha");

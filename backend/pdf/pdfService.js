@@ -1,4 +1,4 @@
-// backend/pdf/pdfService.js
+// @feature pdf — Point d'entrée des générateurs de documents
 
 const { generateDevisPDF } = require('./generators/generateDevis');
 const { generateFacturePDF } = require('./generators/generateFacture');

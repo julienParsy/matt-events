@@ -1,4 +1,4 @@
-// src/pages/admin/AdminLogoSettingsPage.jsx
+// @feature logo — Admin : changement du logo
 import React, { useEffect, useState } from 'react';
 import { Image, Upload, Sun, Moon } from 'lucide-react';
 import { toast } from 'react-toastify';

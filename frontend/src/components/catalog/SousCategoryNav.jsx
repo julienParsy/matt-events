@@ -1,3 +1,4 @@
+// @feature catalogue, categories — Filtre des packs par sous-catégorie
 import React from 'react';
 import PropTypes from 'prop-types';
 import styles from '../../styles/components/CategoryNav.module.css';

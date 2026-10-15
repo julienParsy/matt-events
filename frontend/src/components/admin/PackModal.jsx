@@ -1,4 +1,4 @@
-// src/components/admin/PackModal.jsx
+// @feature catalogue — Fenêtre d'ajout / modification d'un pack
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { Save, Plus, Trash2, PackagePlus } from 'lucide-react';
@@ -56,7 +56,7 @@ export default function PackModal({ isOpen, mode, pack, onClose, onSuccess }) {
                 stock: pack.stock ?? '',
                 sous_categorie_id: pack.sous_categorie_id ?? '',
             });
-            // auparavant oublié : la vidéo était effacée à chaque modification
+            // À recharger aussi : sans ça, la vidéo serait effacée à chaque modification
             setVideos(parseVideoUrls(pack.video_url));
         } else {
             setForm(EMPTY);

@@ -1,4 +1,4 @@
-// src/components/cart/CartTableItem.jsx
+// @feature panier — Ligne du panier (quantité, suppression)
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import styles from '../../styles/components/CartTable.module.css';

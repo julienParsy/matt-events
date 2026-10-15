@@ -1,4 +1,4 @@
-// src/components/ui/Modal.jsx
+// @feature ui — Fenêtre modale générique
 import React, { useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';

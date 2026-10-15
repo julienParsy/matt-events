@@ -1,4 +1,4 @@
-// backend/pdf/generators/generateFacture.js
+// @feature factures, pdf — Facture (série F-AAAA-NNNN)
 const { COLORS, PENALITES_MENTION } = require('../pdfConstants');
 const { formatShortDate, toDate } = require('../pdfHelpers');
 const {

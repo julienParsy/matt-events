@@ -1,3 +1,4 @@
+// @feature catalogue
 const productModel = require('../models/productModel');
 const db = require('../config/db');
 
@@ -17,7 +18,6 @@ async function deleteProduct(id) {
   return productModel.remove(id);
 }
 
-// Tu gardes ta logique groupée :
 async function getGroupedProducts() {
   const result = await db.query(`
       SELECT 

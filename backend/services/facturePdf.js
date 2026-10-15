@@ -1,4 +1,4 @@
-// backend/services/facturePdf.js
+// @feature factures, pdf
 // PDF d'une facture ou d'un avoir à partir de son contenu enregistré (toujours identique).
 const { generateFacturePDF } = require('../pdf/generators/generateFacture');
 const { generateAvoirPDF } = require('../pdf/generators/generateAvoir');

@@ -1,3 +1,4 @@
+// @feature pages
 const Page = require('../models/pageModel');
 
 async function fetchPage(slug) {

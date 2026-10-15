@@ -1,4 +1,4 @@
-// middleware/errorHandler.js
+// @feature core
 // Gestionnaire d'erreurs central : détail complet dans les logs, message sûr pour le visiteur.
 //
 // - Erreurs prévues (status 4xx posé par le code) : leur message est affiché tel quel.

@@ -1,4 +1,4 @@
-// backend/utils/videoUrls.js
+// @feature catalogue
 // Champ video_url : un ou plusieurs liens, un par ligne (8 maximum).
 const MAX_VIDEOS = 8;
 

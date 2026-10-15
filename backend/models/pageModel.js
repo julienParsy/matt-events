@@ -1,4 +1,4 @@
-// backend/models/pageModel.js
+// @feature pages — Accès BDD des pages éditables
 
 const pool = require('../config/db.js');
 
@@ -14,7 +14,6 @@ class Page {
         );
         return result.rows[0];
     }
-    // Optionnel: ajouter une page
     static async create({ slug, title, content }) {
         const result = await pool.query(
             'INSERT INTO pages (slug, title, content) VALUES ($1, $2, $3) RETURNING *',

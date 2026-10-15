@@ -1,4 +1,4 @@
-// frontend/src/contexts/AuthContext.jsx
+// @feature auth — Contexte d'authentification
 import { createContext } from "react";
 
 export const AuthContext = createContext({

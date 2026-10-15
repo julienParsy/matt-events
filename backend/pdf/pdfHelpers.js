@@ -1,4 +1,4 @@
-// backend/pdf/pdfHelpers.js
+// @feature pdf
 // Mise en forme (montants, dates) et calculs communs aux documents PDF.
 const { ARRHES_RATE } = require('./pdfConstants');
 

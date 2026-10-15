@@ -1,4 +1,4 @@
-// app.js
+// @feature core — Application Express : sécurité HTTP, CORS, uploads et montage des routes
 require('./config/env'); // charge le .env et normalise les variables (doit rester en premier)
 const express = require('express');
 const app = express();
@@ -18,7 +18,7 @@ app.use(helmet({
     contentSecurityPolicy: {
         useDefaults: true,
         directives: {
-            // scripts/ifames/connexions nécessaires à reCAPTCHA v2
+            // scripts/iframes/connexions nécessaires à reCAPTCHA v2
             "script-src": [
                 "'self'",
                 "'unsafe-inline'",          // reCAPTCHA injecte un peu d'inline
@@ -37,7 +37,7 @@ app.use(helmet({
                 "https://www.gstatic.com",
                 "https://www.recaptcha.net",
             ],
-            // styles/images (tu avais déjà l'img-src Firebase)
+            // styles/images (dont Firebase Storage)
             "style-src": [
                 "'self'",
                 "'unsafe-inline'",          // requis par le widget

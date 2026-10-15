@@ -1,4 +1,4 @@
-// backend/scripts/checkMail.js — diagnostic mail (temporaire). Lancer : node scripts/checkMail.js
+// @feature email — Diagnostic de la messagerie. Lancer : node scripts/checkMail.js
 // N'affiche JAMAIS le mot de passe, seulement sa longueur.
 const fs = require('fs');
 const path = require('path');

@@ -1,7 +1,7 @@
-// utils/hashPassword.js
+// @feature auth — Hash bcrypt d'un mot de passe. Lancer : node utils/hashPassword.js <motdepasse>
 const bcrypt = require('bcrypt');
 
-const password = process.argv[2]; // ex: node hashPassword.js admin
+const password = process.argv[2];
 
 if (!password) {
     console.error('❌ Veuillez fournir un mot de passe à hasher (ex: node hashPassword.js monMotDePasse)');

@@ -1,4 +1,4 @@
-// src/utils/video.js
+// @feature catalogue
 // Vidéos d'un produit / pack : plusieurs liens dans le champ video_url, un par ligne
 // (compatible avec les anciennes fiches qui n'en contiennent qu'un).
 

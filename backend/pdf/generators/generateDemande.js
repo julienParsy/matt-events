@@ -1,4 +1,4 @@
-// backend/pdf/generators/generateDemande.js
+// @feature demandes, pdf
 // Demande de location : envoyée à Matt'events (et téléchargée par le client) depuis le panier.
 const { TARIFS } = require('../pdfConstants');
 const { formatShortDate } = require('../pdfHelpers');

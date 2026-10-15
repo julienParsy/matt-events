@@ -1,3 +1,4 @@
+// @feature layout — Liens du pied de page
 const footerRoutes = [
     {
         name: 'À propos',

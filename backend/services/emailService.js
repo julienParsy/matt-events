@@ -1,4 +1,4 @@
-// /app/services/emailService.js
+// @feature email
 //
 // Deux fournisseurs :
 //   - Brevo (API HTTPS 443) : requis en prod sur Railway, qui bloque les ports SMTP sortants.

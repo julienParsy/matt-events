@@ -1,4 +1,4 @@
-// src/components/admin/AdminNav.jsx
+// @feature admin — Navigation entre les pages admin
 import { NavLink } from 'react-router-dom';
 import {
     Package, FolderTree, Inbox, Receipt, Users, Settings, Image,

@@ -1,4 +1,4 @@
-// backend/controllers/sousCategorieController.js
+// @feature categories — Sous-catégories des packs (/api/sous-categories)
 const sousCategorieService = require('../services/sousCategorieService');
 
 const cleanNom = nom => (nom == null ? '' : String(nom).trim().slice(0, 100));

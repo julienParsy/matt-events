@@ -1,4 +1,4 @@
-// src/pages/admin/AdminFacturesPage.jsx
+// @feature factures
 // Factures et avoirs émis : retéléchargement à l'identique, correction (avoir + nouvelle facture), annulation par avoir.
 import React, { useEffect, useMemo, useState } from 'react';
 import { Receipt, Download, PencilLine, Ban, Search, Loader2, FileCheck2 } from 'lucide-react';

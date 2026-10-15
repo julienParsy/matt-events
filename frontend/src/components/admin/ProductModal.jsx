@@ -1,4 +1,4 @@
-// src/components/admin/ProductModal.jsx
+// @feature catalogue — Fenêtre d'ajout / modification d'un produit
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { Save, Plus } from 'lucide-react';

@@ -1,4 +1,4 @@
-// src/pages/ContactPage.jsx
+// @feature contact — Page contact
 import React, { useState, useRef, useEffect } from "react";
 import ReCAPTCHA from "react-google-recaptcha";
 import { User, Mail, Phone, MessageSquare, Tag, Send, CheckCircle2, AlertCircle, Loader2 } from "lucide-react";

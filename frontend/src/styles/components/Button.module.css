@@ -1,4 +1,4 @@
-/* src/styles/components/Button.module.css */
+/* @feature ui — Boutons */
 
 .button {
     display: inline-flex;
@@ -86,7 +86,6 @@
 }
 
 .btnVoir:disabled {
-    /* background-color: var(--color-modal-close); */
     border-color: var(--color-modal-close);
     cursor: auto;
     color: var(--color-modal-close);

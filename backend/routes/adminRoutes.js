@@ -1,4 +1,4 @@
-// backend/routes/adminRoutes.js
+// @feature comptes, logo — Routes /api/admins
 const express = require('express');
 const router = express.Router();
 const {

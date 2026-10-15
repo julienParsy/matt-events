@@ -1,4 +1,4 @@
-// src/utils/pdf.js
+// @feature pdf
 // Téléchargement et ouverture des PDF renvoyés par l'API (réponses axios en responseType 'blob').
 
 /** Nom de fichier donné par le serveur (Content-Disposition), sinon celui par défaut */

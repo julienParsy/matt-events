@@ -1,4 +1,4 @@
-/* src/styles/_variables.css */
+/* @feature ui — Variables du thème (couleurs, rayons, hauteurs) */
 
 :root {
     color-scheme: dark;
@@ -6,7 +6,6 @@
     /* Branding et couleurs principales */
     --color-primary: #308546;
     --color-primary-light: #22c55e;
-    /* Ajout pour hover, voir ctaBtn */
     --color-secondary: #646cff;
     --color-danger: #ef4444;
     --color-success: #22c55e;

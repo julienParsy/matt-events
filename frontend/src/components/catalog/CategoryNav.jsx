@@ -1,3 +1,4 @@
+// @feature catalogue, categories — Onglets des catégories
 import React from 'react';
 import PropTypes from 'prop-types';
 import styles from '../../styles/components/CategoryNav.module.css';

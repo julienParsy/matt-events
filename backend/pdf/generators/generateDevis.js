@@ -1,4 +1,4 @@
-// backend/pdf/generators/generateDevis.js
+// @feature demandes, pdf — Devis (valable jusqu'à quelques jours avant l'événement)
 const { DEVIS_VALIDITY_DAYS_BEFORE_EVENT } = require('../pdfConstants');
 const { formatShortDate, addDays } = require('../pdfHelpers');
 const {

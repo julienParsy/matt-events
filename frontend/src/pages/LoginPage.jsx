@@ -1,4 +1,4 @@
-// src/pages/LoginPage.jsx
+// @feature auth — Connexion admin et mot de passe oublié
 import { useNavigate } from 'react-router-dom';
 import { useContext, useState } from 'react';
 import {

@@ -1,6 +1,7 @@
+// @feature pages — Pages éditables : À propos, Confidentialité, Mentions légales (/api/pages)
 const pageService = require('../services/pageService');
 
-// Lecture d'une page (public)
+/** GET /api/pages/:slug : public */
 exports.getPage = async (req, res, next) => {
     try {
         const { slug } = req.params;
@@ -12,7 +13,7 @@ exports.getPage = async (req, res, next) => {
     }
 };
 
-// Modification d'une page (admin seulement)
+/** PUT /api/pages/:slug : admin */
 exports.updatePage = async (req, res, next) => {
     try {
         const { slug } = req.params;
@@ -26,6 +27,7 @@ exports.updatePage = async (req, res, next) => {
     }
 };
 
+/** POST /api/pages : admin */
 exports.createPage = async (req, res, next) => {
     try {
         const { slug, title, content } = req.body;

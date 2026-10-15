@@ -1,4 +1,4 @@
-// backend/services/adminService.js
+// @feature comptes, logo — Comptes admin, rôles et logo du site
 const pool = require('../config/db');
 const bcrypt = require('bcrypt');
 
@@ -138,7 +138,7 @@ exports.updateAdminRole = async (targetAdminId, newRole, actingAdminId) => {
 
 // --- LOGO ---
 exports.setLogoUrl = async (url) => {
-    // Table existante: logo_site(id, logo_url)
+    // Table logo_site(id, logo_url)
     await pool.query(`
     INSERT INTO logo_site (id, logo_url)
     VALUES (1, $1)

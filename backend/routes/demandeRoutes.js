@@ -1,3 +1,4 @@
+// @feature demandes — Routes /api/demande
 const express = require('express');
 const router = express.Router();
 const rateLimit = require('express-rate-limit');
@@ -15,8 +16,9 @@ const demandeLimiter = rateLimit({
     legacyHeaders: false,
 });
 
-// --- ROUTES CLIENT ---
+// --- Public : envoi depuis le panier ---
 router.post('/', demandeLimiter, verifyCaptcha, demandeController.createDemande);
+// --- Admin ---
 router.get('/:id/pdf', verifyToken, isAdmin, demandeController.generateDemande);
 router.post('/:id/devis', verifyToken, isAdmin, demandeController.generateDevis);
 router.post('/:id/facture', verifyToken, isAdmin, demandeController.generateFacture);

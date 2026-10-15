@@ -1,3 +1,4 @@
+// @feature catalogue
 const packModel = require('../models/packModel');
 
 async function fetchAllPacks() {

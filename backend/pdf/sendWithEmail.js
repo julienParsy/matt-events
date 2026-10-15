@@ -1,4 +1,4 @@
-// backend/pdf/sendWithEmail.js
+// @feature pdf, email — Envoi d'un document PDF par e-mail
 const { sendMail } = require('../services/emailService');
 
 // Données saisies par le client : échappées avant d'être insérées dans le HTML de l'e-mail

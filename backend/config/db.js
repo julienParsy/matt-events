@@ -1,4 +1,4 @@
-// db.js (version CommonJS)
+// @feature core — Connexion PostgreSQL (pool partagé)
 const { Pool } = require('pg');
 
 const pool = new Pool({

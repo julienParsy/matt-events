@@ -1,4 +1,4 @@
-// backend/pdf/generators/generateBonCommande.js
+// @feature demandes, pdf — Bon de commande (avec lien de paiement des arrhes)
 const { formatShortDate, toNumber } = require('../pdfHelpers');
 const {
     createPdf, computeTotals, drawHeader, drawParties, drawItemsTable, drawTotalsAndPayment, drawPaymentLink, drawConditions,

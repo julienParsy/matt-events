@@ -1,4 +1,4 @@
-// backend/controllers/adminController.js
+// @feature comptes, logo — Comptes admin (ajout, suppression, rôles, identifiants) et logo du site
 const adminService = require('../services/adminService');
 
 exports.getAdmins = async (req, res, next) => {
@@ -64,7 +64,7 @@ exports.updateAdminRole = async (req, res, next) => {
     } catch (err) { next(err); }
 };
 
-// --- LOGO ---
+// --- Logo ---
 exports.setLogoUrl = async (req, res, next) => {
     const { url } = req.body || {};
     if (!url) return res.status(400).json({ message: "URL manquante." });

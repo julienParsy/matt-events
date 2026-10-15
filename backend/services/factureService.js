@@ -1,4 +1,4 @@
-// backend/services/factureService.js
+// @feature factures
 // Factures et avoirs : numérotation légale continue, contenu figé, correction par avoir.
 //
 // Règles :

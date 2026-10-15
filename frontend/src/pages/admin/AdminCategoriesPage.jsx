@@ -1,4 +1,4 @@
-// src/pages/admin/AdminCategoriesPage.jsx
+// @feature categories — Admin : catégories et sous-catégories
 import React, { useState, useEffect } from 'react';
 import { FolderTree, Tags, Layers, Plus, Pencil, Trash2, Save } from 'lucide-react';
 import { toast } from 'react-toastify';

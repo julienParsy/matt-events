@@ -1,3 +1,4 @@
+// @feature categories — Accès BDD des catégories
 const db = require('../config/db');
 const pool = require('../config/db'); 
 

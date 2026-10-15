@@ -1,4 +1,4 @@
-// src/utils/categories.js
+// @feature catalogue, categories
 // Identifiants lisibles pour les onglets de la boutique (adresse /shop?cat=...)
 
 export const PACKS_KEY = 'packs';

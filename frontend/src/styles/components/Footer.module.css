@@ -1,6 +1,5 @@
-/* src/styles/components/Footer.module.css */
+/* @feature layout — Pied de page */
 
-/* ---------- FOOTER ---------- */
 .footer {
     background: var(--color-bg);
     color: var(--color-text);
@@ -9,7 +8,7 @@
     padding: 0.75rem 1rem;
 }
 
-/* Constrain + responsive spacing */
+/* Largeur limitée + marges adaptatives */
 .footerContainer {
     max-width: 1200px;
     margin: 0 auto;

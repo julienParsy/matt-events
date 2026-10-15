@@ -1,4 +1,4 @@
-// backend/routes/productRoutes.js
+// @feature catalogue — Routes /api/products
 
 const express = require('express');
 const router = express.Router();
@@ -7,7 +7,7 @@ const { body } = require('express-validator');
 const productController = require('../controllers/productController');
 const { checkVideoField } = require('../utils/videoUrls');
 
-// ✅ Validation des champs pour ajout/modification de produit
+// Validation des champs pour ajout/modification de produit
 const productValidations = [
     body('nom').trim().isString().notEmpty().withMessage('Le nom est requis'),
     body('modele').trim().isString().notEmpty().withMessage('Le modèle est requis'),
@@ -26,11 +26,11 @@ const productValidations = [
         })
 ];
 
-// ✅ Routes publiques
+// Routes publiques
 router.get('/grouped', productController.getGroupedProducts);
 router.get('/', productController.getProducts);
 
-// ✅ Routes protégées
+// Routes protégées
 router.post('/', verifyToken, isAdmin, productValidations, productController.addProduct);
 router.put('/:id', verifyToken, isAdmin, productValidations, productController.updateProduct);
 router.delete('/:id', verifyToken, isAdmin, productController.deleteProduct);

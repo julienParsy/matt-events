@@ -1,4 +1,4 @@
-// backend/pdf/pdfConstants.js
+// @feature pdf — Coordonnées, charte graphique, conditions et tarifs imprimés sur les documents
 const path = require('path');
 
 const COMPANY = {

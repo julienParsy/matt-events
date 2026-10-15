@@ -1,3 +1,4 @@
+// @feature layout — Pied de page (liens légaux, accès admin caché)
 import { useRef } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import styles from '../../styles/components/Footer.module.css';

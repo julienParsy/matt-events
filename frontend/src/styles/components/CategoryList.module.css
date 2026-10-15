@@ -1,4 +1,4 @@
-/* src/styles/components/CategoryList.module.css  */
+/* @feature catalogue — Boutique : sections, recherche, tri et grille */
 
 
 .cat {
@@ -247,7 +247,7 @@
 }
 
 
-/* PackModal.jsx */
+/* Ancienne fenêtre de pack : classes plus utilisées */
 .productSelector {
     display: flex;
     gap: 0.5rem;

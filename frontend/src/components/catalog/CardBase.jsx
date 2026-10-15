@@ -1,4 +1,4 @@
-// src/components/catalog/CardBase.jsx
+// @feature catalogue — Carte commune produit / pack (boutique et admin)
 import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { ShoppingCart, Package, ImageOff, FileText, ListChecks, Pencil, Trash2, Ban } from 'lucide-react';

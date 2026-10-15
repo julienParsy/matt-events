@@ -1,6 +1,6 @@
-// File: src/utils/upload.js
+// @feature core — Envoi d'une image vers Firebase Storage
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
-import { storage } from "../services/firebase.js"; // <— veille à la casse et au chemin
+import { storage } from "../services/firebase.js";
 
 export function uploadImage(file) {
     return new Promise((resolve, reject) => {

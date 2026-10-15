@@ -1,4 +1,4 @@
-// src/components/layout/ScrollToTopOnNavigate.jsx
+// @feature layout
 // Remonte en haut de page quand on change de page (pas quand seuls les filtres ?cat=… changent).
 import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';

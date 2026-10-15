@@ -1,4 +1,4 @@
-// backend/index.js
+// @feature core — Point d'entrée : démarre le serveur HTTP
 const app = require('./app');
 const { verifyEmailProvider } = require('./services/emailService');
 

@@ -1,4 +1,4 @@
-// src/utils/image.js
+// @feature logo
 
 /**
  * Réduit une image avant l'envoi (PNG, transparence conservée).

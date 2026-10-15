@@ -1,4 +1,4 @@
-// backend/pdf/generators/generateAvoir.js
+// @feature factures, pdf
 // Avoir : annule intégralement une facture (série AV-AAAA-NNNN).
 const { COLORS } = require('../pdfConstants');
 const { formatShortDate, toDate } = require('../pdfHelpers');

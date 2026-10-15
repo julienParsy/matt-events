@@ -1,4 +1,4 @@
-// middlewares/verifyCaptcha.js
+// @feature core — Vérification reCAPTCHA (formulaire de contact et demande depuis le panier)
 module.exports = async function verifyCaptcha(req, res, next) {
     try {
         const token =
@@ -19,7 +19,6 @@ module.exports = async function verifyCaptcha(req, res, next) {
         const data = await r.json();
 
         if (!data.success) {
-            // aide au debug si besoin :
             console.warn('reCAPTCHA error-codes:', data['error-codes']);
             return res.status(400).json({ message: 'Échec reCAPTCHA', details: data['error-codes'] });
         }

@@ -1,4 +1,4 @@
-// src/components/cart/RequestModal.jsx
+// @feature panier — Formulaire « Faire une demande » (coordonnées, date, reCAPTCHA)
 import React, { useEffect, useId, useRef } from 'react';
 import PropTypes from 'prop-types';
 import ReCAPTCHA from 'react-google-recaptcha';

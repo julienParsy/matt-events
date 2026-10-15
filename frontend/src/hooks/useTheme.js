@@ -1,4 +1,4 @@
-// src/hooks/useTheme.js
+// @feature layout
 import { useCallback, useSyncExternalStore } from 'react';
 
 /**

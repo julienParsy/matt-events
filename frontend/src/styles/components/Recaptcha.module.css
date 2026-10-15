@@ -1,4 +1,4 @@
-/* src/styles/components/Recaptcha.module.css */
+/* @feature ui — Widget reCAPTCHA */
 .container {
     display: flex;
     flex-direction: column;

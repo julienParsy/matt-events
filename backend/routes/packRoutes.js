@@ -1,4 +1,4 @@
-// backend/routes/packRoutes.js
+// @feature catalogue — Routes /api/packs
 const express = require('express');
 const {
     getAllPacks,

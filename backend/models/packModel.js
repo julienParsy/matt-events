@@ -1,3 +1,4 @@
+// @feature catalogue — Accès BDD des packs et de leur composition
 const db = require('../config/db');
 
 // Récupère tous les packs

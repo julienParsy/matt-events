@@ -1,3 +1,4 @@
+// @feature categories — Catégories de produits (/api/categories)
 const categoryService = require('../services/categoryService');
 
 async function getCategories(req, res, next) {

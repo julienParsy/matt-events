@@ -1,4 +1,4 @@
-// backend/routes/sousCategorieRoutes.js
+// @feature categories — Routes /api/sous-categories
 const express = require('express');
 const router = express.Router();
 const sousCategorieController = require('../controllers/sousCategorieController');

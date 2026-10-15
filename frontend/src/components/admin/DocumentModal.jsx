@@ -1,4 +1,4 @@
-// src/components/admin/DocumentModal.jsx
+// @feature demandes, factures, pdf — Fenêtre « Générer un document » d'une demande (demande, devis, facture, bon de commande)
 import React, { useEffect, useState } from 'react';
 import { Download, Loader2, Eye, FileCheck2 } from 'lucide-react';
 import { toast } from 'react-toastify';

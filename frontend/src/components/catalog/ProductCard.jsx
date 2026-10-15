@@ -1,4 +1,4 @@
-// src/components/catalog/ProductCard.jsx
+// @feature catalogue — Carte d'un produit
 // (Édition côté admin : la page AdminCatalogPage ouvre ProductModal via onEdit, la carte ne l'importe pas
 // pour ne pas alourdir la boutique avec le code de l'admin.)
 import CardBase from './CardBase';

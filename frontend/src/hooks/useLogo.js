@@ -1,4 +1,4 @@
-// src/hooks/useLogo.js
+// @feature logo — Logo du site (barre de navigation et favicon)
 import { useEffect, useState } from "react";
 import axiosInstance from "../services/axiosInstance";
 
@@ -11,7 +11,7 @@ export default function useLogo(defaultUrl = "") {
                 const url = res.data?.url;
                 if (url) setLogoUrl(url);
             })
-            .catch(() => {/* fallback */ });
+            .catch(() => { /* logo par défaut */ });
     }, []);
 
     // favicon + apple-touch-icon

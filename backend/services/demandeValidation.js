@@ -1,4 +1,4 @@
-// backend/services/demandeValidation.js
+// @feature demandes, panier
 // Contrôles serveur d'une demande envoyée depuis le panier (mêmes règles que le formulaire du site),
 // et reconstruction des articles à partir du catalogue : on ne fait jamais confiance aux prix envoyés par le navigateur.
 const db = require('../config/db');

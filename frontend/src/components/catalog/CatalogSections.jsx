@@ -1,4 +1,4 @@
-// src/components/catalog/CatalogSections.jsx
+// @feature catalogue
 // Articles regroupés en sections (titres affichés s'il y a plusieurs sections).
 // renderItem(item) fournit la carte : achat côté boutique, édition côté admin.
 import styles from '../../styles/components/CategoryList.module.css';

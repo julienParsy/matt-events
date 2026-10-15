@@ -1,5 +1,5 @@
 @import './_variables.css';
-/* Glabal.css */
+/* @feature ui — Styles globaux */
 
 :root {
   background-color: var(--color-bg-secondary);

@@ -1,4 +1,4 @@
-// src/components/ui/ScrollRow.jsx
+// @feature ui
 // Rangée de pastilles qui défile horizontalement (mobile), avec indices de défilement :
 // fondus sur les bords, flèche qui rebondit (cachée dès que l'utilisateur a fait défiler),
 // petit aperçu animé au premier affichage, et pastille active ramenée dans le champ.

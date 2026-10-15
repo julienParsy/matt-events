@@ -1,4 +1,4 @@
-// src/pages/admin/AdminUsersPage.jsx
+// @feature comptes — Admin : gestion des comptes admin (superadmin)
 import React, { useContext, useEffect, useState } from 'react';
 import { Users, UserPlus, Trash2, Crown, Shield, Lock } from 'lucide-react';
 import { toast } from 'react-toastify';

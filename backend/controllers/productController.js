@@ -1,6 +1,8 @@
+// @feature catalogue — Produits (/api/products)
 const productService = require('../services/productService');
 const { validationResult } = require('express-validator');
 
+/** GET /api/products */
 exports.getProducts = async (req, res, next) => {
     try {
         const products = await productService.getAllProducts();
@@ -10,6 +12,7 @@ exports.getProducts = async (req, res, next) => {
     }
 };
 
+/** POST /api/products */
 exports.addProduct = async (req, res, next) => {
     const errors = validationResult(req);
     // message : affiché tel quel par l'admin
@@ -23,6 +26,7 @@ exports.addProduct = async (req, res, next) => {
     }
 };
 
+/** PUT /api/products/:id */
 exports.updateProduct = async (req, res, next) => {
     const errors = validationResult(req);
     // message : affiché tel quel par l'admin
@@ -37,6 +41,7 @@ exports.updateProduct = async (req, res, next) => {
     }
 };
 
+/** DELETE /api/products/:id */
 exports.deleteProduct = async (req, res, next) => {
     try {
         const product = await productService.deleteProduct(req.params.id);
@@ -47,6 +52,7 @@ exports.deleteProduct = async (req, res, next) => {
     }
 };
 
+/** GET /api/products/grouped : produits rangés par catégorie (boutique) */
 exports.getGroupedProducts = async (req, res, next) => {
     try {
         const grouped = await productService.getGroupedProducts();

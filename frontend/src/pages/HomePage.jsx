@@ -1,4 +1,4 @@
-// src/pages/HomePage.jsx
+// @feature accueil — Page d'accueil
 import { Link } from "react-router-dom";
 import styles from "../styles/pages/HomePage.module.css";
 import { shopLink } from "../utils/categories";

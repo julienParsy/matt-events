@@ -1,4 +1,4 @@
-// src/App.jsx
+// @feature core — Routes du site et panier partagé
 import React, { useState, useEffect, useContext, lazy, Suspense } from 'react';
 import {
   Routes,

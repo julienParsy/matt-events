@@ -1,3 +1,4 @@
+// @feature categories — Routes /api/categories
 const express = require('express');
 const router = express.Router();
 const { getCategories, addCategory, updateCategory, deleteCategory } = require('../controllers/categoryController');

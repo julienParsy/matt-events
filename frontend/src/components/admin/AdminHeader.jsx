@@ -1,4 +1,4 @@
-// src/components/admin/AdminHeader.jsx
+// @feature admin
 // En-tête commun des pages admin : titre + navigation, avec zone libre en dessous
 // (filtres, recherche…) et boutons d'action à droite.
 import AdminNav from './AdminNav';

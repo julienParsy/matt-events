@@ -1,3 +1,4 @@
+// @feature pages — Politique de confidentialité
 import React, { useContext } from "react";
 import EditablePage from "../components/content/EditablePage";
 import { AuthContext } from "../contexts/AuthContext";

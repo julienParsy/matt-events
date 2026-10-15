@@ -1,4 +1,4 @@
-// src/components/content/PageEditor.jsx
+// @feature pages
 // Mode édition des pages (À propos, Confidentialité, Mentions légales) : chargé à part,
 // uniquement par un admin qui édite (TinyMCE et l'interface admin ne pèsent pas sur les visiteurs).
 import React, { useState } from "react";

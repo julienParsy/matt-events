@@ -1,4 +1,4 @@
-// src/components/catalog/PriceFilter.jsx
+// @feature catalogue
 // Tranches de budget sous forme de pastilles, avec le nombre d'articles de la vue en cours.
 import PropTypes from 'prop-types';
 import { PRICE_RANGES, isInRange } from '../../utils/priceRanges';

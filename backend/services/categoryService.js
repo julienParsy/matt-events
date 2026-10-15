@@ -1,3 +1,4 @@
+// @feature categories
 const categoryModel = require('../models/categoryModel');
 
 async function fetchAllCategories() {

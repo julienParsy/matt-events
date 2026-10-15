@@ -1,4 +1,4 @@
-// src/components/catalog/ProductOverlay.jsx
+// @feature catalogue — Fenêtre plein écran d'un article (description ou vidéos)
 import React, { useEffect } from 'react';
 import overlayStyles from '../../styles/components/ProductOverlay.module.css';
 import modalStyles from '../../styles/components/Modal.module.css';

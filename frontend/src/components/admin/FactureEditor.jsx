@@ -1,4 +1,4 @@
-// src/components/admin/FactureEditor.jsx
+// @feature factures
 // Correction d'une facture : formulaire pré-rempli. À la validation, le serveur émet
 // un avoir qui annule l'ancienne facture et une nouvelle facture avec ce contenu.
 import { useMemo, useState } from 'react';

@@ -1,3 +1,4 @@
+// @feature pages — Affichage d'une page éditable (et passage en mode édition pour un admin)
 import React, { lazy, Suspense, useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import axiosInstance from "../../services/axiosInstance";

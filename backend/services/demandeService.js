@@ -1,3 +1,4 @@
+// @feature demandes — Logique des demandes : enregistrement, devis, facture, bon de commande
 const demandeModel = require('../models/demandeModel');
 const factureService = require('./factureService');
 const { renderDocumentPdf, renderApercuPdf, fileName } = require('./facturePdf');
@@ -41,7 +42,7 @@ async function updateFrais(id, montage, livraison, caution) {
     await demandeModel.updateFrais(id, montage, livraison, caution);
 }
 
-// si tu veux, tu peux mettre à jour l'adresse en BDD pour garder une trace
+// Adresse saisie dans l'admin, conservée sur la demande
 async function updateAdresse(id, adresse) {
     await demandeModel.updateAdresse(id, adresse);
 }

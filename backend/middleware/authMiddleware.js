@@ -1,3 +1,4 @@
+// @feature auth — Contrôle du jeton JWT et des rôles (admin, superadmin)
 const jwt = require('jsonwebtoken');
 const { getJwtSecret } = require('../config/jwt');
 

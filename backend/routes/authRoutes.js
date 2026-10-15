@@ -1,4 +1,4 @@
-// backend/routes/authRoutes.js
+// @feature auth — Connexion, mot de passe oublié et réinitialisation (/api/auth)
 const express = require('express');
 const router = express.Router();
 const jwt = require('jsonwebtoken');
@@ -109,7 +109,7 @@ Si vous n'êtes pas à l'origine de cette demande, ignorez ce message.`,
     }
 });
 
-// POST /reset-password/:token (inchangé)
+// POST /reset-password/:token
 router.post('/reset-password/:token', async (req, res) => {
     const { token } = req.params;
     const { password } = req.body;
@@ -123,7 +123,7 @@ router.post('/reset-password/:token', async (req, res) => {
         const user = result.rows[0];
         if (!user) return res.status(400).json({ message: "Lien invalide ou expiré" });
 
-        // Si tu veux appliquer tes règles (≥10 car., 1 maj, 1 chiffre, 1 spécial) côté back :
+        // Même politique que services/adminService.js : ≥ 10 car., 1 majuscule, 1 chiffre, 1 spécial
         const strong = /^(?=.*[A-Z])(?=.*\d)(?=.*[ !$&'()*+,\-./:;<=>?@[\]^_{|}~"#%])[A-Za-z\d !$&'()*+,\-./:;<=>?@[\]^_{|}~"#%]{10,}$/;
         if (!strong.test(password)) {
             return res.status(400).json({ message: "Mot de passe non conforme à la politique sécurité." });

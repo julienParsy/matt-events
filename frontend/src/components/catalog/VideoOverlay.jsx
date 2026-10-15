@@ -1,4 +1,4 @@
-// src/components/catalog/VideoOverlay.jsx
+// @feature catalogue
 // Lecteur vidéo plein écran (mode « cinéma ») : une ou plusieurs vidéos par produit.
 import React, { useEffect, useRef, useState } from 'react';
 import { X, ChevronLeft, ChevronRight, ExternalLink, PlayCircle } from 'lucide-react';

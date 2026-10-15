@@ -1,4 +1,4 @@
-// backend/config/jwt.js
+// @feature auth
 // Secret JWT : obligatoire, sans valeur par défaut (une clé connue permettrait de forger un accès admin).
 // Lu à l'appel (et non au chargement) pour ne pas dépendre de l'ordre des require.
 function getJwtSecret() {

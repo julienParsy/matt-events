@@ -1,4 +1,4 @@
-// src/components/catalog/PackCard.jsx
+// @feature catalogue — Carte d'un pack
 // (Édition côté admin : la page AdminCatalogPage ouvre PackModal via onEdit.)
 import CardBase from './CardBase';
 import ProductOverlay from './ProductOverlay';

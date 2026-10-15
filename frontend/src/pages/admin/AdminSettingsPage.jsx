@@ -1,4 +1,4 @@
-// src/pages/admin/AdminSettingsPage.jsx
+// @feature comptes — Admin : modifier son e-mail et son mot de passe
 import React, { useContext, useState } from 'react';
 import { Settings, AtSign, KeyRound, Check, X, Save } from 'lucide-react';
 import { toast } from 'react-toastify';

@@ -1,4 +1,4 @@
-// src/pages/admin/AdminCatalogPage.jsx
+// @feature catalogue — Admin « Produits & packs »
 import React, { useEffect, useState } from 'react';
 import ProductCard from '../../components/catalog/ProductCard';
 import ProductModal from '../../components/admin/ProductModal';
@@ -22,7 +22,7 @@ export default function AdminCatalogPage() {
     const [categories, setCategories] = useState([]);
     const [sousCategories, setSousCategories] = useState([]);
 
-    // Modal états (produit et pack)
+    // Fenêtres d'édition (produit et pack)
     const [modalOpen, setModalOpen] = useState(false);
     const [modalMode, setModalMode] = useState('add');
     const [currentProduct, setCurrentProduct] = useState(null);

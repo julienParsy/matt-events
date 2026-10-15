@@ -1,4 +1,4 @@
-// src/components/catalog/CatalogToolbar.jsx
+// @feature catalogue
 // Filtres du catalogue (boutique et admin) : onglets, sous-catégories de packs, recherche, tri, budget.
 import { Search, X } from 'lucide-react';
 import CategoryNav from './CategoryNav';

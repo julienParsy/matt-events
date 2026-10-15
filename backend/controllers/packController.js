@@ -1,6 +1,7 @@
+// @feature catalogue — Packs (/api/packs)
 const packService = require('../services/packService');
 
-// Récupérer tous les packs
+/** GET /api/packs */
 exports.getAllPacks = async (req, res, next) => {
     try {
         const packs = await packService.fetchAllPacks();
@@ -10,7 +11,7 @@ exports.getAllPacks = async (req, res, next) => {
     }
 };
 
-// Récupérer un pack par son ID
+/** GET /api/packs/:id */
 exports.getPackById = async (req, res, next) => {
     try {
         const pack = await packService.fetchPackById(req.params.id);
@@ -21,7 +22,7 @@ exports.getPackById = async (req, res, next) => {
     }
 };
 
-// Créer un pack
+/** POST /api/packs */
 exports.createPack = async (req, res, next) => {
     try {
         const { nom, description, prix, image_url, produits, stock, sous_categorie_id, video_url } = req.body;
@@ -38,7 +39,7 @@ exports.createPack = async (req, res, next) => {
     }
 };
 
-// Mettre à jour un pack
+/** PUT /api/packs/:id */
 exports.updatePack = async (req, res, next) => {
     try {
         const { nom, description, prix, image_url, produits, stock, sous_categorie_id, video_url } = req.body;
@@ -53,7 +54,7 @@ exports.updatePack = async (req, res, next) => {
     }
 };
 
-// Supprimer un pack
+/** DELETE /api/packs/:id */
 exports.deletePack = async (req, res, next) => {
     try {
         await packService.removePack(req.params.id);

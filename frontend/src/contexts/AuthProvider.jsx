@@ -1,4 +1,4 @@
-// frontend/src/contexts/AuthProvider.jsx
+// @feature auth — Session admin : connexion, profil, expiration du jeton
 import React, { useState, useEffect, useCallback } from "react";
 import axiosInstance from "../services/axiosInstance";
 import { useNavigate } from "react-router-dom";

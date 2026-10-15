@@ -1,4 +1,4 @@
-// src/components/layout/Seo.jsx
+// @feature seo
 // Référencement : titre, description, indexation, adresse canonique et balises de partage de chaque page.
 //
 // Les balises existent déjà dans index.html (valeurs de l'accueil, lues par les robots qui n'exécutent pas

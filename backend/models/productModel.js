@@ -1,3 +1,4 @@
+// @feature catalogue — Accès BDD des produits
 const db = require('../config/db');
 
 async function getAll() {

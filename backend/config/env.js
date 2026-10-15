@@ -1,4 +1,4 @@
-// backend/config/env.js
+// @feature core
 // À charger EN PREMIER (déjà fait dans app.js). Charge le .env, normalise les variables
 // et signale ce qui manque, sans jamais afficher de valeur secrète.
 const path = require('path');

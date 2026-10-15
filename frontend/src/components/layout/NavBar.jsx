@@ -1,4 +1,4 @@
-// src/components/layout/NavBar.jsx
+// @feature layout — Barre de navigation (menu mobile, panier, thème, accès admin)
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import styles from '../../styles/components/NavBar.module.css';

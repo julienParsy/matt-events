@@ -1,4 +1,4 @@
-// backend/pdf/generators/generateBasePDF.js
+// @feature pdf
 // Mise en page commune aux 4 documents (demande, devis, facture, bon de commande).
 const fs = require('fs');
 const PDFDocument = require('pdfkit');

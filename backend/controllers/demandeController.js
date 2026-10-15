@@ -1,17 +1,16 @@
-// backend/controllers/demandeController.js
+// @feature demandes, pdf — Demandes de location : envoi depuis le panier, suivi admin et documents PDF (/api/demande)
 const { generateBonCommandePDF } = require('../pdf/pdfService');
 const demandeService = require('../services/demandeService');
 const { validateClient, buildProduitsFromCatalog } = require('../services/demandeValidation');
 const { generateDevis, generateFacture, updateAdresse } = demandeService;
 
-// Fonction utilitaire pour convertir en nombre
 function toNumber(value) {
     const n = Number(value);
     return Number.isFinite(n) ? n : 0;
 }
 
-// --- CONTROLLERS ---
 
+/** GET /api/demande : liste des demandes */
 async function getAllDemandes(req, res, next) {
     try {
         const demandes = await demandeService.getAllDemandes();
@@ -22,7 +21,7 @@ async function getAllDemandes(req, res, next) {
 }
 
 
-// Crée une demande et envoie le PDF par email si nécessaire
+/** POST /api/demande : demande envoyée depuis le panier (PDF envoyé par e-mail) */
 async function createDemande(req, res, next) {
     try {
         const { client: rawClient, produits: rawProduits, download = true } = req.body;
@@ -50,7 +49,7 @@ async function createDemande(req, res, next) {
     }
 }
 
-// Génère un devis
+/** POST /api/demande/:id/devis : devis PDF */
 async function generateDevisController(req, res, next) {
     try {
         const { id } = req.params;
@@ -72,7 +71,7 @@ async function generateDevisController(req, res, next) {
     }
 }
 
-// Génère une facture
+/** POST /api/demande/:id/facture : facture de la demande (ou aperçu) */
 async function generateFactureController(req, res, next) {
     try {
         const { id } = req.params;
@@ -99,7 +98,7 @@ async function generateFactureController(req, res, next) {
     }
 }
 
-// Génère une demande PDF
+/** GET /api/demande/:id/pdf : PDF de la demande */
 async function generateDemande(req, res, next) {
     try {
         const { id } = req.params;
@@ -118,7 +117,7 @@ async function generateDemande(req, res, next) {
     }
 }
 
-// Génère un bon de commande PDF
+/** POST /api/demande/:id/bonCommande : bon de commande PDF */
 async function generateBonCommande(req, res) {
     try {
         const { id } = req.params;
@@ -133,7 +132,6 @@ async function generateBonCommande(req, res) {
             return res.status(404).json({ message: "Demande introuvable" });
         }
 
-        // Préparer l'objet à passer au PDF
         const pdfData = {
             ...demande,
             eventDate: demande.event_date,
@@ -158,7 +156,7 @@ async function generateBonCommande(req, res) {
     }
 }
 
-// Met à jour le statut d'une demande
+/** PUT /api/demande/:id : changement de statut */
 async function updateDemandeStatut(req, res, next) {
     try {
         const { id } = req.params;
@@ -170,7 +168,7 @@ async function updateDemandeStatut(req, res, next) {
     }
 }
 
-// Supprime une demande
+/** DELETE /api/demande/:id */
 async function deleteDemande(req, res, next) {
     try {
         const { id } = req.params;
@@ -181,7 +179,7 @@ async function deleteDemande(req, res, next) {
     }
 }
 
-// Met à jour les frais
+/** PUT /api/demande/:id/frais : frais de montage, livraison et caution */
 async function updateFrais(req, res, next) {
     try {
         const { id } = req.params;
@@ -193,7 +191,7 @@ async function updateFrais(req, res, next) {
     }
 }
 
-// Récupère une demande par ID
+/** GET /api/demande/:id */
 async function getDemandeById(req, res, next) {
     try {
         const { id } = req.params;
@@ -207,7 +205,6 @@ async function getDemandeById(req, res, next) {
     }
 }
 
-// --- EXPORTS ---
 module.exports = {
     createDemande,
     generateDevis: generateDevisController,

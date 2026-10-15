@@ -1,4 +1,4 @@
-// backend/routes/factureRoutes.js
+// @feature factures — Routes /api/factures (admin uniquement)
 const express = require('express');
 const { verifyToken, isAdmin } = require('../middleware/authMiddleware');
 const factureController = require('../controllers/factureController');

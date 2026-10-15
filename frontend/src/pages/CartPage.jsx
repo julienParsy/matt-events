@@ -1,4 +1,4 @@
-// src/pages/CartPage.jsx
+// @feature panier — Page panier
 import React, { useEffect, useMemo, useState } from 'react';
 import PropTypes from 'prop-types';
 import Cart from '../components/cart/Cart';

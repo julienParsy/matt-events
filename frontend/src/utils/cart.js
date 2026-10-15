@@ -1,4 +1,4 @@
-// src/utils/cart.js
+// @feature panier
 
 /** Identifiant unique d'une ligne du panier (type + id). */
 export const getItemKey = (item) => `${item.type ?? 'item'}-${item.id}`;

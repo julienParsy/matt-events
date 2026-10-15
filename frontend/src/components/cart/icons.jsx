@@ -1,4 +1,4 @@
-// src/components/cart/icons.jsx
+// @feature panier
 // Petites icônes SVG (héritent de la couleur du texte via currentColor).
 import React from 'react';
 

@@ -1,4 +1,4 @@
-// src/pages/admin/AdminDemandesPage.jsx
+// @feature demandes — Admin : liste et suivi des demandes
 import React, { useEffect, useState, useContext } from 'react';
 import {
     Inbox, FileText, FileSignature, Check, X, Trash2, RotateCcw, Mail, Phone,

@@ -1,4 +1,4 @@
-// backend/controllers/factureController.js
+// @feature factures — Factures et avoirs (/api/factures, admin)
 const factureService = require('../services/factureService');
 const { renderDocumentPdf, renderApercuPdf, fileName } = require('../services/facturePdf');
 
