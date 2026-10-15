@@ -1,9 +1,9 @@
 const demandeModel = require('../models/demandeModel');
-const { getOrCreateFacture } = require('./factureService');
+const factureService = require('./factureService');
+const { renderDocumentPdf, renderApercuPdf, fileName } = require('./facturePdf');
 const {
     generatePDFAndSendEmail,
     generateDevisPDF,
-    generateFacturePDF,
     generateDemandePDF
 } = require('../pdf/pdfService');
 
@@ -75,32 +75,15 @@ async function generateDevis(id, data) {
     });
 }
 
-async function generateFacture(id, data) {
-    const d = await demandeModel.getDemandeById(id);
-    if (!d) throw Object.assign(new Error('Demande non trouvée'), { status: 404 });
-
-    const adresse = data.adresse || d.adresse || '-';
-    const facture = await getOrCreateFacture(id);
-
-    const pdfBuffer = await generateFacturePDF({
-        produits: d.produits,
-        email: d.email,
-        nom: d.nom,
-        prenom: d.prenom,
-        telephone: d.telephone,
-        eventDate: d.event_date,
-        deliveryType: d.deliverytype,
-        factureNumero: facture.numero,
-        dateFacture: facture.date,
-        demandeNumero: `${id}`,
-        adresse,
-        frais: {
-            montage: data.montage,
-            livraison: data.livraison,
-            caution: data.caution
-        }
-    });
-    return { pdfBuffer, numero: facture.numero };
+// Facture d'une demande : émise une seule fois (contenu figé), puis retéléchargée à l'identique.
+// options.apercu : PDF « APERÇU » sans numéro, rien n'est enregistré.
+async function generateFacture(id, data, { apercu = false } = {}) {
+    if (apercu) {
+        const contenu = await factureService.apercuPourDemande(id, data);
+        return { pdfBuffer: await renderApercuPdf(contenu), apercu: true };
+    }
+    const { row, existing } = await factureService.emettrePourDemande(id, data);
+    return { pdfBuffer: await renderDocumentPdf(row), numero: row.numero, fileName: fileName(row), existing };
 }
 
 async function generateDemande(id) {

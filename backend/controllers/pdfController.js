@@ -77,17 +77,22 @@ async function generateFactureController(req, res, next) {
         const { id } = req.params;
         const data = req.body;
 
-        if (data.adresse) await updateAdresse(id, data.adresse);
+        const apercu = req.query.apercu === '1';
 
-        const { pdfBuffer, numero } = await generateFacture(id, data);
-        if (!pdfBuffer) return res.status(500).json({ message: "Erreur génération PDF" });
+        // L'aperçu n'enregistre rien (pas même l'adresse)
+        if (data.adresse && !apercu) await updateAdresse(id, data.adresse);
+
+        const result = await generateFacture(id, data, { apercu });
+        if (!result.pdfBuffer) return res.status(500).json({ message: "Erreur génération PDF" });
 
         res.set({
             'Content-Type': 'application/pdf',
-            'Content-Disposition': `attachment; filename=facture_${numero}.pdf`,
-            'Content-Length': pdfBuffer.length
+            'Content-Disposition': `attachment; filename=${apercu ? `apercu_facture_${id}.pdf` : result.fileName}`,
+            'Content-Length': result.pdfBuffer.length,
+            // Facture déjà émise pour cette demande : renvoyée telle quelle (les frais saisis sont ignorés)
+            ...(result.existing ? { 'X-Facture-Existante': result.numero } : {}),
         });
-        res.send(pdfBuffer);
+        res.send(result.pdfBuffer);
     } catch (err) {
         next(err);
     }

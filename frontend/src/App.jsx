@@ -12,6 +12,7 @@ import Login from './components/Modal/Login';
 import ScrollToTopButton from "./components/ScrollToTopButton";
 import AdminPanel from './pages/admin/AdminPanel';
 import AdminDemandes from './pages/admin/Demandes';
+import AdminFactures from './pages/admin/Factures';
 import AdminUsers from './pages/admin/AdminUsers';
 import CartPage from './pages/CartPage';
 import AboutSection from './pages/AboutSection';
@@ -98,6 +99,10 @@ function App() {
             <Route
               path="/admin/demandes"
               element={isAdmin ? <AdminDemandes /> : <Navigate to="/login" />}
+            />
+            <Route
+              path="/admin/factures"
+              element={isAdmin ? <AdminFactures /> : <Navigate to="/login" />}
             />
             <Route
               path="/admin/parametres"

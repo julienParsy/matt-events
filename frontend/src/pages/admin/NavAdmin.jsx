@@ -1,7 +1,7 @@
 // src/pages/admin/NavAdmin.jsx
 import { NavLink } from 'react-router-dom';
 import {
-    Package, FolderTree, Inbox, Users, Settings, Image,
+    Package, FolderTree, Inbox, Receipt, Users, Settings, Image,
     Info, ShieldCheck, Scale,
 } from 'lucide-react';
 import ui from '../../styles/components/AdminUI.module.css';
@@ -10,6 +10,7 @@ const ADMIN_LINKS = [
     { to: '/admin', label: 'Produits', icon: Package, end: true },
     { to: '/admin/categories', label: 'Catégories', icon: FolderTree },
     { to: '/admin/demandes', label: 'Demandes', icon: Inbox },
+    { to: '/admin/factures', label: 'Factures', icon: Receipt },
     { to: '/admin/utilisateurs', label: 'Administrateurs', icon: Users },
     { to: '/admin/parametres', label: 'Paramètres', icon: Settings },
     { to: '/admin/logo', label: 'Logo', icon: Image },

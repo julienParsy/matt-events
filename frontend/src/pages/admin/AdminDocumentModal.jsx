@@ -1,9 +1,11 @@
 // src/pages/admin/AdminDocumentModal.jsx
 import React, { useEffect, useState } from 'react';
-import { Download, Loader2 } from 'lucide-react';
+import { Download, Loader2, Eye, FileCheck2 } from 'lucide-react';
+import { toast } from 'react-toastify';
 import axiosInstance from '../../services/axiosInstance';
 import Modal from '../../components/Modal/Modal';
 import { Alert, SubmitButton } from '../../components/admin/FormControls';
+import { savePdf, openPdf, blobErrorMessage } from '../../utils/pdf';
 import ui from '../../styles/components/AdminUI.module.css';
 
 const TYPES = [
@@ -16,6 +18,7 @@ export default function AdminDocumentModal({ id, closeModal }) {
     const [demande, setDemande] = useState(null);
     const [loading, setLoading] = useState(true);
     const [generating, setGenerating] = useState(false);
+    const [previewing, setPreviewing] = useState(false);
     const [error, setError] = useState('');
     const [adresse, setAdresse] = useState('');
     const [montage, setMontage] = useState(0);
@@ -41,40 +44,62 @@ export default function AdminDocumentModal({ id, closeModal }) {
 
     const typeLabel = TYPES.find(t => t.value === typeDoc)?.label || typeDoc;
 
+    const isFacture = typeDoc === 'facture';
+
+    const checkForm = () => {
+        if (!adresse.trim()) return 'L’adresse du client est obligatoire.';
+        if (typeDoc === 'bonCommande' && !paymentLink.trim()) return 'Le lien de paiement est obligatoire pour un bon de commande.';
+        return '';
+    };
+
+    const buildBody = () => {
+        const body = {
+            adresse,
+            montage: parseFloat(montage) || 0,
+            livraison: parseFloat(livraison) || 0,
+            caution: parseFloat(caution) || 0,
+            eventDate: demande.event_date || demande.eventDate || null,
+        };
+        if (typeDoc === 'bonCommande') body.paymentLink = paymentLink.trim();
+        return body;
+    };
+
+    // Aperçu de la facture (filigrane, sans numéro) : rien n'est enregistré
+    const handlePreview = async () => {
+        const message = checkForm();
+        if (message) { setError(message); return; }
+        setError('');
+        setPreviewing(true);
+        try {
+            await openPdf(() => axiosInstance.post(`/demande/${id}/facture?apercu=1`, buildBody(), { responseType: 'blob' }));
+        } catch (err) {
+            setError(await blobErrorMessage(err, "Impossible de générer l'aperçu."));
+        } finally {
+            setPreviewing(false);
+        }
+    };
+
     const handleSubmit = async e => {
         e.preventDefault();
-        if (!adresse.trim()) { setError('L’adresse du client est obligatoire.'); return; }
-        if (typeDoc === 'bonCommande' && !paymentLink.trim()) { setError('Le lien de paiement est obligatoire pour un bon de commande.'); return; }
+        const message = checkForm();
+        if (message) { setError(message); return; }
 
         setError('');
         setGenerating(true);
         try {
-            const body = {
-                adresse,
-                montage: parseFloat(montage) || 0,
-                livraison: parseFloat(livraison) || 0,
-                caution: parseFloat(caution) || 0,
-                eventDate: demande.event_date || demande.eventDate || null,
-            };
-            if (typeDoc === 'bonCommande') body.paymentLink = paymentLink.trim();
+            const res = await axiosInstance.post(`/demande/${id}/${typeDoc}`, buildBody(), { responseType: 'blob' });
+            savePdf(res, `${typeDoc}_${id}.pdf`);
 
-            const res = await axiosInstance.post(`/demande/${id}/${typeDoc}`, body, { responseType: 'blob' });
-            const url = window.URL.createObjectURL(new Blob([res.data], { type: 'application/pdf' }));
-            const link = document.createElement('a');
-            link.href = url;
-            // Nom fourni par le serveur (ex. facture_F-2026-0001.pdf), sinon nom par défaut
-            const disposition = res.headers?.['content-disposition'] || '';
-            const serverName = disposition.match(/filename="?([^";]+)"?/)?.[1];
-            link.setAttribute('download', serverName || `${typeDoc}_${id}.pdf`);
-            document.body.appendChild(link);
-            link.click();
-            link.remove();
-            setTimeout(() => window.URL.revokeObjectURL(url), 1000);
-
+            // Facture déjà émise pour cette demande : retéléchargée à l'identique (les frais saisis ne s'appliquent pas)
+            const existante = res.headers?.['x-facture-existante'];
+            if (existante) {
+                toast.info(`La facture ${existante} existe déjà : elle a été retéléchargée à l'identique. Pour la modifier : Factures › Corriger.`,
+                    { autoClose: 8000 });
+            }
             closeModal();
         } catch (err) {
             console.error('Erreur génération PDF :', err);
-            setError(`Erreur lors de la génération du document (${typeLabel.toLowerCase()}).`);
+            setError(await blobErrorMessage(err, `Erreur lors de la génération du document (${typeLabel.toLowerCase()}).`));
         } finally {
             setGenerating(false);
         }
@@ -149,12 +174,24 @@ export default function AdminDocumentModal({ id, closeModal }) {
                         </div>
                     )}
 
+                    {isFacture && (
+                        <Alert type="info">
+                            Émettre la facture lui attribue un numéro définitif. Vérifiez-la d’abord avec « Aperçu ».
+                            Si une facture existe déjà pour cette demande, elle est retéléchargée telle quelle.
+                        </Alert>
+                    )}
+
                     <div className={ui.formActions}>
                         <button type="button" className={`${ui.btn} ${ui.btnSecondary}`} onClick={closeModal}>
                             Annuler
                         </button>
-                        <SubmitButton loading={generating} loadingLabel="Génération…" icon={Download}>
-                            Télécharger : {typeLabel.toLowerCase()}
+                        {isFacture && (
+                            <button type="button" className={`${ui.btn} ${ui.btnSecondary}`} onClick={handlePreview} disabled={previewing}>
+                                <Eye size={17} aria-hidden="true" /> {previewing ? 'Aperçu…' : 'Aperçu'}
+                            </button>
+                        )}
+                        <SubmitButton loading={generating} loadingLabel="Génération…" icon={isFacture ? FileCheck2 : Download}>
+                            {isFacture ? 'Émettre la facture' : `Télécharger : ${typeLabel.toLowerCase()}`}
                         </SubmitButton>
                     </div>
                 </form>

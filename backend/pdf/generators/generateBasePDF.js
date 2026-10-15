@@ -19,7 +19,7 @@ const ITALIC = 'Helvetica-Oblique';
  * Crée le PDF et renvoie un Buffer.
  * build(doc, layout) dessine le contenu ; en-têtes de suite et pieds de page sont gérés ici.
  */
-function createPdf({ title, reference }, build) {
+function createPdf({ title, reference, watermark = null }, build) {
     return new Promise((resolve, reject) => {
         const doc = new PDFDocument({
             size: 'A4',
@@ -48,7 +48,7 @@ function createPdf({ title, reference }, build) {
 
         try {
             build(doc, layout);
-            drawFooters(doc, layout);
+            drawFooters(doc, layout, watermark);
             doc.end();
         } catch (err) {
             reject(err);
@@ -252,7 +252,8 @@ function drawItemsTable(doc, layout, produits) {
 // ---------------------------------------------------------------------------
 // Totaux (à droite) et modalités de paiement (à gauche)
 // ---------------------------------------------------------------------------
-function drawTotalsAndPayment(doc, layout, { totals, eventDate, paymentTitle = 'Paiement', paymentNote, showSchedule = true }) {
+// sign = -1 et totalLabel = 'TOTAL AVOIR' pour un avoir (montants négatifs, pas d'échéancier)
+function drawTotalsAndPayment(doc, layout, { totals, eventDate, paymentTitle = 'Paiement', paymentNote, showSchedule = true, sign = 1, totalLabel = 'TOTAL' }) {
     const rightW = 230;
     const rightX = layout.x + layout.width - rightW;
     const leftW = layout.width - rightW - GAP;
@@ -266,7 +267,7 @@ function drawTotalsAndPayment(doc, layout, { totals, eventDate, paymentTitle = '
         [`Arrhes (${Math.round(ARRHES_RATE * 100)} %) à la réservation`, totals.arrhes],
         [eventShort ? `Solde, au plus tard le ${eventShort}` : "Solde, au plus tard le jour de l'événement", totals.solde],
     ] : [];
-    if (totals.caution > 0) schedule.push(['Caution (restituée après la location)', totals.caution]);
+    if (showSchedule && totals.caution > 0) schedule.push(['Caution (restituée après la location)', totals.caution]);
 
     // Hauteurs
     const rightH = lines.length * 17 + 8 + 32 + 16;
@@ -280,13 +281,13 @@ function drawTotalsAndPayment(doc, layout, { totals, eventDate, paymentTitle = '
     let y = top + 2;
     lines.forEach(([label, value]) => {
         doc.font(REGULAR).fontSize(9.5).fillColor(COLORS.muted).text(label, rightX + 4, y, { width: rightW - 110, lineBreak: false });
-        doc.fillColor(COLORS.text).text(formatMoney(value), rightX + rightW - 110, y, { width: 104, align: 'right', lineBreak: false });
+        doc.fillColor(COLORS.text).text(formatMoney(sign * value), rightX + rightW - 110, y, { width: 104, align: 'right', lineBreak: false });
         y += 17;
     });
     y += 4;
     doc.roundedRect(rightX, y, rightW, 32, 6).fill(layout.accent || COLORS.accent);
-    doc.font(BOLD).fontSize(10).fillColor('#ffffff').text('TOTAL', rightX + 12, y + 11, { characterSpacing: 0.8, lineBreak: false });
-    doc.fontSize(14).text(formatMoney(totals.total), rightX + 80, y + 8, { width: rightW - 92, align: 'right', lineBreak: false });
+    doc.font(BOLD).fontSize(10).fillColor('#ffffff').text(totalLabel, rightX + 12, y + 11, { characterSpacing: 0.8, lineBreak: false });
+    doc.fontSize(14).text(formatMoney(sign * totals.total), rightX + 100, y + 8, { width: rightW - 112, align: 'right', lineBreak: false });
     y += 38;
     doc.font(REGULAR).fontSize(7.5).fillColor(COLORS.muted).text(TVA_MENTION, rightX, y, { width: rightW, align: 'right' });
 
@@ -415,7 +416,7 @@ function drawInfoColumns(doc, layout, groups) {
 // ---------------------------------------------------------------------------
 // Pied de page sur chaque page : coordonnées + numéro de page
 // ---------------------------------------------------------------------------
-function drawFooters(doc, layout) {
+function drawFooters(doc, layout, watermark = null) {
     const range = doc.bufferedPageRange();
     for (let i = range.start; i < range.start + range.count; i++) {
         doc.switchToPage(i);
@@ -428,8 +429,20 @@ function drawFooters(doc, layout) {
             .text(`${COMPANY.name}  ·  ${COMPANY.adresse}  ·  SIRET ${COMPANY.siret}  ·  ${COMPANY.email}`,
                 layout.x, y, { width: layout.width - 60, lineBreak: false });
         doc.text(`Page ${i - range.start + 1} / ${range.count}`, layout.x + layout.width - 60, y, { width: 60, align: 'right', lineBreak: false });
+        if (watermark) drawWatermark(doc, watermark);
         doc.page.margins.bottom = bottomMargin;
     }
+}
+
+/** Filigrane en diagonale (ex. « APERÇU » : document non émis) */
+function drawWatermark(doc, text) {
+    const cx = doc.page.width / 2;
+    const cy = doc.page.height / 2;
+    doc.save();
+    doc.rotate(-35, { origin: [cx, cy] });
+    doc.fillOpacity(0.07).font(BOLD).fontSize(110).fillColor(COLORS.text)
+        .text(text, cx - 300, cy - 55, { width: 600, align: 'center', lineBreak: false });
+    doc.restore();
 }
 
 module.exports = {

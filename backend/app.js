@@ -102,7 +102,7 @@ app.use(cors({
     },
     credentials: true,
     // Le site lit le nom des PDF téléchargés (ex. facture_F-2026-0001.pdf)
-    exposedHeaders: ['Content-Disposition'],
+    exposedHeaders: ['Content-Disposition', 'X-Facture-Existante'],
     optionsSuccessStatus: 204,
 }));
 
@@ -130,6 +130,7 @@ const packRoutes = require('./routes/packRoutes');
 const contactRoutes = require('./routes/contactRoutes');
 const pageRoutes = require('./routes/pageRoutes');
 const sousCategorieRoutes = require('./routes/sousCategorieRoutes');
+const factureRoutes = require('./routes/factureRoutes');
 
 if (process.env.NODE_ENV !== 'production' || process.env.ENABLE_DEBUG_ROUTES === 'true') {
     app.use('/api/debug', require('./routes/debugRoutes'));
@@ -145,6 +146,7 @@ app.use('/api/packs', packRoutes);
 app.use('/api/contact', contactRoutes);
 app.use('/api/pages', pageRoutes);
 app.use('/api/sous-categories', sousCategorieRoutes);
+app.use('/api/factures', factureRoutes);
 
 
 
