@@ -62,10 +62,12 @@ export default function EditablePage({ slug, isAdmin }) {
     }
 
     return (
-        <div className={styles.aboutSection}>
-            {title && <h1 className="title">{title}</h1>}
-            <div dangerouslySetInnerHTML={{ __html: content }} />
-            {message && <p className="page-message" role="status">{message}</p>}
+        <div className={styles.page}>
+            {title && <h1 className="banner">{title}</h1>}
+            <article className={styles.content}>
+                <div dangerouslySetInnerHTML={{ __html: content }} />
+                {message && <p className="page-message" role="status">{message}</p>}
+            </article>
         </div>
     );
 }
