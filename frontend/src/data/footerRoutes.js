@@ -1,5 +1,3 @@
-import PrivacyPolicy from '../pages/PrivacyPolicy';
-
 const footerRoutes = [
     {
         name: 'À propos',

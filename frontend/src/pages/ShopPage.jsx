@@ -5,6 +5,8 @@ import PackCard from '../components/PackCard';
 import CatalogToolbar from '../components/CatalogToolbar';
 import CatalogSections from '../components/CatalogSections';
 import useCatalogView from '../hooks/useCatalogView';
+import { Seo } from '../components/Canonical';
+import { PACKS_KEY } from '../utils/categories';
 import styles from '../styles/components/CategoryList.module.css';
 import { fetchGroupedCatalog, fetchCategories } from '../data/api';
 import axiosInstance from '../services/axiosInstance';
@@ -69,9 +71,26 @@ export default function ShopPage({ cart, setCart }) {
         });
     };
 
+    // Titre de la page selon la ou les catégories affichées (référencement et onglet du navigateur)
+    const selected = view.selectedCategory;
+    let seo = null;
+    if (selected === PACKS_KEY) {
+        seo = {
+            title: "Packs son et lumière clé en main – Matt'events",
+            description: "Packs prêts à l'emploi pour vos soirées, mariages et événements : sonorisation, lumière, vidéo.",
+        };
+    } else if (selected) {
+        const noms = [].concat(selected).map(c => c.nom).join(', ');
+        seo = {
+            title: `${noms} : location – Matt'events`,
+            description: `Location ${noms.toLowerCase()} pour vos événements, près de Lille. Composez votre demande en ligne.`,
+        };
+    }
+
     // --- Rendu ---
     return (
         <div className={styles.shopPage}>
+            {seo && <Seo title={seo.title} description={seo.description} />}
             <div className="banner">
                 <h1>Boutique</h1>
                 <CatalogToolbar categories={categories} view={view} />
