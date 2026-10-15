@@ -8,31 +8,31 @@ import {
 
 import { AuthContext } from './contexts/AuthContext';
 import ShopPage from './pages/ShopPage';        
-import ScrollToTopButton from "./components/ScrollToTopButton";
+import ScrollToTopButton from "./components/layout/ScrollToTopButton";
 import CartPage from './pages/CartPage';
-import AboutSection from './pages/AboutSection';
-import Contact from './pages/Contact';
-import PrivacyPolicy from './pages/PrivacyPolicy';
-import MentionsLegales from "./pages/MentionsLegales";
-import Footer from './components/Footer';
-import NavBar from './components/NavBar';
-import Canonical from './components/Canonical';
-import ScrollToTopOnNavigate from './components/ScrollToTopOnNavigate';
+import AboutPage from './pages/AboutPage';
+import ContactPage from './pages/ContactPage';
+import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
+import MentionsLegalesPage from "./pages/MentionsLegalesPage";
+import Footer from './components/layout/Footer';
+import NavBar from './components/layout/NavBar';
+import Canonical from './components/layout/Seo';
+import ScrollToTopOnNavigate from './components/layout/ScrollToTopOnNavigate';
 import { ToastContainer } from 'react-toastify';
-import './styles/Global.css';
+import './styles/global.css';
 import 'react-toastify/dist/ReactToastify.css';
 import HomePage from './pages/HomePage';
 
 // Code de l'admin (éditeurs, Firebase, factures…) chargé à part : les visiteurs ne le téléchargent pas
-const Login = lazy(() => import('./components/Modal/Login'));
-const AdminPanel = lazy(() => import('./pages/admin/AdminPanel'));
-const AdminDemandes = lazy(() => import('./pages/admin/Demandes'));
-const AdminFactures = lazy(() => import('./pages/admin/Factures'));
-const AdminUsers = lazy(() => import('./pages/admin/AdminUsers'));
-const ResetPassword = lazy(() => import('./pages/ResetPassword'));
-const AdminCategories = lazy(() => import('./pages/admin/Categories'));
-const AdminSettings = lazy(() => import('./pages/admin/AdminSettings'));
-const AdminLogoSettings = lazy(() => import('./pages/admin/AdminLogoSettings'));
+const LoginPage = lazy(() => import('./pages/LoginPage'));
+const AdminCatalogPage = lazy(() => import('./pages/admin/AdminCatalogPage'));
+const AdminDemandesPage = lazy(() => import('./pages/admin/AdminDemandesPage'));
+const AdminFacturesPage = lazy(() => import('./pages/admin/AdminFacturesPage'));
+const AdminUsersPage = lazy(() => import('./pages/admin/AdminUsersPage'));
+const ResetPasswordPage = lazy(() => import('./pages/ResetPasswordPage'));
+const AdminCategoriesPage = lazy(() => import('./pages/admin/AdminCategoriesPage'));
+const AdminSettingsPage = lazy(() => import('./pages/admin/AdminSettingsPage'));
+const AdminLogoSettingsPage = lazy(() => import('./pages/admin/AdminLogoSettingsPage'));
 
 
 function App() {
@@ -85,39 +85,39 @@ function App() {
                 <CartPage cart={cart} setCart={setCart} onRemove={handleRemoveFromCart} />
               }
             />
-            <Route path="/login" element={isAdmin ? <Navigate to="/admin" /> : <Login />} />
+            <Route path="/login" element={isAdmin ? <Navigate to="/admin" /> : <LoginPage />} />
             <Route
               path="/admin"
-              element={isAdmin ? <AdminPanel /> : <Navigate to="/login" />}
+              element={isAdmin ? <AdminCatalogPage /> : <Navigate to="/login" />}
             />
             <Route
               path="/admin/categories"
-              element={isAdmin ? <AdminCategories /> : <Navigate to="/login" />}
+              element={isAdmin ? <AdminCategoriesPage /> : <Navigate to="/login" />}
             />
             <Route
               path="/admin/utilisateurs"
-              element={isAdmin ? <AdminUsers /> : <Navigate to="/login" />}
+              element={isAdmin ? <AdminUsersPage /> : <Navigate to="/login" />}
             />
             <Route
               path="/admin/demandes"
-              element={isAdmin ? <AdminDemandes /> : <Navigate to="/login" />}
+              element={isAdmin ? <AdminDemandesPage /> : <Navigate to="/login" />}
             />
             <Route
               path="/admin/factures"
-              element={isAdmin ? <AdminFactures /> : <Navigate to="/login" />}
+              element={isAdmin ? <AdminFacturesPage /> : <Navigate to="/login" />}
             />
             <Route
               path="/admin/parametres"
-              element={isAdmin ? <AdminSettings /> : <Navigate to="/login" />}
+              element={isAdmin ? <AdminSettingsPage /> : <Navigate to="/login" />}
             />
             <Route
               path="/admin/logo"
-              element={isAdmin ? <AdminLogoSettings /> : <Navigate to="/login" />}
+              element={isAdmin ? <AdminLogoSettingsPage /> : <Navigate to="/login" />}
             />
-            <Route path="/a-propos" element={<AboutSection />} />
-            <Route path="/confidentialite" element={<PrivacyPolicy />} />
-            <Route path="/mentions-legales" element={<MentionsLegales />} />
-            <Route path="/reset-password/:token" element={<ResetPassword />} />
+            <Route path="/a-propos" element={<AboutPage />} />
+            <Route path="/confidentialite" element={<PrivacyPolicyPage />} />
+            <Route path="/mentions-legales" element={<MentionsLegalesPage />} />
+            <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
             <Route
               path="/contact"
               element={

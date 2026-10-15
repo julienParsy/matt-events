@@ -3,7 +3,7 @@
 // un avoir qui annule l'ancienne facture et une nouvelle facture avec ce contenu.
 import { useMemo, useState } from 'react';
 import { Plus, Trash2, Eye, FileCheck2, User, CalendarDays, ListOrdered, Receipt } from 'lucide-react';
-import Modal from '../Modal/Modal';
+import Modal from '../ui/Modal';
 import { Alert, SubmitButton } from './FormControls';
 import axiosInstance from '../../services/axiosInstance';
 import { openPdf, blobErrorMessage } from '../../utils/pdf';

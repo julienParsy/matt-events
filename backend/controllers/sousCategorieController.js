@@ -1,4 +1,4 @@
-// src/controllers/sousCategorieController.js
+// backend/controllers/sousCategorieController.js
 const sousCategorieService = require('../services/sousCategorieService');
 
 const cleanNom = nom => (nom == null ? '' : String(nom).trim().slice(0, 100));

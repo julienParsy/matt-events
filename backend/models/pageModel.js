@@ -1,4 +1,4 @@
-// backend/models/Page.js
+// backend/models/pageModel.js
 
 const pool = require('../config/db.js');
 

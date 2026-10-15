@@ -1,8 +1,8 @@
 // src/pages/CartPage.jsx
 import React, { useEffect, useMemo, useState } from 'react';
 import PropTypes from 'prop-types';
-import Cart from '../components/Cart';
-import RequestModal from '../components/Cart/RequestModal';
+import Cart from '../components/cart/Cart';
+import RequestModal from '../components/cart/RequestModal';
 import styles from '../styles/components/Cart.module.css';
 import { clampQuantity, getCartTotals, getItemKey } from '../utils/cart';
 

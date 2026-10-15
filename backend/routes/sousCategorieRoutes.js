@@ -1,4 +1,4 @@
-// src/routes/sousCategorieRoutes.js
+// backend/routes/sousCategorieRoutes.js
 const express = require('express');
 const router = express.Router();
 const sousCategorieController = require('../controllers/sousCategorieController');

@@ -1,14 +1,14 @@
 // src/pages/ShopPage.jsx
 import React, { useEffect, useState } from 'react';
-import ProductCard from '../components/ProductCard';
-import PackCard from '../components/PackCard';
-import CatalogToolbar from '../components/CatalogToolbar';
-import CatalogSections from '../components/CatalogSections';
+import ProductCard from '../components/catalog/ProductCard';
+import PackCard from '../components/catalog/PackCard';
+import CatalogToolbar from '../components/catalog/CatalogToolbar';
+import CatalogSections from '../components/catalog/CatalogSections';
 import useCatalogView from '../hooks/useCatalogView';
-import { Seo } from '../components/Canonical';
+import { Seo } from '../components/layout/Seo';
 import { PACKS_KEY } from '../utils/categories';
 import styles from '../styles/components/CategoryList.module.css';
-import { fetchGroupedCatalog, fetchCategories } from '../data/api';
+import { fetchGroupedCatalog, fetchCategories } from '../services/api';
 import axiosInstance from '../services/axiosInstance';
 
 export default function ShopPage({ cart, setCart }) {

@@ -1,0 +1,45 @@
+/* src/styles/pages/AdminSettingsPage.module.css */
+
+/* Règles du mot de passe : cochées au fil de la saisie */
+.rules {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.3rem 0.75rem;
+    margin: 0.35rem 0 0;
+    padding: 0;
+    list-style: none;
+}
+
+.rules li {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.8rem;
+    color: var(--color-text-secondary);
+    transition: color 0.2s;
+}
+
+.rules li svg {
+    flex-shrink: 0;
+    opacity: 0.6;
+}
+
+.rules li.ruleOk {
+    color: var(--color-primary-light);
+}
+
+.rules li.ruleOk svg {
+    opacity: 1;
+}
+
+.mismatch {
+    margin: 0;
+    font-size: 0.8rem;
+    color: var(--color-danger);
+}
+
+@media (max-width: 420px) {
+    .rules {
+        grid-template-columns: 1fr;
+    }
+}

@@ -121,11 +121,11 @@ app.use('/uploads', express.static(UPLOAD_DIR, { maxAge: '1d', immutable: true }
 app.get('/health', (_req, res) => res.send('ok'));
 
 // 7) Routes
-const pdfRoutes = require('./routes/pdfRoutes');
+const demandeRoutes = require('./routes/demandeRoutes');
 const authRoutes = require('./routes/authRoutes');
 const adminRoutes = require('./routes/adminRoutes');
-const productRoutes = require('./routes/productsRoutes');
-const categoriesRoutes = require('./routes/categoryRoutes');
+const productRoutes = require('./routes/productRoutes');
+const categoryRoutes = require('./routes/categoryRoutes');
 const packRoutes = require('./routes/packRoutes');
 const contactRoutes = require('./routes/contactRoutes');
 const pageRoutes = require('./routes/pageRoutes');
@@ -137,11 +137,11 @@ if (process.env.NODE_ENV !== 'production' || process.env.ENABLE_DEBUG_ROUTES ===
 }
 
 
-app.use('/api/demande', pdfRoutes);
+app.use('/api/demande', demandeRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/admins', adminRoutes);
 app.use('/api/products', productRoutes);
-app.use('/api/categories', categoriesRoutes);
+app.use('/api/categories', categoryRoutes);
 app.use('/api/packs', packRoutes);
 app.use('/api/contact', contactRoutes);
 app.use('/api/pages', pageRoutes);

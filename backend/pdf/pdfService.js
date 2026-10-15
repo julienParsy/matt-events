@@ -4,7 +4,7 @@ const { generateDevisPDF } = require('./generators/generateDevis');
 const { generateFacturePDF } = require('./generators/generateFacture');
 const { generateDemandePDF } = require('./generators/generateDemande');
 const { generateBonCommandePDF } = require('./generators/generateBonCommande');
-const { sendWithEmail } = require('./generators/sendWithEmail');
+const { sendWithEmail } = require('./sendWithEmail');
 
 async function generatePDFAndSendEmail(data) {
     const pdfBuffer = await generateDemandePDF(data);

@@ -1,4 +1,4 @@
-// src/routes/packRoutes.js
+// backend/routes/packRoutes.js
 const express = require('express');
 const {
     getAllPacks,

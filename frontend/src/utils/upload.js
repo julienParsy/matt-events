@@ -1,6 +1,6 @@
 // File: src/utils/upload.js
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
-import { storage } from "../Firebase/firebase.js"; // <— veille à la casse et au chemin
+import { storage } from "../services/firebase.js"; // <— veille à la casse et au chemin
 
 export function uploadImage(file) {
     return new Promise((resolve, reject) => {

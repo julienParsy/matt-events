@@ -1,7 +1,7 @@
 // src/components/admin/AdminHeader.jsx
 // En-tête commun des pages admin : titre + navigation, avec zone libre en dessous
 // (filtres, recherche…) et boutons d'action à droite.
-import NavAdmin from '../../pages/admin/NavAdmin';
+import AdminNav from './AdminNav';
 import ui from '../../styles/components/AdminUI.module.css';
 
 export default function AdminHeader({ icon: Icon, title, subtitle, actions, children }) {
@@ -21,7 +21,7 @@ export default function AdminHeader({ icon: Icon, title, subtitle, actions, chil
                 {actions && <div className={ui.headerActions}>{actions}</div>}
             </div>
 
-            <NavAdmin />
+            <AdminNav />
 
             {children && <div className={ui.headerExtra}>{children}</div>}
         </header>
