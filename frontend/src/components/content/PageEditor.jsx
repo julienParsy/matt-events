@@ -65,9 +65,9 @@ export default function PageEditor({ slug, title, content, onSaved, onExit }) {
                                 content_css: theme === 'dark' ? 'dark' : 'default',
                                 plugins: "advlist autolink lists link image charmap preview anchor searchreplace visualblocks code fullscreen insertdatetime media table help wordcount",
                                 toolbar:
-                                    "undo redo | formatselect | bold italic backcolor | " +
+                                    "undo redo | blocks | bold italic backcolor | link | " +
                                     "alignleft aligncenter alignright alignjustify | " +
-                                    "bullist numlist outdent indent | removeformat | help"
+                                    "bullist numlist outdent indent | removeformat | code | help"
                             }}
                             onEditorChange={setDraft}
                         />
