@@ -9,6 +9,8 @@ import styles from '../styles/components/CategoryList.module.css';
 import { fetchGroupedCatalog, fetchCategories } from '../data/api';
 import axiosInstance from '../services/axiosInstance';
 import { PACKS_KEY, slugify } from '../utils/categories';
+import { findPriceRange, isInRange } from '../utils/priceRanges';
+import PriceFilter from '../components/PriceFilter';
 
 export default function ShopPage({ cart, setCart }) {
     const [catalog, setCatalog] = useState([]);
@@ -37,6 +39,15 @@ export default function ShopPage({ cart, setCart }) {
         else params.set('cat', slugify(value.nom));
         setSearchParams(params);
         setSelectedSousCategory(null);
+    };
+
+    // --- Tranche de budget : aussi dans l'adresse (/shop?prix=25-50), conservée en changeant d'onglet ---
+    const priceRange = findPriceRange(searchParams.get('prix'));
+    const setPriceRange = key => {
+        const params = new URLSearchParams(searchParams);
+        if (key) params.set('prix', key);
+        else params.delete('prix');
+        setSearchParams(params);
     };
     const [search, setSearch] = useState('');
     const [sortByPrice, setSortByPrice] = useState(null);
@@ -162,6 +173,12 @@ export default function ShopPage({ cart, setCart }) {
         sections = groups.map(group => ({ key: 'cat-' + group.id, title: group.nom, items: asProducts(group.produits) }));
         if (isAllActive) sections.push({ key: 'packs', title: 'Packs', items: asPacks(packs) });
     }
+
+    // Tranche de budget : appliquée en dernier, les compteurs portent sur la vue avant ce filtre
+    const viewItems = sections.flatMap(section => section.items);
+    if (priceRange) {
+        sections = sections.map(section => ({ ...section, items: section.items.filter(item => isInRange(item, priceRange)) }));
+    }
     const visibleSections = sections.filter(section => section.items.length > 0);
     const showSectionTitles = visibleSections.length > 1;
 
@@ -232,13 +249,24 @@ export default function ShopPage({ cart, setCart }) {
                         <option value="desc">Prix décroissant</option>
                     </select>
                 </div>
+
+                <PriceFilter items={viewItems} selectedKey={priceRange?.key ?? null} onChange={setPriceRange} />
             </div>
 
             {/* === Articles, regroupés par section (titres affichés s'il y a plusieurs sections) === */}
             {visibleSections.length === 0 ? (
-                <p className={styles.emptyShop}>
-                    {isPackView ? 'Aucun pack trouvé.' : 'Aucun article trouvé.'}
-                </p>
+                <div className={styles.emptyShop}>
+                    {priceRange && viewItems.length > 0 ? (
+                        <>
+                            <p>Aucun article dans la tranche « {priceRange.label} ».</p>
+                            <button type="button" className={styles.emptyReset} onClick={() => setPriceRange(null)}>
+                                Voir tous les prix
+                            </button>
+                        </>
+                    ) : (
+                        <p>{isPackView ? 'Aucun pack trouvé.' : 'Aucun article trouvé.'}</p>
+                    )}
+                </div>
             ) : (
                 visibleSections.map(section => (
                     <section

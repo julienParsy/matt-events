@@ -62,6 +62,62 @@
     color: #fff;
 }
 
+/* Tranches de budget : sous la recherche, un cran plus discrètes */
+.price {
+    gap: 0.4rem;
+    margin: 0.75rem 0 0;
+}
+
+.priceLabel {
+    margin-right: 0.15rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-text-secondary);
+}
+
+.price .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.35rem 0.85rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.price .pill.active {
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+    color: #fff;
+}
+
+/* Nombre d'articles dans la tranche */
+.pillCount {
+    min-width: 1.2rem;
+    padding: 0 0.35rem;
+    border-radius: 999px;
+    background: var(--color-hover-bg);
+    font-size: 0.72rem;
+    font-weight: 700;
+    line-height: 1.2rem;
+    text-align: center;
+}
+
+.price .pill.active .pillCount {
+    background: rgba(255, 255, 255, 0.25);
+}
+
+.pill:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.pill:disabled:hover {
+    border-color: var(--color-pill-border);
+    background: var(--color-pill-bg);
+}
+
 /* Mobile : pastilles plus compactes pour limiter le nombre de lignes */
 @media (max-width: 480px) {
     .navCategory {
@@ -76,6 +132,22 @@
     .sub .pill {
         padding: 0.3rem 0.7rem;
         font-size: 0.8rem;
+    }
+
+    .price {
+        flex-wrap: nowrap;
+        justify-content: flex-start;
+        overflow-x: auto;
+        padding-bottom: 0.25rem;
+        scrollbar-width: none;
+        /* Fondu à droite : indique que la ligne défile */
+        -webkit-mask-image: linear-gradient(90deg, #000 82%, transparent);
+        mask-image: linear-gradient(90deg, #000 82%, transparent);
+    }
+
+    .price .pill,
+    .priceLabel {
+        flex-shrink: 0;
     }
 }
 
