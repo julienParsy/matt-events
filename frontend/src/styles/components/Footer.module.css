@@ -89,6 +89,11 @@
     opacity: 0.9;
     text-align: right;
     min-width: max-content; /* évite la casse trop tôt */
+    /* Accès admin par appuis répétés : pas de zoom ni de sélection du texte */
+    touch-action: manipulation;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-tap-highlight-color: transparent;
 }
 
 /* ---------- RESPONSIVE ---------- */
